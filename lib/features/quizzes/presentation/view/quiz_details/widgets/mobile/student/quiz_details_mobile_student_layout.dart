@@ -42,7 +42,7 @@ class QuizDetailsMobileStudentLayout extends StatelessWidget {
 
                   StudentActionCard(
                     onPressed: () {
-                      context.goNamed(
+                      context.pushNamed(
                         RoutesName.takeQuiz,
                         pathParameters: {
                           'courseId': getCourseId(
