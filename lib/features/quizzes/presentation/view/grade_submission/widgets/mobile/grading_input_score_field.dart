@@ -7,13 +7,15 @@ import 'package:sams_app/core/widgets/base/app_text_field.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/submission_details_model.dart';
 
 class GradingInputScoreField extends StatefulWidget {
-  final Function(num score)? onSave;
   final SubmissionDetailsModel question;
+  final Function(num score) onSave;
+  final bool isSaving;
 
   const GradingInputScoreField({
     super.key,
-    this.onSave,
     required this.question,
+    required this.onSave,
+    this.isSaving = false,
   });
 
   @override
@@ -85,8 +87,8 @@ class _GradingInputScoreFieldState extends State<GradingInputScoreField> {
         return;
       }
 
-      // 4. Success: Proceed with saving
-      widget.onSave?.call(score);
+      // 4. Success: Pass data back up
+      widget.onSave(score);
       if (mounted) setState(() => _isModified = false);
     }
   }
@@ -149,7 +151,7 @@ class _GradingInputScoreFieldState extends State<GradingInputScoreField> {
           ],
         ),
         const SizedBox(width: 8),
-        _buildSaveButton(),
+        _buildSaveButton(widget.isSaving),
       ],
     );
   }
@@ -233,23 +235,23 @@ class _GradingInputScoreFieldState extends State<GradingInputScoreField> {
     );
   }
 
-  Widget _buildSaveButton() {
+  Widget _buildSaveButton(bool isSaving) {
     return GestureDetector(
-      onTap: _saveScore,
+      onTap: isSaving ? null : _saveScore,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         width: 42,
         height: 42,
         decoration: BoxDecoration(
-          color: _buttonColor,
+          color: isSaving ? AppColors.primary.withValues(alpha: 0.1) : _buttonColor,
           borderRadius: BorderRadius.circular(14),
-          border: _isUngradedEmpty
+          border: _isUngradedEmpty && !isSaving
               ? Border.all(
                   color: StatusColors.orange.withValues(alpha: 0.6),
                   width: 1.5,
                 )
               : null,
-          boxShadow: _isModified
+          boxShadow: _isModified && !isSaving
               ? [
                   BoxShadow(
                     color: _buttonColor.withValues(alpha: 0.3),
@@ -259,11 +261,16 @@ class _GradingInputScoreFieldState extends State<GradingInputScoreField> {
                 ]
               : null,
         ),
-        child: Icon(
-          _buttonIcon,
-          color: _buttonIconColor,
-          size: 22,
-        ),
+        child: isSaving
+            ? const Padding(
+                padding: EdgeInsets.all(10),
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Icon(
+                _buttonIcon,
+                color: _buttonIconColor,
+                size: 22,
+              ),
       ),
     );
   }

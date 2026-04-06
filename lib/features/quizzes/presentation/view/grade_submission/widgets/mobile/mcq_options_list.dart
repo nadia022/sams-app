@@ -11,25 +11,30 @@ class McqOptionsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      padding: const EdgeInsets.all(0),
+      padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: options.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final option = options[index];
-        return _buildOptionContainer(option);
-      },
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (_, index) => _McqOptionItem(option: options[index]),
     );
   }
+}
 
-  Widget _buildOptionContainer(AnswerOptionModel option) {
-    // 1. Default colors
-    Color bgColor, borderColor;
+// ─── Private widget — one option row ─────────────────────────────────────────
+class _McqOptionItem extends StatelessWidget {
+  final AnswerOptionModel option;
+
+  const _McqOptionItem({required this.option});
+
+  @override
+  Widget build(BuildContext context) {
+    // 1. Determine colors & icon based on option state
+    final Color bgColor;
+    final Color borderColor;
     Color textColor = AppColors.primaryDark;
     Widget? trailingIcon;
 
-    // 2. State logic
     switch (option.state) {
       case OptionUIState.correctSelected:
         bgColor = StatusColors.green.withValues(alpha: 0.25);
@@ -54,7 +59,6 @@ class McqOptionsList extends StatelessWidget {
       case OptionUIState.correctUnselected:
         bgColor = StatusColors.green.withValues(alpha: 0.1);
         borderColor = StatusColors.green;
-        textColor = AppColors.primaryDark;
         trailingIcon = const Icon(
           Icons.check_circle_outline,
           color: StatusColors.green,
@@ -70,6 +74,11 @@ class McqOptionsList extends StatelessWidget {
         break;
     }
 
+    final bool isBold =
+        option.state == OptionUIState.correctSelected ||
+        option.state == OptionUIState.correctUnselected;
+
+    // 2. Build the option container
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -85,15 +94,11 @@ class McqOptionsList extends StatelessWidget {
               option.text,
               style: AppStyles.mobileBodyMediumRg.copyWith(
                 color: textColor,
-                fontWeight:
-                    option.state == OptionUIState.correctSelected ||
-                        option.state == OptionUIState.correctUnselected
-                    ? FontWeight.w600
-                    : FontWeight.w400,
+                fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
           ),
-          trailingIcon ?? const SizedBox(),
+          if (trailingIcon != null) trailingIcon,
         ],
       ),
     );

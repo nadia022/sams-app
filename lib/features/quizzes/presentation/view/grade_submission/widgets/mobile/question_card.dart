@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/submission_details_model.dart';
 import 'package:sams_app/features/quizzes/presentation/view/grade_submission/widgets/mobile/grading_input_score_field.dart';
 import 'package:sams_app/features/quizzes/presentation/view/grade_submission/widgets/mobile/mcq_options_list.dart';
 import 'package:sams_app/features/quizzes/presentation/view/grade_submission/widgets/mobile/written_answer.dart';
+import 'package:sams_app/features/quizzes/presentation/view_model/grading_cubit/grading_cubit.dart';
 
 class QuestionCard extends StatelessWidget {
   final SubmissionDetailsModel question;
   final int index;
+  final String submissionId;
+
   const QuestionCard({
     super.key,
     required this.question,
     required this.index,
+    required this.submissionId,
   });
 
   @override
@@ -88,8 +93,23 @@ class QuestionCard extends StatelessWidget {
 
                 // Grading Input or Static Score inline as in the new image
                 question.isWritten
-                    ? GradingInputScoreField(
-                        question: question,
+                    ? BlocBuilder<GradingCubit, GradingState>(
+                        builder: (context, state) {
+                          final bool isSavingThis =
+                              state is GradingQuestionSaving &&
+                              state.savingQuestionId == question.id;
+                          return GradingInputScoreField(
+                            question: question,
+                            isSaving: isSavingThis,
+                            onSave: (score) {
+                              context.read<GradingCubit>().gradeQuestion(
+                                submissionId: submissionId,
+                                questionId: question.id,
+                                score: score,
+                              );
+                            },
+                          );
+                        },
                       )
                     : _buildStaticScoreBadge(marksBadgeBg, marksColor),
               ],
