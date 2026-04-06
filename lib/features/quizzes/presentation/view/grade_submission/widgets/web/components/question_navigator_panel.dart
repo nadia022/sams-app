@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/submission_details_model.dart';
+import 'package:sams_app/features/quizzes/presentation/view/grade_submission/utils/ui_state_mapper.dart';
 
 /// Left sidebar panel for the web grading layout.
 ///
@@ -23,7 +24,9 @@ class QuestionNavigatorPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     // Count stats
     final total = questions.length;
-    final graded = questions.where((q) => q.isGraded || !q.isWritten).length;
+    final graded = questions
+        .where((q) => q.state != QuestionUIState.unmarked)
+        .length;
     final pending = total - graded;
 
     return Container(
@@ -188,20 +191,6 @@ class _QuestionNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color dotColor;
-    IconData dotIcon;
-
-    if (question.isWritten) {
-      dotColor = question.isGraded ? StatusColors.green : StatusColors.orange;
-      dotIcon = question.isGraded
-          ? Icons.check_circle_rounded
-          : Icons.radio_button_unchecked_rounded;
-    } else {
-      final correct = question.isCorrect ?? false;
-      dotColor = correct ? StatusColors.green : StatusColors.red;
-      dotIcon = correct ? Icons.check_circle_rounded : Icons.cancel_rounded;
-    }
-
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
@@ -220,8 +209,7 @@ class _QuestionNavItem extends StatelessWidget {
       child: ListTile(
         dense: true,
         onTap: onTap,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         leading: Container(
           width: 28,
           height: 28,
@@ -254,7 +242,11 @@ class _QuestionNavItem extends StatelessWidget {
           ),
           maxLines: 2,
         ),
-        trailing: Icon(dotIcon, color: dotColor, size: 16),
+        trailing: Icon(
+          question.state.navDotIcon,
+          color: question.state.navDotColor,
+          size: 16,
+        ),
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/submission_details_model.dart';
+import 'package:sams_app/features/quizzes/presentation/view/grade_submission/utils/ui_state_mapper.dart';
 
 class McqOptionsList extends StatelessWidget {
   final List<AnswerOptionModel> options;
@@ -29,63 +29,14 @@ class _McqOptionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Determine colors & icon based on option state
-    final Color bgColor;
-    final Color borderColor;
-    Color textColor = AppColors.primaryDark;
-    Widget? trailingIcon;
-
-    switch (option.state) {
-      case OptionUIState.correctSelected:
-        bgColor = StatusColors.green.withValues(alpha: 0.25);
-        borderColor = StatusColors.green;
-        trailingIcon = const Icon(
-          Icons.check_circle_rounded,
-          color: StatusColors.green,
-          size: 20,
-        );
-        break;
-
-      case OptionUIState.wrongSelected:
-        bgColor = StatusColors.red.withValues(alpha: 0.2);
-        borderColor = StatusColors.red;
-        trailingIcon = const Icon(
-          Icons.cancel_rounded,
-          color: StatusColors.red,
-          size: 20,
-        );
-        break;
-
-      case OptionUIState.correctUnselected:
-        bgColor = StatusColors.green.withValues(alpha: 0.1);
-        borderColor = StatusColors.green;
-        trailingIcon = const Icon(
-          Icons.check_circle_outline,
-          color: StatusColors.green,
-          size: 20,
-        );
-        break;
-
-      case OptionUIState.unselected:
-        bgColor = AppColors.whiteLight.withValues(alpha: 0.4);
-        borderColor = AppColors.secondaryLightActive.withValues(alpha: 0.2);
-        textColor = AppColors.whiteDarkActive.withValues(alpha: 0.5);
-        trailingIcon = null;
-        break;
-    }
-
-    final bool isBold =
-        option.state == OptionUIState.correctSelected ||
-        option.state == OptionUIState.correctUnselected;
-
     // 2. Build the option container
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: bgColor,
+        color: option.state.tileBackgroundColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: borderColor, width: 1.5),
+        border: Border.all(color: option.state.tileBorderColor, width: 1.5),
       ),
       child: Row(
         children: [
@@ -93,12 +44,19 @@ class _McqOptionItem extends StatelessWidget {
             child: Text(
               option.text,
               style: AppStyles.mobileBodyMediumRg.copyWith(
-                color: textColor,
-                fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
+                color: option.state.textContentColor,
+                fontWeight: option.state.isBoldText
+                    ? FontWeight.w600
+                    : FontWeight.w400,
               ),
             ),
           ),
-          ?trailingIcon,
+          if (option.state.trailingIcon != null)
+            Icon(
+              option.state.trailingIcon,
+              color: option.state.trailingIconColor,
+              size: 20,
+            ),
         ],
       ),
     );

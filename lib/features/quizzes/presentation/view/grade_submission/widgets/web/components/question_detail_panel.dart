@@ -6,6 +6,7 @@ import 'package:sams_app/features/quizzes/presentation/view/grade_submission/wid
 import 'package:sams_app/features/quizzes/presentation/view/grade_submission/widgets/shared/question_state_chip.dart';
 import 'package:sams_app/features/quizzes/presentation/view/grade_submission/widgets/shared/written_answer.dart';
 import 'package:sams_app/features/quizzes/presentation/view/grade_submission/widgets/web/components/dot_indicator.dart';
+import 'package:sams_app/features/quizzes/presentation/view/grade_submission/utils/ui_state_mapper.dart';
 
 /// Center panel for the web grading layout.
 ///
@@ -60,8 +61,7 @@ class QuestionDetailPanel extends StatelessWidget {
 
                 // Divider
                 Divider(
-                  color:
-                      AppColors.secondaryLightActive.withValues(alpha: 0.5),
+                  color: AppColors.secondaryLightActive.withValues(alpha: 0.5),
                 ),
                 const SizedBox(height: 20),
 
@@ -133,13 +133,6 @@ class QuestionDetailPanel extends StatelessWidget {
   }
 
   Widget _buildBadgesRow() {
-    final bool isWritten = question.isWritten;
-    final Color typeColor =
-        isWritten ? AppColors.primary : AppColors.secondary;
-    final IconData typeIcon = isWritten
-        ? Icons.description_outlined
-        : Icons.fact_check_outlined;
-
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -148,20 +141,26 @@ class QuestionDetailPanel extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: typeColor.withValues(alpha: 0.07),
+            color: question.typeBadgeColor.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: typeColor.withValues(alpha: 0.2)),
+            border: Border.all(
+              color: question.typeBadgeColor.withValues(alpha: 0.2),
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(typeIcon, size: 13, color: typeColor),
+              Icon(
+                question.typeBadgeIcon,
+                size: 13,
+                color: question.typeBadgeColor,
+              ),
               const SizedBox(width: 6),
               Text(
                 question.uiTypeLabel.toUpperCase(),
                 style: AppStyles.webAgBodyBold.copyWith(
                   fontSize: 10,
-                  color: typeColor,
+                  color: question.typeBadgeColor,
                   letterSpacing: 0.8,
                 ),
               ),
@@ -175,8 +174,7 @@ class QuestionDetailPanel extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.primaryLight,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.2)),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
           ),
           child: Text(
             '${question.points} pts',

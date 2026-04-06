@@ -26,7 +26,7 @@ class GradingActionPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int gradedCount = questions
-        .where((q) => q.isGraded || !q.isWritten)
+        .where((q) => q.state != QuestionUIState.unmarked)
         .length;
     final int totalPoints = questions.fold(0, (sum, q) => sum + q.points);
     final int earnedPoints = questions.fold(
@@ -67,51 +67,49 @@ class GradingActionPanel extends StatelessWidget {
           ),
 
           // Grading action area
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Only show input for written questions
-                  if (question.isWritten) ...[
-                    Text(
-                      'ASSIGN SCORE',
-                      style: AppStyles.webAgBodyBold.copyWith(
-                        fontSize: 10,
-                        color: AppColors.whiteDarkActive,
-                        letterSpacing: 1.4,
-                      ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Only show input for written questions
+                if (question.isWritten) ...[
+                  Text(
+                    'ASSIGN SCORE',
+                    style: AppStyles.webAgBodyBold.copyWith(
+                      fontSize: 10,
+                      color: AppColors.whiteDarkActive,
+                      letterSpacing: 1.4,
                     ),
-                    const SizedBox(height: 24),
+                  ),
+                  const SizedBox(height: 24),
 
-                    // Reuse the shared GradingInputScoreField
-                    BlocBuilder<GradingCubit, GradingState>(
-                      builder: (context, state) {
-                        final isSavingThis =
-                            state is GradingQuestionSaving &&
-                            state.savingQuestionId == question.id;
-                        return GradingInputScoreField(
-                          question: question,
-                          isSaving: isSavingThis,
-                          onSave: (score) {
-                            context.read<GradingCubit>().gradeQuestion(
-                              submissionId: submissionId,
-                              questionId: question.id,
-                              score: score,
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ],
-
-                  // MCQ/TF: show auto-grade summary
-                  if (!question.isWritten) ...[
-                    AutoGradeInfoCard(question: question),
-                  ],
+                  // Reuse the shared GradingInputScoreField
+                  BlocBuilder<GradingCubit, GradingState>(
+                    builder: (context, state) {
+                      final isSavingThis =
+                          state is GradingQuestionSaving &&
+                          state.savingQuestionId == question.id;
+                      return GradingInputScoreField(
+                        question: question,
+                        isSaving: isSavingThis,
+                        onSave: (score) {
+                          context.read<GradingCubit>().gradeQuestion(
+                            submissionId: submissionId,
+                            questionId: question.id,
+                            score: score,
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ],
-              ),
+
+                // MCQ/TF: show auto-grade summary
+                if (!question.isWritten) ...[
+                  AutoGradeInfoCard(question: question),
+                ],
+              ],
             ),
           ),
         ],

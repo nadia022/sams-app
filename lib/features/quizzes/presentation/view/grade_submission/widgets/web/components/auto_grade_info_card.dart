@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/submission_details_model.dart';
+import 'package:sams_app/features/quizzes/presentation/view/grade_submission/utils/ui_state_mapper.dart';
 
 /// Info card shown for auto-graded MCQ/TF questions in the web grading panel.
 ///
@@ -14,39 +15,39 @@ class AutoGradeInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool correct = question.isCorrect ?? false;
-    final color = correct ? StatusColors.green : StatusColors.red;
-    final icon =
-        correct ? Icons.check_circle_rounded : Icons.cancel_rounded;
-    final label = correct ? 'Correct Answer' : 'Wrong Answer';
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: question.state.autoGradeFeedbackColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.25)),
+        border: Border.all(
+          color: question.state.autoGradeFeedbackColor.withValues(alpha: 0.25),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: color, size: 16),
+              Icon(
+                question.state.autoGradeFeedbackIcon,
+                color: question.state.autoGradeFeedbackColor,
+                size: 16,
+              ),
               const SizedBox(width: 8),
               Text(
-                label,
+                question.state.autoGradeFeedbackLabel,
                 style: AppStyles.webAgBodyBold.copyWith(
                   fontSize: 12,
-                  color: color,
+                  color: question.state.autoGradeFeedbackColor,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'Auto-graded: ${question.earnedPoints} / ${question.points} pts',
+            'Auto-graded: ${question.displayScore}',
             style: AppStyles.webAgBodyRegular.copyWith(
               fontSize: 12,
               color: AppColors.primaryDarkActive,
