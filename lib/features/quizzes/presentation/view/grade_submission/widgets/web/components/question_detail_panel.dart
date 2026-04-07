@@ -3,7 +3,7 @@ import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/submission_details_model.dart';
 import 'package:sams_app/features/quizzes/presentation/view/grade_submission/widgets/shared/mcq_options_list.dart';
-import 'package:sams_app/features/quizzes/presentation/view/grade_submission/widgets/shared/question_state_chip.dart';
+import 'package:sams_app/features/quizzes/presentation/view/grade_submission/widgets/web/components/question_state_chip.dart';
 import 'package:sams_app/features/quizzes/presentation/view/grade_submission/widgets/shared/written_answer.dart';
 import 'package:sams_app/features/quizzes/presentation/view/grade_submission/widgets/web/components/dot_indicator.dart';
 import 'package:sams_app/features/quizzes/presentation/view/grade_submission/utils/ui_state_mapper.dart';
@@ -14,19 +14,23 @@ import 'package:sams_app/features/quizzes/presentation/view/grade_submission/uti
 /// scrollable question text + student answer body,
 /// bottom navigation with prev/next and dot indicators.
 class QuestionDetailPanel extends StatelessWidget {
-  final SubmissionDetailsModel question;
-  final int questionIndex;
-  final int totalCount;
+  final List<SubmissionDetailsModel> questions;
+  final int selectedIndex;
+  final PageController pageController;
+  final ValueChanged<int> onPageChanged;
   final VoidCallback? onPrev;
   final VoidCallback? onNext;
+  final ValueChanged<int>? onJump;
 
   const QuestionDetailPanel({
     super.key,
-    required this.question,
-    required this.questionIndex,
-    required this.totalCount,
+    required this.questions,
+    required this.selectedIndex,
+    required this.pageController,
+    required this.onPageChanged,
     this.onPrev,
     this.onNext,
+    this.onJump,
   });
 
   @override
@@ -34,67 +38,76 @@ class QuestionDetailPanel extends StatelessWidget {
     return Column(
       children: [
         // Top bar
-        _buildTopBar(context),
+        _buildTopBar(context, questions[selectedIndex]),
 
-        // Scrollable content
+        // Animated content area
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Question header badges
-                _buildBadgesRow(),
-                const SizedBox(height: 24),
-
-                // Question text
-                Text(
-                  question.text,
-                  style: AppStyles.webAgBodyBold.copyWith(
-                    fontSize: 16,
-                    color: AppColors.primaryDarkActive,
-                    height: 1.6,
-                  ),
-                ),
-
-                const SizedBox(height: 28),
-
-                // Divider
-                Divider(
-                  color: AppColors.secondaryLightActive.withValues(alpha: 0.5),
-                ),
-                const SizedBox(height: 20),
-
-                // Student Answer section label
-                Row(
+          child: PageView.builder(
+            controller: pageController,
+            onPageChanged: onPageChanged,
+            itemCount: questions.length,
+            physics: const BouncingScrollPhysics(),
+            itemBuilder: (context, index) {
+              final question = questions[index];
+              return SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
-                      Icons.person_outline_rounded,
-                      size: 16,
-                      color: AppColors.whiteDarkActive,
-                    ),
-                    const SizedBox(width: 6),
+                    // Question header badges
+                    _buildBadgesRow(question),
+                    const SizedBox(height: 24),
+
+                    // Question text
                     Text(
-                      'STUDENT ANSWER',
+                      question.text,
                       style: AppStyles.webAgBodyBold.copyWith(
-                        fontSize: 10,
-                        color: AppColors.whiteDarkActive,
-                        letterSpacing: 1.4,
+                        fontSize: 16,
+                        color: AppColors.primaryDarkActive,
+                        height: 1.6,
                       ),
                     ),
+
+                    const SizedBox(height: 28),
+
+                    // Divider
+                    Divider(
+                      color: AppColors.secondaryLightActive.withValues(alpha: 0.5),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Student Answer section label
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.person_outline_rounded,
+                          size: 16,
+                          color: AppColors.whiteDarkActive,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'STUDENT ANSWER',
+                          style: AppStyles.webAgBodyBold.copyWith(
+                            fontSize: 10,
+                            color: AppColors.whiteDarkActive,
+                            letterSpacing: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Answer body
+                    if (question.isWritten)
+                      WrittenAnswer(answer: question.writtenAnswer)
+                    else if (question.options != null)
+                      McqOptionsList(options: question.options!),
+
+                    const SizedBox(height: 32),
                   ],
                 ),
-                const SizedBox(height: 14),
-
-                // Answer body
-                if (question.isWritten)
-                  WrittenAnswer(answer: question.writtenAnswer)
-                else if (question.options != null)
-                  McqOptionsList(options: question.options!),
-
-                const SizedBox(height: 32),
-              ],
-            ),
+              );
+            },
           ),
         ),
 
@@ -104,7 +117,7 @@ class QuestionDetailPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildTopBar(BuildContext context) {
+  Widget _buildTopBar(BuildContext context, SubmissionDetailsModel question) {
     return Container(
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -119,7 +132,7 @@ class QuestionDetailPanel extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            'Question ${questionIndex + 1} of $totalCount',
+            'Question ${selectedIndex + 1} of ${questions.length}',
             style: AppStyles.webAgBodyBold.copyWith(
               fontSize: 13,
               color: AppColors.primaryDark,
@@ -132,7 +145,7 @@ class QuestionDetailPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildBadgesRow() {
+  Widget _buildBadgesRow(SubmissionDetailsModel question) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -216,10 +229,11 @@ class QuestionDetailPanel extends StatelessWidget {
             ),
           ),
 
-          // Dot indicators (max 10 shown)
           DotIndicator(
-            total: totalCount,
-            current: questionIndex,
+            total: questions.length,
+            current: selectedIndex,
+            pageController: pageController,
+            onDotClicked: onJump,
           ),
 
           // Next

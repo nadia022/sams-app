@@ -20,7 +20,20 @@ class WebGradingPanels extends StatefulWidget {
 
 class _WebGradingPanelsState extends State<WebGradingPanels> {
   int _selectedIndex = 0;
+  late final PageController _pageController;
   static const _bgColor = Color(0xFFF4F6F9);
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _selectedIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,22 +60,40 @@ class _WebGradingPanelsState extends State<WebGradingPanels> {
           QuestionNavigatorPanel(
             questions: widget.questions,
             selectedIndex: _selectedIndex,
-            onSelect: (i) => setState(() => _selectedIndex = i),
+            onSelect: (i) {
+              setState(() => _selectedIndex = i);
+              _pageController.animateToPage(
+                i,
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOutCubic,
+              );
+            },
           ),
 
           // ── Center Panel: Question Detail ───────────────────────
           Expanded(
             child: QuestionDetailPanel(
-              key: ValueKey(selected.id),
-              question: selected,
-              questionIndex: _selectedIndex,
-              totalCount: widget.questions.length,
+              questions: widget.questions,
+              selectedIndex: _selectedIndex,
+              pageController: _pageController,
+              onPageChanged: (i) => setState(() => _selectedIndex = i),
               onPrev: _selectedIndex > 0
-                  ? () => setState(() => _selectedIndex--)
+                  ? () => _pageController.previousPage(
+                        duration: const Duration(milliseconds: 350),
+                        curve: Curves.easeOutQuad,
+                      )
                   : null,
               onNext: _selectedIndex < widget.questions.length - 1
-                  ? () => setState(() => _selectedIndex++)
+                  ? () => _pageController.nextPage(
+                        duration: const Duration(milliseconds: 350),
+                        curve: Curves.easeOutQuad,
+                      )
                   : null,
+              onJump: (i) => _pageController.animateToPage(
+                i,
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOutCubic,
+              ),
             ),
           ),
 

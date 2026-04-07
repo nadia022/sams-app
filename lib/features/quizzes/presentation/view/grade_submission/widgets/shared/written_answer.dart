@@ -13,19 +13,37 @@ class WrittenAnswer extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.primaryLight.withValues(alpha: 0.3),
+        color: AppColors.primaryLight.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primaryLight),
-      ),
-      child: Text(
-        hasAnswer ? answer! : 'No answer provided by the student.',
-        style: AppStyles.mobileBodySmallRg.copyWith(
-          color: hasAnswer ? AppColors.primaryDarker : AppColors.whiteDark,
-          fontStyle: hasAnswer ? FontStyle.normal : FontStyle.italic,
-          height: 1.5,
+        border: Border.all(
+          color: AppColors.primaryLightActive.withValues(alpha: 0.8),
+          width: 1,
         ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.format_quote_rounded,
+            color: AppColors.primary.withValues(alpha: 0.7),
+            size: 24,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              hasAnswer ? answer! : 'No answer provided by the student.',
+              style: AppStyles.mobileBodyMediumRg.copyWith(
+                color: hasAnswer
+                    ? AppColors.primaryDarker
+                    : AppColors.whiteDarkActive,
+                fontStyle: hasAnswer ? FontStyle.normal : FontStyle.italic,
+                height: 1.6,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
