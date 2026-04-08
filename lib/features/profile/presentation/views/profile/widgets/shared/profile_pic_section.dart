@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sams_app/core/cache/get_storage.dart';
+import 'package:sams_app/core/helper/app_snack_bar.dart';
 import 'package:sams_app/core/utils/assets/app_icons.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/configs/size_config.dart';
@@ -34,10 +35,21 @@ class _ProfilePicSectionState extends State<ProfilePicSection> {
     final isMobile = SizeConfig.isMobile(context); // ismobile
     return BlocListener<ProfileCubit, ProfileState>(
       listener: (context, state) {
-        if (state is UploadProfilePicSuccess) {
+        if (state is UploadProfilePicSuccess ||
+            state is DeleteProfilePicLoading) {
           setState(() {
             _pickedImage = null;
           });
+        }
+        if (state is DeleteProfilePicSuccess) {
+          GetStorageHelper.remove(CacheKeys.profilePic);
+          AppSnackBar.success(
+            context,
+            'Profile picture removed successfully',
+          );
+        }
+        if (state is DeleteProfilePicFailure) {
+          AppSnackBar.error(context, state.errMessage);
         }
       },
       child: Center(
@@ -77,20 +89,48 @@ class _ProfilePicSectionState extends State<ProfilePicSection> {
                       current is UploadProfilePicLoading ||
                       current is! UploadProfilePicLoading,
                   builder: (context, state) {
-                    if (state is UploadProfilePicLoading) {
-                      return _buildLoadingOverlay();
+                    if (state is UploadProfilePicLoading|| state is DeleteProfilePicLoading) {
+                      return _buildLoadingOverlay();// show loading overlay
                     }
                     return const SizedBox.shrink();
                   },
                 ),
 
+                //* control profile picture icon
                 Positioned(
                   bottom: 5,
                   right: 0,
                   left: 85,
-                  child: GestureDetector(
-                    onTap: _showImageSourceSheet,
-                    child: _buildEditIcon(isMobile, screenWidth),
+                  child: BlocBuilder<ProfileCubit, ProfileState>(
+                    buildWhen: (previous, current) =>
+                        current is UploadProfilePicSuccess ||
+                        current is DeleteProfilePicSuccess ||
+                        current is ProfileSuccess,
+                    builder: (context, profileState) {
+                      // to show the edit icon if the pic is uploaded or deleted
+                      bool hasProfilePic =
+                          widget.userModel.profilePic != null &&
+                          widget.userModel.profilePic!.isNotEmpty;
+
+                      if (profileState is UploadProfilePicSuccess) {// to show the edit icon if the pic is uploaded
+                        hasProfilePic = true;
+                      } else if (profileState is DeleteProfilePicSuccess) {// to show the add icon if the pic is deleted
+                        hasProfilePic = false;
+                      } else if (profileState is ProfileSuccess) {// to set the hasProfilePic variable based on the profileState
+                        hasProfilePic =
+                            profileState.userModel.profilePic != null &&
+                            profileState.userModel.profilePic!.isNotEmpty;
+                      }
+                      return GestureDetector(
+                        onTap: () => _showImageSourceSheet(hasProfilePic),// show image source sheet
+                        child: _buildImageControlIcon(// build image control icon
+                          isMobile,
+                          screenWidth,
+                          hasProfilePic,
+                          profileState,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -119,8 +159,13 @@ class _ProfilePicSectionState extends State<ProfilePicSection> {
     }
   }
 
+  // delete profile image
+  Future<void> _deleteProfileImage() async {
+    await context.read<ProfileCubit>().deleteProfileImage();
+  }
+
   // Show image source sheet
-  void _showImageSourceSheet() {
+  void _showImageSourceSheet(bool hasProfilePic) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -128,18 +173,25 @@ class _ProfilePicSectionState extends State<ProfilePicSection> {
       ),
       builder: (context) => ImageSourceBottomSheet(
         onSourceSelected: _pickImage,
-        onRemoveSelected: () {
-          // GetStorageHelper.remove(
-          //   CacheKeys.profilePic,
-          // );
-          //TODO remove image
-        },
+        onRemoveSelected: _deleteProfileImage,
+        hasProfilePic: hasProfilePic,
       ),
     );
   }
 
-  // Build edit icon
-  Widget _buildEditIcon(bool isMobile, double screenWidth) {
+  // Build image control icon
+  Widget _buildImageControlIcon(
+    bool isMobile,
+    double screenWidth,
+    bool hasProfilePic,
+    ProfileState profilePicState,
+  ) {
+    if (profilePicState is UploadProfilePicSuccess) {
+      hasProfilePic = true; // to show the edit icon if the pic is uploaded
+    }
+    if (profilePicState is DeleteProfilePicSuccess) {
+      hasProfilePic = false; // to show the add icon if the pic is deleted
+    }
     return Container(
       width: isMobile ? screenWidth * .8 : 30,
       height: isMobile
@@ -152,13 +204,18 @@ class _ProfilePicSectionState extends State<ProfilePicSection> {
         color: AppColors.secondary,
         shape: BoxShape.circle,
       ),
-      child: SvgPicture.asset(
-        AppIcons.iconsEditMaterial,
-        colorFilter: const ColorFilter.mode(
-          AppColors.whiteLight,
-          BlendMode.srcIn,
-        ),
-      ),
+      child: hasProfilePic
+          ? SvgPicture.asset(
+              AppIcons.iconsEditMaterial,
+              colorFilter: const ColorFilter.mode(
+                AppColors.whiteLight,
+                BlendMode.srcIn,
+              ),
+            )
+          : const Icon(
+              Icons.add,
+              color: AppColors.whiteLight,
+            ),
     );
   }
 

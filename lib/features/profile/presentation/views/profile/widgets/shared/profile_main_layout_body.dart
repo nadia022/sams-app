@@ -1,6 +1,4 @@
-// import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -17,7 +15,7 @@ import 'package:sams_app/features/profile/presentation/views/profile/widgets/sha
 import 'package:sams_app/features/profile/presentation/views/profile/widgets/shared/profile_pic_section.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-//*
+//* The main layout for the profile page.
 class ProfileMainLayoutBody extends StatefulWidget {
   const ProfileMainLayoutBody({
     super.key,
@@ -150,11 +148,6 @@ class _ProfileMainLayoutBodyState extends State<ProfileMainLayoutBody> {
             ),
           );
         }
-        // return const Center(
-        //   child: CircularProgressIndicator(
-        //     color: AppColors.whiteLight,
-        //   ),
-        // );
         return Skeletonizer(
           enabled: isLoading,
           enableSwitchAnimation: true,
