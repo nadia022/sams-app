@@ -50,6 +50,12 @@ class ProfileCubit extends HydratedCubit<ProfileState>
     if (state is ProfileSuccess) {
       return state.userModel.toMap();
     }
+    if (state is UploadProfilePicSuccess) {
+      return state.userModel.toMap();
+    }
+    if (state is DeleteProfilePicSuccess) {
+      return state.userModel.toMap();
+    }
     return null;
   }
 
@@ -82,6 +88,23 @@ class ProfileCubit extends HydratedCubit<ProfileState>
     );
   }
 
+  //! Delete profile picture
+  Future<void> deleteProfileImage() async {
+    emit(DeleteProfilePicLoading());
+
+    final result = await profileRepo.deleteProfilePicture();
+
+    if (isClosed) return;
+
+    result.fold(
+      (failure) => emit(DeleteProfilePicFailure(failure)),
+      (user) {
+        emit(DeleteProfilePicSuccess(user));
+        emit(ProfileSuccess(user));
+      },
+    );
+  }
+
   Future<void> logout() async {
     emit(LogoutLoading());
 
@@ -96,7 +119,6 @@ class ProfileCubit extends HydratedCubit<ProfileState>
         await SecureStorageService.instance.clearAll();
         await GetStorageHelper.erase();
 
-        
         emit(LogoutSuccess(successMsg));
       },
     );

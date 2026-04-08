@@ -50,6 +50,21 @@ final class UploadProfilePicFailure extends ProfileActionState {
   UploadProfilePicFailure(this.errMessage);
 }
 
+//? Emitted while deleting profile picture.
+final class DeleteProfilePicLoading extends ProfileActionState {}
+
+//* Emitted when profile picture delete is successful.
+final class DeleteProfilePicSuccess extends ProfileActionState {
+  final UserModel userModel;
+  DeleteProfilePicSuccess(this.userModel);
+}
+
+//! Emitted when profile picture delete fails.
+final class DeleteProfilePicFailure extends ProfileActionState {
+  final String errMessage;
+  DeleteProfilePicFailure(this.errMessage);
+}
+
 //? Emitted while logging out.
 final class LogoutLoading extends ProfileActionState {}
 

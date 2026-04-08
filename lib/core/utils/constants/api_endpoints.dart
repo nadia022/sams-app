@@ -29,5 +29,5 @@ class EndPoints {
   static const String getProfile = 'users/profile';
   static const String updateProfile = 'users/profile';
   static const String createUploadUrl = 'users/profile-picture/presigned-url';
-  static const String saveProfilePic = 'users/profile-picture';
+  static const String profilePic = 'users/profile-picture';
 }
