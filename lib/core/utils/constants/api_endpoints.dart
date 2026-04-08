@@ -30,4 +30,7 @@ class EndPoints {
   static const String updateProfile = 'users/profile';
   static const String createUploadUrl = 'users/profile-picture/presigned-url';
   static const String saveProfilePic = 'users/profile-picture';
+  //? --- Announcements --- ;
+  static String getCourseAnnouncements(String courseId) => 'courses/$courseId/announcements';
+  static String getAnnouncementDetails(String announcementId) => 'announcements/$announcementId';
 }

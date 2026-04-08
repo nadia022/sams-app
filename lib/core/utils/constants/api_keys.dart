@@ -68,7 +68,10 @@ abstract class ApiKeys {
   static const String student = 'student';
   static const String confirmPassword = 'confirmPassword';
 
-
+ //? --- Announcement Keys 
+  static const String title = 'title';
+  static const String content = 'content';
+  static const String comments = 'comments';
 }
 
 //! --- API VALUES (Fixed values that the server expects inside the fields) ---
