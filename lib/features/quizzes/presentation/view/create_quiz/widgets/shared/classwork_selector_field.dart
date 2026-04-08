@@ -6,41 +6,58 @@ import 'package:sams_app/features/quizzes/data/model/data_models/classwork_item_
 /// A tap-able field that looks like a text input but opens a bottom-sheet
 /// selector for choosing a [ClassworItemkModel].
 ///
-/// Design: Rounded border, teal/primary colour scheme, trailing chevron icon,
-/// matching the overall Create Quiz aesthetic.
+/// In Edit mode, pass [isReadOnly] = `true` to lock the selection.
+/// The field still displays the currently-assigned value but the bottom-sheet
+/// will not open and the chevron is replaced with a lock icon.
 class ClassworkSelectorField extends StatelessWidget {
   final ClassworItemkModel? selectedClasswork;
   final List<ClassworItemkModel> classworkItems;
+
+  /// Called when the user picks a different classwork item.
+  /// Ignored when [isReadOnly] is `true`.
   final ValueChanged<ClassworItemkModel> onSelected;
+
+  /// When `true`, the field is displayed but is not interactive.
+  /// Used in Edit mode — the instructor cannot re-assign the quiz's classwork.
+  final bool isReadOnly;
 
   const ClassworkSelectorField({
     super.key,
     required this.selectedClasswork,
     required this.classworkItems,
     required this.onSelected,
+    this.isReadOnly = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(15),
-      onTap: () => _showClassworkSheet(context),
+      // Disable tap in read-only mode
+      onTap: isReadOnly ? null : () => _showClassworkSheet(context),
       child: InputDecorator(
         decoration: InputDecoration(
           hintText: 'Select assigned classwork',
           hintStyle: AppStyles.mobileBodySmallRg.copyWith(
             color: AppColors.whiteDarkHover,
           ),
-          suffixIcon: const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: AppColors.primaryDark,
+          // Show lock icon when read-only, chevron otherwise
+          suffixIcon: Icon(
+            isReadOnly
+                ? Icons.lock_outline_rounded
+                : Icons.keyboard_arrow_down_rounded,
+            color: isReadOnly ? AppColors.whiteDarkHover : AppColors.primaryDark,
           ),
+          // Visually dim the field in read-only mode
+          fillColor: isReadOnly ? AppColors.whiteHover : null,
         ),
         child: selectedClasswork != null
             ? Text(
                 '${selectedClasswork!.name}  •  ${selectedClasswork!.points} pts',
                 style: AppStyles.mobileBodySmallMd.copyWith(
-                  color: AppColors.primaryDarkHover,
+                  color: isReadOnly
+                      ? AppColors.whiteDarkActive
+                      : AppColors.primaryDarkHover,
                 ),
               )
             : null,
@@ -158,14 +175,10 @@ class _ClassworkTile extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.secondaryLight
-              : AppColors.whiteLight,
+          color: isSelected ? AppColors.secondaryLight : AppColors.whiteLight,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected
-                ? AppColors.secondary
-                : AppColors.whiteHover,
+            color: isSelected ? AppColors.secondary : AppColors.whiteHover,
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -184,9 +197,8 @@ class _ClassworkTile extends StatelessWidget {
                       : AppColors.whiteDarkHover,
                   width: 2,
                 ),
-                color: isSelected
-                    ? AppColors.secondary
-                    : Colors.transparent,
+                color:
+                    isSelected ? AppColors.secondary : Colors.transparent,
               ),
               child: isSelected
                   ? const Icon(Icons.check, size: 14, color: Colors.white)

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sams_app/core/utils/router/routes_name.dart';
 import 'dart:developer';
 import 'package:sams_app/features/quizzes/data/model/data_models/quiz_model.dart';
+import 'package:sams_app/features/quizzes/presentation/view/quiz_form/quiz_form_args.dart';
 import 'quiz_action_type.dart';
 
 class InstructorActionHandler {
@@ -14,6 +15,9 @@ class InstructorActionHandler {
     required QuizModel quiz,
   }) {
     switch (action) {
+      case QuizActionType.editQuiz:
+        _navigateToEditQuiz(context, quiz);
+        break;
       case QuizActionType.addQuestions:
         _navigateToAddQuestions(context, quiz);
         break;
@@ -29,7 +33,24 @@ class InstructorActionHandler {
     }
   }
 
-  // Navigation Logic Placeholders
+  // Navigation Logic
+
+  /// Navigates to [QuizFormScreen] in Edit mode, passing the full [QuizModel]
+  /// as [QuizFormArgs.initialData] so every field is pre-populated.
+  static void _navigateToEditQuiz(BuildContext context, QuizModel quiz) {
+    final courseId = getCourseId(context);
+    log('Navigating to EditQuiz: ${quiz.id}');
+    context.pushNamed(
+      RoutesName.quizForm,
+      pathParameters: {'courseId': courseId},
+      extra: QuizFormArgs(
+        courseId: courseId,
+        isEditMode: true,
+        initialData: quiz,
+      ),
+    );
+  }
+
   static void _navigateToAddQuestions(BuildContext context, QuizModel quiz) {
     log('Navigating to Add Questions for quiz: ${quiz.id}');
     // TODO: Add GoRouter or Navigator logic here
