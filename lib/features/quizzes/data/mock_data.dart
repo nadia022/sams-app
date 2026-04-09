@@ -10,20 +10,20 @@ import 'package:sams_app/features/quizzes/data/model/data_models/student_submiss
 //! get available Classworks (used by QuizFormScreen to populate the dropdown)
 // SOURCE: GET /api/v1/instructor/courses/:courseId/classworks
 // This will be replaced by a real API call through a Cubit once the endpoint is wired.
-const List<ClassworItemkModel> mockClassworkItems = [
-  ClassworItemkModel(
+const List<ClassworkItemModel> mockClassworkItems = [
+  ClassworkItemModel(
     id: '69bfb6e0236365ff8ee35687',
     name: 'Midterm',
     points: 15,
     isVisible: true,
   ),
-  ClassworItemkModel(
+  ClassworkItemModel(
     id: '69bfb6e0236365ff8ee3568a',
     name: 'Quiz 3',
     points: 5,
     isVisible: true,
   ),
-  ClassworItemkModel(
+  ClassworkItemModel(
     id: '69bfb6e0236365ff8ee3568b',
     name: 'Quiz 4',
     points: 5,

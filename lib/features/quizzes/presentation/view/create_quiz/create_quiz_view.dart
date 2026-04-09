@@ -21,8 +21,7 @@ class CreateQuizView extends StatelessWidget {
       listener: (context, state) {
         if (state is CreateQuizSuccess) {
           AppSnackBar.success(context, state.message);
-
-          // Navigator.pop(context) or similar could happen here
+          Navigator.pop(context);
         } else if (state is CreateQuizFailure) {
           AppSnackBar.error(context, state.message);
         }

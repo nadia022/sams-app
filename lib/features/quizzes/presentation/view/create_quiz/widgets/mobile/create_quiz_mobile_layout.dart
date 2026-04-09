@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:sams_app/core/enums/text_field_type.dart';
 import 'package:sams_app/core/models/app_button_style_model.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/core/widgets/base/app_button.dart';
 import 'package:sams_app/core/widgets/base/app_text_field.dart';
-import 'package:sams_app/core/widgets/mobile/mobile_custom_app_bar.dart';
 import 'package:sams_app/core/widgets/shared/titled_input_field.dart';
 import 'package:sams_app/features/quizzes/data/mock_data.dart';
-import 'package:sams_app/features/quizzes/data/model/data_models/classwork_item_model.dart';
-import 'package:sams_app/features/quizzes/data/model/data_models/quiz_model.dart';
-import 'package:sams_app/features/quizzes/data/model/request_bodies_models/create_quiz_request_body.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/shared/classwork_selector_field.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/model/create_quiz_form_args.dart';
 import 'package:sams_app/features/quizzes/presentation/view_model/create_quiz_cubit/create_quiz_cubit.dart';
@@ -28,37 +23,29 @@ import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/
 /// Data flow is ready for Cubit integration — see the TODO comments at the
 /// submit handler.
 class CreateQuizMobileLayout extends StatelessWidget {
-
   const CreateQuizMobileLayout({super.key});
 
   // ──────────────────── Date & Time Picker ────────────────────
   Future<void> _pickStartDateTime(BuildContext context) async {
     final cubit = context.read<CreateQuizCubit>();
+
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: cubit.selectedStartTime ?? DateTime.now(),
+      initialDate: DateTime.now(),
       firstDate: DateTime.now(), // Prohibits past dates
       lastDate: DateTime(2100),
     );
+
     if (pickedDate == null || !context.mounted) return;
+    cubit.updateDate(pickedDate);
 
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialTime: cubit.selectedStartTime != null
-          ? TimeOfDay.fromDateTime(cubit.selectedStartTime!)
-          : TimeOfDay.now(),
+      initialTime: TimeOfDay.now(),
     );
+
     if (pickedTime == null || !context.mounted) return;
-
-    final combined = DateTime(
-      pickedDate.year,
-      pickedDate.month,
-      pickedDate.day,
-      pickedTime.hour,
-      pickedTime.minute,
-    );
-
-    cubit.onDateTimePicked(combined);
+    cubit.updateTime(pickedTime);
   }
 
   // ──────────────────── Build ────────────────────
@@ -68,89 +55,101 @@ class CreateQuizMobileLayout extends StatelessWidget {
     final cubit = context.read<CreateQuizCubit>();
 
     return BlocBuilder<CreateQuizCubit, CreateQuizState>(
-      buildWhen: (previous, current) => current is CreateQuizUIUpdated,
+      // You can define buildWhen if you want, but listening is handled in CreateQuizView
       builder: (context, state) {
+        final isLoading = state is CreateQuizLoading;
+
         return Scaffold(
-          appBar: MobileCustomAppBar(
-            title: cubit.isEditMode ? 'Edit Quiz' : 'Create Quiz',
-          ),
-          bottomNavigationBar: _buildBottomButton(context),
-          body: SafeArea(
-            child: Form(
-              key: cubit.formKey,
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          // appBar: MobileCustomAppBar(
+          //   title: cubit.isEditMode ? 'Edit Quiz' : 'Create Quiz',
+          // ),
+          bottomNavigationBar: _buildBottomButton(context, isLoading),
+          body: Form(
+            key: cubit.formKey,
+            child: SingleChildScrollView(
+              child: Column(
                 children: [
                   _SectionHeader(isEditMode: cubit.isEditMode),
-                  const SizedBox(height: 24),
 
-                  // ─── Assigned Classwork ───
-                  TitledInputField(
-                    label: 'Assigned Classwork',
-                    child: ClassworkSelectorField(
-                      selectedClasswork: cubit.selectedClasswork,
-                      classworkItems: mockClassworkItems,
-                      onSelected: cubit.onClassworkSelected,
-                      // Locked in edit mode — cannot re-assign the classwork
-                      isReadOnly: cubit.isEditMode,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 20,
                     ),
-                  ),
-                  // Hint shown only in edit mode to explain why the field is locked
-                  if (cubit.isEditMode) ...[
-                    const SizedBox(height: 4),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Text(
-                        'The assigned classwork cannot be changed after creation.',
-                        style: AppStyles.mobileBodyXsmallRg.copyWith(
-                          color: AppColors.whiteDarkHover,
+                    child: Column(
+                      children: [
+                        // ─── Assigned Classwork ───
+                        TitledInputField(
+                          label: 'Assigned Classwork',
+                          child: ClassworkSelectorField(
+                            selectedClasswork: cubit.selectedClasswork,
+                            classworkItems: mockClassworkItems,
+                            onSelected: cubit.onClassworkSelected,
+                            // Locked in edit mode — cannot re-assign the classwork
+                            isReadOnly: cubit.isEditMode,
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 20),
+                        // Hint shown only in edit mode to explain why the field is locked
+                        if (cubit.isEditMode) ...[
+                          const SizedBox(height: 4),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4),
+                            child: Text(
+                              'The assigned classwork cannot be changed after creation.',
+                              style: AppStyles.mobileBodyXsmallRg.copyWith(
+                                color: AppColors.whiteDarkHover,
+                              ),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 20),
 
-                  // ─── Title ───
-                  TitledInputField(
-                    label: 'Title',
-                    child: AppTextField(
-                      hintText: 'Enter quiz title',
-                      controller: cubit.titleController,
-                      textFieldType: TextFieldType.normal,
-                      textInputAction: TextInputAction.next,
+                        // ─── Title ───
+                        TitledInputField(
+                          label: 'Title',
+                          child: AppTextField(
+                            hintText: 'Enter quiz title',
+                            controller: cubit.titleController,
+                            textFieldType: TextFieldType.normal,
+                            textInputAction: TextInputAction.next,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // ─── Description ───
+                        TitledInputField(
+                          label: 'Description',
+                          child: AppTextField(
+                            hintText: 'Enter a brief description (optional)',
+                            controller: cubit.descriptionController,
+                            textFieldType: TextFieldType.normal,
+                            minLines: 3,
+                            textInputAction: TextInputAction.newline,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // ─── Start Time ───
+                        TitledInputField(
+                          label: 'Start Time',
+                          child: DateTimePickerField(
+                            controller: cubit.startTimeDisplayController,
+                            onTap: () => _pickStartDateTime(context),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // ─── Duration ───
+                        TitledInputField(
+                          label: 'Duration',
+                          child: _DurationInputField(
+                            controller: cubit.durationController,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-
-                  // ─── Description ───
-                  TitledInputField(
-                    label: 'Description',
-                    child: AppTextField(
-                      hintText: 'Enter a brief description (optional)',
-                      controller: cubit.descriptionController,
-                      textFieldType: TextFieldType.normal,
-                      minLines: 3,
-                      textInputAction: TextInputAction.newline,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // ─── Start Time ───
-                  TitledInputField(
-                    label: 'Start Time',
-                    child: DateTimePickerField(
-                      controller: cubit.startTimeDisplayController,
-                      onTap: () => _pickStartDateTime(context),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // ─── Duration ───
-                  TitledInputField(
-                    label: 'Duration',
-                    child: _DurationInputField(controller: cubit.durationController),
-                  ),
-                  const SizedBox(height: 32),
                 ],
               ),
             ),
@@ -162,9 +161,9 @@ class CreateQuizMobileLayout extends StatelessWidget {
 
   // ──────────────────── Bottom Button ────────────────────
 
-  Widget _buildBottomButton(BuildContext context) {
+  Widget _buildBottomButton(BuildContext context, bool isLoading) {
     final cubit = context.read<CreateQuizCubit>();
-    
+
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       decoration: BoxDecoration(
@@ -177,12 +176,23 @@ class CreateQuizMobileLayout extends StatelessWidget {
           ),
         ],
       ),
-      child: AppButton(
-        model: AppButtonStyleModel(
-          label: cubit.isEditMode ? 'Save Changes' : 'Continue',
-          onPressed: cubit.onSubmit,
-        ),
-      ),
+      child: isLoading
+          ? const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: CircularProgressIndicator(),
+                ),
+              ],
+            )
+          : AppButton(
+              model: AppButtonStyleModel(
+                label: cubit.isEditMode ? 'Save Changes' : 'Continue',
+                onPressed: cubit.onSubmit,
+              ),
+            ),
     );
   }
 }
@@ -198,25 +208,54 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          isEditMode ? 'Edit Quiz Details' : 'Quiz Details',
-          style: AppStyles.mobileTitleSmallSb.copyWith(
-            color: AppColors.primaryDarkHover,
-          ),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+      decoration: const BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
         ),
-        const SizedBox(height: 4),
-        Text(
-          isEditMode
-              ? 'Update the fields below and save your changes.'
-              : 'Fill in the details to create a new quiz for your students.',
-          style: AppStyles.mobileBodyXsmallRg.copyWith(
-            color: AppColors.whiteDarkActive,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.whiteLight.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              isEditMode ? 'MODIFICATION MODE' : 'NEW ASSIGNMENT',
+              style: AppStyles.mobileBodyXsmallRg.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.1,
+              ),
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          Text(
+            isEditMode ? 'Edit Quiz Details' : 'Create New Quiz',
+            style: AppStyles.mobileTitleMediumSb.copyWith(
+              color: Colors.white,
+              fontSize: 24,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          Text(
+            isEditMode
+                ? 'Make sure to double-check the timing and classwork before saving.'
+                : 'Fill in the details to set up a new assessment for your class.',
+            style: AppStyles.mobileBodySmallRg.copyWith(
+              color: AppColors.whiteLight.withValues(alpha: 0.8),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -255,14 +294,23 @@ class _DurationInputField extends StatelessWidget {
         const SizedBox(height: 6),
 
         // Helper subtext
-        Padding(
-          padding: const EdgeInsets.only(left: 4),
-          child: Text(
-            'The time limit for the student to complete the quiz',
-            style: AppStyles.mobileBodyXsmallRg.copyWith(
-              color: AppColors.whiteDarkActive,
+        Row(
+          children: [
+            const Icon(
+              Icons.info_outline_rounded,
+              size: 14,
+              color: AppColors.primaryDark,
             ),
-          ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                'Access deadline. Students can start until the last minute and finish their full attempt.',
+                style: AppStyles.mobileBodyXsmallRg.copyWith(
+                  color: AppColors.whiteDarkActive,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

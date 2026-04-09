@@ -10,12 +10,12 @@ import 'package:sams_app/features/quizzes/data/model/data_models/classwork_item_
 /// The field still displays the currently-assigned value but the bottom-sheet
 /// will not open and the chevron is replaced with a lock icon.
 class ClassworkSelectorField extends StatelessWidget {
-  final ClassworItemkModel? selectedClasswork;
-  final List<ClassworItemkModel> classworkItems;
+  final ClassworkItemModel? selectedClasswork;
+  final List<ClassworkItemModel> classworkItems;
 
   /// Called when the user picks a different classwork item.
   /// Ignored when [isReadOnly] is `true`.
-  final ValueChanged<ClassworItemkModel> onSelected;
+  final ValueChanged<ClassworkItemModel> onSelected;
 
   /// When `true`, the field is displayed but is not interactive.
   /// Used in Edit mode — the instructor cannot re-assign the quiz's classwork.
@@ -46,7 +46,9 @@ class ClassworkSelectorField extends StatelessWidget {
             isReadOnly
                 ? Icons.lock_outline_rounded
                 : Icons.keyboard_arrow_down_rounded,
-            color: isReadOnly ? AppColors.whiteDarkHover : AppColors.primaryDark,
+            color: isReadOnly
+                ? AppColors.whiteDarkHover
+                : AppColors.primaryDark,
           ),
           // Visually dim the field in read-only mode
           fillColor: isReadOnly ? AppColors.whiteHover : null,
@@ -93,9 +95,9 @@ class ClassworkSelectorField extends StatelessWidget {
 // ══════════════════════════════════════════════════════════════
 
 class _ClassworkSelectionSheet extends StatelessWidget {
-  final List<ClassworItemkModel> items;
+  final List<ClassworkItemModel> items;
   final String? selectedId;
-  final ValueChanged<ClassworItemkModel> onSelected;
+  final ValueChanged<ClassworkItemModel> onSelected;
 
   const _ClassworkSelectionSheet({
     required this.items,
@@ -154,7 +156,7 @@ class _ClassworkSelectionSheet extends StatelessWidget {
 // ══════════════════════════════════════════════════════════════
 
 class _ClassworkTile extends StatelessWidget {
-  final ClassworItemkModel item;
+  final ClassworkItemModel item;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -197,8 +199,7 @@ class _ClassworkTile extends StatelessWidget {
                       : AppColors.whiteDarkHover,
                   width: 2,
                 ),
-                color:
-                    isSelected ? AppColors.secondary : Colors.transparent,
+                color: isSelected ? AppColors.secondary : Colors.transparent,
               ),
               child: isSelected
                   ? const Icon(Icons.check, size: 14, color: Colors.white)
