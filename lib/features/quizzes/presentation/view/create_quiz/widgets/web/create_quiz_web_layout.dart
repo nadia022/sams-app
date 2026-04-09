@@ -4,12 +4,15 @@ import 'package:sams_app/core/enums/text_field_type.dart';
 import 'package:sams_app/core/models/app_button_style_model.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
+import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
 import 'package:sams_app/core/widgets/base/app_button.dart';
 import 'package:sams_app/core/widgets/base/app_text_field.dart';
 import 'package:sams_app/core/widgets/shared/titled_input_field.dart';
 import 'package:sams_app/features/quizzes/data/mock_data.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/shared/classwork_selector_field.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/shared/date_time_picker_field.dart';
+import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/shared/duration_input_field.dart';
+import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/shared/header_section.dart';
 import 'package:sams_app/features/quizzes/presentation/view_model/create_quiz_cubit/create_quiz_cubit.dart';
 
 class CreateQuizWebLayout extends StatelessWidget {
@@ -51,7 +54,27 @@ class CreateQuizWebLayout extends StatelessWidget {
               onPrimary: Colors.white,
               onSurface: AppColors.primaryDark,
             ),
+
+            timePickerTheme: TimePickerThemeData(
+              dayPeriodColor: WidgetStateColor.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return AppColors.primary;
+                }
+                return Colors.transparent;
+              }),
+
+              dayPeriodTextColor: WidgetStateColor.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Colors.white;
+                }
+                return AppColors.primaryDark;
+              }),
+              dayPeriodBorderSide: const BorderSide(
+                color: AppColors.primary,
+              ),
+            ),
           ),
+
           child: child!,
         );
       },
@@ -67,114 +90,66 @@ class CreateQuizWebLayout extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.primaryDark),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          cubit.isEditMode ? 'Edit Quiz' : 'Create New Assessment',
-          style: AppStyles.mobileTitleMediumSb.copyWith(
-            color: AppColors.primaryDark,
-          ),
-        ),
-        centerTitle: false,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24.0,
-              vertical: 8.0,
-            ),
-            child: BlocBuilder<CreateQuizCubit, CreateQuizState>(
-              builder: (context, state) {
-                final isLoading = state is CreateQuizLoading;
-                return SizedBox(
-                  width: 150,
-                  child: AppButton(
-                    model: AppButtonStyleModel(
-                      label: cubit.isEditMode ? 'Save Changes' : 'Create Quiz',
-                      onPressed: isLoading ? () {} : cubit.onSubmit,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
       body: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1000),
-          child: Form(
-            key: cubit.formKey,
-            child: ListView(
+        child: Form(
+          key: cubit.formKey,
+          child: SingleChildScrollView(
+            child: Padding(
               padding: const EdgeInsets.all(32),
-              children: [
-                _buildHeader(cubit.isEditMode),
-                const SizedBox(height: 32),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Left Column (Details)
-                    Expanded(
-                      flex: 3,
-                      child: _buildDetailsCard(cubit),
-                    ),
-                    const SizedBox(width: 32),
-                    // Right Column (Settings)
-                    Expanded(
-                      flex: 2,
-                      child: _buildSettingsCard(context, cubit),
-                    ),
-                  ],
-                ),
-              ],
+              child: Column(
+                children: [
+                  HeaderSection(isEditMode: cubit.isEditMode),
+                  const SizedBox(height: 32),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Left Column (Details)
+                      Expanded(
+                        flex: 3,
+                        child: _buildDetailsCard(cubit),
+                      ),
+                      const SizedBox(width: 32),
+                      // Right Column (Settings)
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          children: [
+                            _buildSettingsCard(context, cubit),
+                            const SizedBox(height: 24),
+
+                            BlocBuilder<CreateQuizCubit, CreateQuizState>(
+                              builder: (context, state) {
+                                final isLoading = state is CreateQuizLoading;
+                                return isLoading
+                                    ? const SizedBox(
+                                        width: 32,
+                                        height: 32,
+                                        child: AppAnimatedLoadingIndicator(),
+                                      )
+                                    : SizedBox(
+                                        width: 250,
+                                        child: AppButton(
+                                          model: AppButtonStyleModel(
+                                            label: cubit.isEditMode
+                                                ? 'Save Changes'
+                                                : 'Create Quiz',
+                                            onPressed: cubit.onSubmit,
+                                          ),
+                                        ),
+                                      );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader(bool isEditMode) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            isEditMode ? 'MODIFICATION MODE' : 'NEW ASSIGNMENT',
-            style: AppStyles.mobileBodyXsmallRg.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.1,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          isEditMode ? 'Edit Quiz Details' : 'Create New Quiz',
-          style: AppStyles.mobileTitleMediumSb.copyWith(
-            color: AppColors.primaryDark,
-            fontSize: 28,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          isEditMode
-              ? 'Make sure to double-check the timing and classwork before saving.'
-              : 'Fill in the details to set up a new assessment for your class.',
-          style: AppStyles.mobileBodyMediumRg.copyWith(
-            color: AppColors.whiteDarkActive,
-          ),
-        ),
-      ],
     );
   }
 
@@ -203,6 +178,7 @@ class CreateQuizWebLayout extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
+
           if (!cubit.isEditMode) ...[
             BlocBuilder<CreateQuizCubit, CreateQuizState>(
               buildWhen: (prev, curr) => curr is CreateQuizUIUpdated,
@@ -219,6 +195,7 @@ class CreateQuizWebLayout extends StatelessWidget {
             ),
             const SizedBox(height: 24),
           ],
+
           TitledInputField(
             label: 'Quiz Title',
             child: AppTextField(
@@ -229,6 +206,7 @@ class CreateQuizWebLayout extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
+
           TitledInputField(
             label: 'Description',
             child: AppTextField(
@@ -269,6 +247,7 @@ class CreateQuizWebLayout extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
+
           BlocBuilder<CreateQuizCubit, CreateQuizState>(
             buildWhen: (prev, curr) => curr is CreateQuizUIUpdated,
             builder: (context, state) {
@@ -282,69 +261,15 @@ class CreateQuizWebLayout extends StatelessWidget {
             },
           ),
           const SizedBox(height: 24),
+
           TitledInputField(
             label: 'Duration',
-            child: _DurationInputField(
+            child: DurationInputField(
               controller: cubit.durationController,
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _DurationInputField extends StatelessWidget {
-  final TextEditingController controller;
-  const _DurationInputField({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AppTextField(
-          controller: controller,
-          hintText: 'e.g. 30',
-          textFieldType: TextFieldType.numerical,
-          suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'mins',
-                  style: AppStyles.mobileBodySmallMd.copyWith(
-                    color: AppColors.primaryDark,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(
-              Icons.info_outline_rounded,
-              size: 16,
-              color: AppColors.primaryDark,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Access deadline. Students can start until the last minute and finish their full attempt.',
-                style: AppStyles.mobileBodyXsmallRg.copyWith(
-                  color: AppColors.whiteDarkActive,
-                  height: 1.4,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 }

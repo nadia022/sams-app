@@ -3,13 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sams_app/core/enums/text_field_type.dart';
 import 'package:sams_app/core/models/app_button_style_model.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
-import 'package:sams_app/core/utils/styles/app_styles.dart';
+import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
 import 'package:sams_app/core/widgets/base/app_button.dart';
 import 'package:sams_app/core/widgets/base/app_text_field.dart';
 import 'package:sams_app/core/widgets/shared/titled_input_field.dart';
 import 'package:sams_app/features/quizzes/data/mock_data.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/shared/classwork_selector_field.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/model/create_quiz_form_args.dart';
+import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/shared/duration_input_field.dart';
+import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/shared/header_section.dart';
 import 'package:sams_app/features/quizzes/presentation/view_model/create_quiz_cubit/create_quiz_cubit.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/shared/date_time_picker_field.dart';
 
@@ -34,6 +36,18 @@ class CreateQuizMobileLayout extends StatelessWidget {
       initialDate: DateTime.now(),
       firstDate: DateTime.now(), // Prohibits past dates
       lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: Colors.white,
+              onSurface: AppColors.primaryDark,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (pickedDate == null || !context.mounted) return;
@@ -42,6 +56,37 @@ class CreateQuizMobileLayout extends StatelessWidget {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: Colors.white,
+              onSurface: AppColors.primaryDark,
+            ),
+
+            timePickerTheme: TimePickerThemeData(
+              dayPeriodColor: WidgetStateColor.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return AppColors.primary;
+                }
+                return Colors.transparent;
+              }),
+
+              dayPeriodTextColor: WidgetStateColor.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Colors.white;
+                }
+                return AppColors.primaryDark;
+              }),
+              dayPeriodBorderSide: const BorderSide(
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (pickedTime == null || !context.mounted) return;
@@ -67,7 +112,8 @@ class CreateQuizMobileLayout extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              _SectionHeader(isEditMode: cubit.isEditMode),
+              HeaderSection(isEditMode: cubit.isEditMode),
+
               Transform.translate(
                 offset: const Offset(0, -25),
                 child: Container(
@@ -148,7 +194,7 @@ class CreateQuizMobileLayout extends StatelessWidget {
                       // ─── Duration ───
                       TitledInputField(
                         label: 'Duration',
-                        child: _DurationInputField(
+                        child: DurationInputField(
                           controller: cubit.durationController,
                         ),
                       ),
@@ -188,7 +234,7 @@ class CreateQuizMobileLayout extends StatelessWidget {
                 SizedBox(
                   height: 24,
                   width: 24,
-                  child: CircularProgressIndicator(),
+                  child: AppAnimatedLoadingIndicator(),
                 ),
               ],
             )
@@ -198,126 +244,6 @@ class CreateQuizMobileLayout extends StatelessWidget {
                 onPressed: cubit.onSubmit,
               ),
             ),
-    );
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-//  Private sub-widgets (scoped to this file — not reused elsewhere)
-// ══════════════════════════════════════════════════════════════
-
-/// Contextual header with title and subtitle that adapts to the form mode.
-class _SectionHeader extends StatelessWidget {
-  final bool isEditMode;
-  const _SectionHeader({required this.isEditMode});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 60, 20, 50),
-      decoration: const BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.whiteLight.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              isEditMode ? 'MODIFICATION MODE' : 'NEW ASSIGNMENT',
-              style: AppStyles.mobileBodyXsmallRg.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.1,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            isEditMode ? 'Edit Quiz Details' : 'Create New Quiz',
-            style: AppStyles.mobileTitleMediumSb.copyWith(
-              color: Colors.white,
-              fontSize: 24,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          Text(
-            isEditMode
-                ? 'Make sure to double-check the timing and classwork before saving.'
-                : 'Fill in the details to set up a new assessment for your class.',
-            style: AppStyles.mobileBodySmallRg.copyWith(
-              color: AppColors.whiteLight.withValues(alpha: 0.8),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Digits-only field for quiz duration in minutes.
-class _DurationInputField extends StatelessWidget {
-  final TextEditingController controller;
-  const _DurationInputField({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AppTextField(
-          controller: controller,
-          hintText: 'e.g. 30',
-          textFieldType: TextFieldType.numerical,
-          suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'mins',
-                  style: AppStyles.mobileBodySmallMd.copyWith(
-                    color: AppColors.primaryDark,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 6),
-
-        // Helper subtext
-        Row(
-          children: [
-            const Icon(
-              Icons.info_outline_rounded,
-              size: 14,
-              color: AppColors.primaryDark,
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                'Access deadline. Students can start until the last minute and finish their full attempt.',
-                style: AppStyles.mobileBodyXsmallRg.copyWith(
-                  color: AppColors.whiteDarkActive,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 }
