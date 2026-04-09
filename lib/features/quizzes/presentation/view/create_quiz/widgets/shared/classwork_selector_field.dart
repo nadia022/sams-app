@@ -31,13 +31,9 @@ class ClassworkSelectorField extends StatelessWidget {
       // Disable tap in read-only mode
       onTap: () => _showClassworkSheet(context),
       child: InputDecorator(
-        decoration: InputDecoration(
-          hintText: 'Select assigned classwork',
-          hintStyle: AppStyles.mobileBodySmallRg.copyWith(
-            color: AppColors.whiteDarkHover,
-          ),
+        decoration: const InputDecoration(
           // Show lock icon when read-only, chevron otherwise
-          suffixIcon: const Icon(
+          suffixIcon: Icon(
             Icons.keyboard_arrow_down_rounded,
             color: AppColors.primaryDark,
           ),
@@ -49,7 +45,12 @@ class ClassworkSelectorField extends StatelessWidget {
                   color: AppColors.primaryDarkHover,
                 ),
               )
-            : null,
+            : Text(
+                'Select assigned classwork',
+                style: AppStyles.mobileBodySmallRg.copyWith(
+                  color: AppColors.whiteDarkHover,
+                ),
+              ),
       ),
     );
   }
