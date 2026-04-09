@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sams_app/core/enums/text_field_type.dart';
 import 'package:sams_app/core/models/app_button_style_model.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
+import 'package:sams_app/core/utils/configs/size_config.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
 import 'package:sams_app/core/widgets/base/app_button.dart';
@@ -23,6 +26,8 @@ class CreateQuizWebLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<CreateQuizCubit>();
 
+    final width = SizeConfig.screenWidth(context);
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Center(
@@ -36,20 +41,11 @@ class CreateQuizWebLayout extends StatelessWidget {
                 children: [
                   HeaderSection(isEditMode: cubit.isEditMode),
                   const SizedBox(height: 32),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Left Column (Details)
-                      Expanded(
-                        flex: 3,
-                        child: _buildDetailsCard(cubit),
-                      ),
-                      const SizedBox(width: 32),
-                      // Right Column (Settings)
-                      Expanded(
-                        flex: 2,
-                        child: Column(
+                  width < 755
+                      ? Column(
                           children: [
+                            _buildSettingsCard(context, cubit),
+                            const SizedBox(height: 24),
                             _buildSettingsCard(context, cubit),
                             const SizedBox(height: 24),
 
@@ -76,10 +72,53 @@ class CreateQuizWebLayout extends StatelessWidget {
                               },
                             ),
                           ],
+                        )
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Left Column (Details)
+                            Expanded(
+                              flex: 3,
+                              child: _buildDetailsCard(cubit),
+                            ),
+                            const SizedBox(width: 32),
+                            // Right Column (Settings)
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                children: [
+                                  _buildSettingsCard(context, cubit),
+                                  const SizedBox(height: 24),
+
+                                  BlocBuilder<CreateQuizCubit, CreateQuizState>(
+                                    builder: (context, state) {
+                                      final isLoading =
+                                          state is CreateQuizLoading;
+                                      return isLoading
+                                          ? const SizedBox(
+                                              width: 32,
+                                              height: 32,
+                                              child:
+                                                  AppAnimatedLoadingIndicator(),
+                                            )
+                                          : SizedBox(
+                                              width: 250,
+                                              child: AppButton(
+                                                model: AppButtonStyleModel(
+                                                  label: cubit.isEditMode
+                                                      ? 'Save Changes'
+                                                      : 'Create Quiz',
+                                                  onPressed: cubit.onSubmit,
+                                                ),
+                                              ),
+                                            );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
