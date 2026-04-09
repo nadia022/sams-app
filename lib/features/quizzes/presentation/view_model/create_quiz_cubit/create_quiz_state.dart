@@ -9,13 +9,7 @@ sealed class CreateQuizState extends Equatable {
 
 final class CreateQuizInitial extends CreateQuizState {}
 
-final class CreateQuizUIUpdated extends CreateQuizState {
-  final DateTime timestamp;
-  const CreateQuizUIUpdated(this.timestamp);
-
-  @override
-  List<Object?> get props => [timestamp];
-}
+final class CreateQuizFormUpdated extends CreateQuizState {}
 
 final class CreateQuizLoading extends CreateQuizState {}
 

@@ -1,10 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:sams_app/features/quizzes/data/repos/quiz_repository.dart';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sams_app/features/quizzes/data/mock_data.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/classwork_item_model.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/quiz_model.dart';
 import 'package:sams_app/features/quizzes/data/model/request_bodies_models/create_quiz_request_body.dart';
@@ -15,86 +13,135 @@ part 'create_quiz_state.dart';
 class CreateQuizCubit extends Cubit<CreateQuizState> {
   final QuizRepository _repository;
 
-  // ──────────────────── Form Key ────────────────────
-  final formKey = GlobalKey<FormState>();
+  CreateQuizCubit(this._repository) : super(CreateQuizInitial()) {
+    _initControllers();
+  }
 
-  // ──────────────────── Controllers ────────────────────
+  // ──────────────────── Form Elements ────────────────────
+  final formKey = GlobalKey<FormState>();
   late final TextEditingController titleController;
   late final TextEditingController descriptionController;
   late final TextEditingController durationController;
   late final TextEditingController startTimeDisplayController;
 
-  // ──────────────────── State Variables ────────────────────
-  ClassworItemkModel? selectedClasswork;
-  DateTime? selectedStartTime;
-  bool isEditMode = false;
-  QuizModel? initialData;
-  late String courseId;
+  // ──────────────────── Data Variables ────────────────────
+  ClassworkItemModel? selectedClasswork;
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
 
-  CreateQuizCubit(this._repository) : super(CreateQuizInitial()) {
+  bool isEditMode = false;
+  late String courseId;
+  QuizModel? initialData;
+
+  void _initControllers() {
     titleController = TextEditingController();
     descriptionController = TextEditingController();
     durationController = TextEditingController();
     startTimeDisplayController = TextEditingController();
   }
 
-  /// Initialises controllers from args
+  /// Initialises the form based on Create or Edit mode
   void init(CreateQuizFormArgs args) {
     isEditMode = args.isEditMode;
-    initialData = args.initialData;
     courseId = args.courseId;
+    initialData = args.initialData;
 
-    if (initialData != null) {
+    if (isEditMode && args.initialData != null) {
       titleController.text = initialData!.title;
       descriptionController.text = initialData!.description ?? '';
       durationController.text = initialData!.totalTime.toString();
-      
-      selectedStartTime = initialData!.startTime;
-      startTimeDisplayController.text = _formatDateTime(initialData!.startTime);
 
-      selectedClasswork = mockClassworkItems.cast<ClassworItemkModel?>().firstWhere(
-        (c) => c != null,
-        orElse: () => null,
-      );
+      _selectedDate = initialData!.startTime;
+      _selectedTime = TimeOfDay.fromDateTime(initialData!.startTime);
+
+      startTimeDisplayController.text = _formatDateTime(initialData!.startTime);
     }
-    
-    emit(CreateQuizUIUpdated(DateTime.now()));
+    emit(CreateQuizFormUpdated());
   }
+
+  // ──────────────────── Input Actions ────────────────────
+
+  void onClassworkSelected(ClassworkItemModel item) {
+    selectedClasswork = item;
+    emit(CreateQuizFormUpdated());
+  }
+
+  void updateDate(DateTime date) {
+    _selectedDate = date;
+    _combineAndSyncDateTime();
+  }
+
+  void updateTime(TimeOfDay time) {
+    _selectedTime = time;
+    _combineAndSyncDateTime();
+  }
+
+  void _combineAndSyncDateTime() {
+    if (_selectedDate != null && _selectedTime != null) {
+      final combined = DateTime(
+        _selectedDate!.year,
+        _selectedDate!.month,
+        _selectedDate!.day,
+        _selectedTime!.hour,
+        _selectedTime!.minute,
+      );
+      startTimeDisplayController.text = _formatDateTime(combined);
+      emit(CreateQuizFormUpdated());
+    }
+  }
+
+  // ──────────────────── Logic ────────────────────
 
   String _formatDateTime(DateTime dt) =>
       DateFormat('MMM dd, yyyy - hh:mm a').format(dt);
 
-  void onClassworkSelected(ClassworItemkModel item) {
-    selectedClasswork = item;
-    emit(CreateQuizUIUpdated(DateTime.now()));
-  }
+  Future<void> onSubmit() async {
+    // 1. Validation
+    if (selectedClasswork == null) {
+      emit(const CreateQuizFailure('Please select a classwork first.'));
+      return;
+    }
 
-  void onDateTimePicked(DateTime dt) {
-    selectedStartTime = dt;
-    startTimeDisplayController.text = _formatDateTime(dt);
-    emit(CreateQuizUIUpdated(DateTime.now()));
-  }
-
-  void onSubmit() {
     if (!formKey.currentState!.validate()) return;
 
+    if (_selectedDate == null || _selectedTime == null) {
+      emit(const CreateQuizFailure('Please select a start time.'));
+      return;
+    }
+
+    // 2. Prepare Data
     final body = CreateQuizRequestBody(
       classworkId: selectedClasswork?.id,
       title: titleController.text.trim(),
       description: descriptionController.text.trim(),
-      startTime: selectedStartTime,
+      startTime: DateTime(
+        _selectedDate!.year,
+        _selectedDate!.month,
+        _selectedDate!.day,
+        _selectedTime!.hour,
+        _selectedTime!.minute,
+      ),
       duration: int.tryParse(durationController.text.trim()),
     );
 
+    // 3. Execution
     emit(CreateQuizLoading());
 
-    // Fake API logic for now
-    if (isEditMode) {
-      debugPrint('[EDIT] PATCH update-quiz → ${body.toJson()}');
-      emit(const CreateQuizSuccess('Quiz updated successfully'));
-    } else {
-      debugPrint('[CREATE] POST create-quiz → ${body.toJson()}');
-      emit(const CreateQuizSuccess('Quiz created successfully'));
+    try {
+      // if (isEditMode) {
+      //   await _repository.updateQuiz(initialData!.id, body);
+      // } else {
+      //   await _repository.createQuiz(courseId, body);
+      // }
+
+      await Future.delayed(const Duration(seconds: 1)); // Fake delay
+
+      final successMsg = isEditMode
+          ? 'Quiz updated successfully'
+          : 'Quiz created successfully';
+      emit(CreateQuizSuccess(successMsg));
+    } catch (e) {
+      emit(CreateQuizFailure('Something went wrong: ${e.toString()}'));
     }
   }
 
