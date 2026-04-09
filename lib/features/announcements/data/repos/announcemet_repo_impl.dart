@@ -6,6 +6,8 @@ import 'package:sams_app/core/utils/constants/api_endpoints.dart';
 import 'package:sams_app/features/announcements/data/data_sources/announcements_local_data_source.dart';
 import 'package:sams_app/features/announcements/data/model/announcement_details_model.dart';
 import 'package:sams_app/features/announcements/data/model/announcement_model.dart';
+import 'package:sams_app/features/announcements/data/model/create_announcement_request_model.dart';
+import 'package:sams_app/features/announcements/data/model/update_announcement_request_model.dart';
 import 'package:sams_app/features/announcements/data/repos/announcement_repo.dart';
 
 //* Handles all announcements-related API calls and local caching
@@ -67,6 +69,67 @@ class AnnouncementsRepoImpl implements AnnouncementsRepo {
       );
 
       return right(announcementDetails);
+    } on ApiException catch (e) {
+      return left(e.errorModel.errorMessage);
+    } catch (e) {
+      return left(e.toString());
+    }
+  }
+
+  @override
+  //* POST → Create a new announcement
+  Future<Either<String, String>> createAnnouncement({
+    required String courseId,
+    required CreateAnnouncementRequestModel request,
+  }) async {
+    try {
+      final response = await api.post(
+        EndPoints.createAnnouncement(courseId),
+        data: request.toJson(),
+      );
+
+      final successMessage = response[ApiKeys.message] ?? 'Announcement created successfully';
+      return right(successMessage);
+    } on ApiException catch (e) {
+      return left(e.errorModel.errorMessage);
+    } catch (e) {
+      return left(e.toString());
+    }
+  }
+
+ //* DELETE → Remove announcement
+  @override
+  Future<Either<String, String>> deleteAnnouncement({
+    required String announcementId,
+  }) async {
+    try {
+      final response = await api.delete(
+        EndPoints.deleteAnnouncement(announcementId),
+      );
+
+      // We return the success message from the API response
+      return right(response[ApiKeys.message] ?? 'Deleted Successfully');
+    } on ApiException catch (e) {
+      return left(e.errorModel.errorMessage);
+    } catch (e) {
+      return left(e.toString());
+    }
+  }
+
+  //* PATCH → Update announcement partially
+  @override
+  Future<Either<String, AnnouncementModel>> updateAnnouncement({
+    required String announcementId,
+    required UpdateAnnouncementRequestModel request,
+  }) async {
+    try {
+      final response = await api.patch(
+        EndPoints.updateAnnouncement(announcementId),
+        data: request.toJson(),
+      );
+
+      final updatedAnnouncement = AnnouncementModel.fromJson(response[ApiKeys.data]);
+      return right(updatedAnnouncement);
     } on ApiException catch (e) {
       return left(e.errorModel.errorMessage);
     } catch (e) {

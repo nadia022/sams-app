@@ -33,4 +33,17 @@ class EndPoints {
   //? --- Announcements --- ;
   static String getCourseAnnouncements(String courseId) => 'courses/$courseId/announcements';
   static String getAnnouncementDetails(String announcementId) => 'announcements/$announcementId';
+  //* Instructor Announcement Operations
+  
+  /// Endpoint to create a new announcement for a specific course.
+  /// Needs [courseId] to be passed in the URL.
+  static String createAnnouncement(String courseId) => 'instructor/courses/$courseId/announcements';
+  
+  /// Endpoint to update an existing announcement.
+  /// Needs [announcementId] to be passed in the URL.
+  static String updateAnnouncement(String announcementId) => 'instructor/announcements/$announcementId';
+  
+  /// Endpoint to delete an existing announcement.
+  /// Needs [announcementId] to be passed in the URL.
+  static String deleteAnnouncement(String announcementId) => 'instructor/announcements/$announcementId';
 }

@@ -1,6 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:sams_app/features/announcements/data/model/announcement_details_model.dart';
 import 'package:sams_app/features/announcements/data/model/announcement_model.dart';
+import 'package:sams_app/features/announcements/data/model/create_announcement_request_model.dart';
+import 'package:sams_app/features/announcements/data/model/update_announcement_request_model.dart';
 
 //* Abstract contract for announcements data operations
 abstract class AnnouncementsRepo {
@@ -14,6 +16,24 @@ abstract class AnnouncementsRepo {
   });
   //* Fetch detailed information for a single announcement by announcementId
   Future<Either<String, AnnouncementDetailsModel>> fetchAnnouncementDetails({
+    required String announcementId,
+  });
+  //* --- Instructor Operations ---
+
+  /// Creates a new announcement for a specific course
+  Future<Either<String, String>> createAnnouncement({
+    required String courseId,
+    required CreateAnnouncementRequestModel request,
+  });
+
+  /// Updates an existing announcement's title or content
+  Future<Either<String, AnnouncementModel>> updateAnnouncement({
+    required String announcementId,
+    required UpdateAnnouncementRequestModel request,
+  });
+
+  /// Deletes an announcement by its ID
+  Future<Either<String, String>> deleteAnnouncement({
     required String announcementId,
   });
 }
