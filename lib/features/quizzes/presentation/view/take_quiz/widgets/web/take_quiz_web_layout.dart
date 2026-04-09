@@ -1,5 +1,4 @@
-// ignore: deprecated_member_use, avoid_web_libraries_in_flutter
-import 'dart:html' as html;
+import 'package:sams_app/features/quizzes/presentation/view/take_quiz/widgets/web/helper/prevent_default_warning.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
@@ -20,8 +19,6 @@ class TakeQuizWebLayout extends StatefulWidget {
 }
 
 class _TakeQuizWebLayoutState extends State<TakeQuizWebLayout> {
-  html.EventListener? _beforeUnloadListener;
-
   // Tracks the student's currently displayed selection (MCQ/TF only).
   String? _currentSelectedOption;
 
@@ -36,20 +33,13 @@ class _TakeQuizWebLayoutState extends State<TakeQuizWebLayout> {
     super.initState();
     _writtenAnswerController = TextEditingController();
 
-    // Prevent Default Warning (web only)
-    _beforeUnloadListener = (html.Event event) {
-      final beforeUnloadEvent = event as html.BeforeUnloadEvent;
-      beforeUnloadEvent.returnValue =
-          'Are you sure you want to leave? Your quiz progress will be lost.';
-    };
-    html.window.addEventListener('beforeunload', _beforeUnloadListener!);
+    // Prevent Default Warning (web only - safe for mobile import)
+    addPreventDefaultWarning();
   }
 
   @override
   void dispose() {
-    if (_beforeUnloadListener != null) {
-      html.window.removeEventListener('beforeunload', _beforeUnloadListener!);
-    }
+    removePreventDefaultWarning();
     _writtenAnswerController.dispose();
     super.dispose();
   }
