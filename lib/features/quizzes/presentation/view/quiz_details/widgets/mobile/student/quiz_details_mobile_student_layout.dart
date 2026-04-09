@@ -42,15 +42,12 @@ class QuizDetailsMobileStudentLayout extends StatelessWidget {
 
                   StudentActionCard(
                     onPressed: () {
-                      context.pushNamed(
+                      context.push(
                         RoutesName.takeQuiz,
-                        pathParameters: {
-                          'courseId': getCourseId(
-                            context,
-                          ),
+                        extra: {
                           'quizId': quiz.id,
+                          'quizTitle': quiz.title,
                         },
-                        extra: quiz.title,
                       );
                     },
                     quiz: quiz,
@@ -70,6 +67,4 @@ class QuizDetailsMobileStudentLayout extends StatelessWidget {
     );
   }
 
-  static String getCourseId(BuildContext context) =>
-      GoRouterState.of(context).pathParameters['courseId'] ?? '';
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sams_app/core/utils/router/routes_name.dart';
@@ -29,43 +28,36 @@ class InstructorActionHandler {
     }
   }
 
-  // Navigation Logic Placeholders
+  // Navigation Logic
   static void _navigateToAddQuestions(BuildContext context, QuizModel quiz) {
     log('Navigating to Add Questions for quiz: ${quiz.id}');
-    // TODO: Add GoRouter or Navigator logic here
+    context.push(
+      RoutesName.manageQuestions,
+      extra: {'quizId': quiz.id},
+    );
   }
 
   static void _navigateToManageQuestions(BuildContext context, QuizModel quiz) {
     log('Navigating to Manage Questions for quiz: ${quiz.id}');
+    context.push(
+      RoutesName.manageQuestions,
+      extra: {'quizId': quiz.id},
+    );
   }
 
   static void _navigateToViewQuestions(BuildContext context, QuizModel quiz) {
     log('Navigating to View Questions for quiz: ${quiz.id}');
+    context.push(
+      RoutesName.manageQuestions,
+      extra: {'quizId': quiz.id},
+    );
   }
 
   static void _navigateToSubmissions(BuildContext context, QuizModel quiz) {
-    kIsWeb
-        ? context.goNamed(
-            RoutesName.submissionsList,
-            pathParameters: {
-              'courseId': getCourseId(
-                context,
-              ), // Required by the parent ShellRoute/Tab
-              'quizId': quiz.id, // Required by the quizDetails route
-            },
-          )
-        : context.pushNamed(
-            RoutesName.submissionsList,
-            pathParameters: {
-              'courseId': getCourseId(
-                context,
-              ), // Required by the parent ShellRoute/Tab
-              'quizId': quiz.id, // Required by the quizDetails route
-            },
-          );
     log('Navigating to Submissions for quiz: ${quiz.id}');
+    context.push(
+      RoutesName.submissionsList,
+      extra: {'quizId': quiz.id},
+    );
   }
-
-  static String getCourseId(BuildContext context) =>
-      GoRouterState.of(context).pathParameters['courseId'] ?? '';
 }

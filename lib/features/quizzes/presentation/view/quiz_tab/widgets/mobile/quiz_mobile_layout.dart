@@ -82,9 +82,9 @@ class QuizMobileLayout extends StatelessWidget {
 
   /// Navigation logic to create quiz screen
   void _navigateToCreateQuiz(BuildContext context) {
-    context.pushNamed(
+    context.push(
       RoutesName.createQuiz,
-      pathParameters: {'courseId': courseId},
+      extra: {'courseId': courseId},
     );
   }
 
@@ -94,10 +94,9 @@ class QuizMobileLayout extends StatelessWidget {
     final bool canEnter = quiz.state != QuizState.closed || isInstructor;
 
     if (canEnter) {
-      context.pushNamed(
+      context.push(
         RoutesName.quizDetails,
-        pathParameters: {
-          'courseId': courseId,
+        extra: {
           'quizId': quiz.id.toString(),
         },
       );

@@ -1,30 +1,14 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sams_app/core/utils/router/routes_name.dart';
 
-void backToQuizTab({
-  required BuildContext context,
-}) {
-  kIsWeb
-      ? context.goNamed(
-          RoutesName.quizzes,
-          pathParameters: {
-            'courseId': getCourseId(
-              context,
-            ), // Required by the parent ShellRoute/Tab
-            
-          },
-        )
-      : context.pushReplacementNamed(
-          RoutesName.quizzes,
-          pathParameters: {
-            'courseId': getCourseId(
-              context,
-            ), // Required by the parent ShellRoute/Tab
-          },
-        );
+/// Navigates the user back to the course details view (which holds the Quizzes tab).
+/// Since course details is now a flat route driven by IndexedStack, we simply pop
+/// back to it. If there is nothing to pop (e.g. deep-link entry), fall back to /courses.
+void backToQuizTab({required BuildContext context}) {
+  if (context.canPop()) {
+    context.pop();
+  } else {
+    context.go(RoutesName.courses);
+  }
 }
-
-String getCourseId(BuildContext context) =>
-    GoRouterState.of(context).pathParameters['courseId'] ?? '';

@@ -134,9 +134,9 @@ class QuizsWebLayout extends StatelessWidget {
 
   /// Navigation logic to create quiz screen
   void _navigateToCreateQuiz(BuildContext context) {
-    context.pushNamed(
+    context.push(
       RoutesName.createQuiz,
-      pathParameters: {'courseId': courseId},
+      extra: {'courseId': courseId},
     );
   }
 
@@ -145,10 +145,9 @@ class QuizsWebLayout extends StatelessWidget {
     final bool isInstructor = userRole == UserRole.instructor;
 
     if (quiz.state != QuizState.closed || isInstructor) {
-      context.goNamed(
+      context.push(
         RoutesName.quizDetails,
-        pathParameters: {
-          'courseId': courseId,
+        extra: {
           'quizId': quiz.id.toString(),
         },
       );
