@@ -208,6 +208,8 @@ class _ClassworkSelectionSheet extends StatelessWidget {
               child: Center(
                 child: InkWell(
                   onTap: () async {
+                    Navigator.of(context).pop();
+
                     final ClassworkModel? newClasswork =
                         await showAddClassworkDialog(context);
 

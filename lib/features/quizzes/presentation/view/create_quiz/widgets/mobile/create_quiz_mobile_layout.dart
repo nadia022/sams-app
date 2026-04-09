@@ -194,7 +194,7 @@ class CreateQuizMobileLayout extends StatelessWidget {
             )
           : AppButton(
               model: AppButtonStyleModel(
-                label: cubit.isEditMode ? 'Save Changes' : 'Continue',
+                label: cubit.isEditMode ? 'Save Changes' : 'Create Quiz',
                 onPressed: cubit.onSubmit,
               ),
             ),
