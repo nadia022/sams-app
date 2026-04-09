@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 
@@ -13,7 +14,8 @@ import 'package:sams_app/features/quizzes/presentation/view_model/submissions_cu
 import 'package:sams_app/features/quizzes/presentation/view/submissions_list/widgets/shared/submissions_stats_bar.dart';
 
 class SubmissionsListMobileLayout extends StatelessWidget {
-  const SubmissionsListMobileLayout({super.key});
+  const SubmissionsListMobileLayout({super.key, required this.quizTitle});
+  final String quizTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +24,12 @@ class SubmissionsListMobileLayout extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          onPressed: () {}, //TODO: implement back navigation
+          onPressed: () {
+            context.pop();
+          },
           icon: const Icon(Icons.arrow_circle_left_outlined),
         ),
-        title: const Text('All Submissions'),
+        title: Text(quizTitle),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

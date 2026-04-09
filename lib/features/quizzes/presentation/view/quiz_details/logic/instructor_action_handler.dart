@@ -57,7 +57,7 @@ class InstructorActionHandler {
     log('Navigating to Submissions for quiz: ${quiz.id}');
     context.push(
       RoutesName.submissionsList,
-      extra: {'quizId': quiz.id},
+      extra: {'quizId': quiz.id, 'quizTitle': quiz.title},
     );
   }
 }
