@@ -1,7 +1,7 @@
 import 'package:sams_app/features/quizzes/data/model/data_models/quiz_model.dart';
 
 /// A typed arguments object passed via GoRouter's [extra] parameter
-/// when navigating to the [QuizFormScreen].
+/// when navigating to the [CreateQuizView].
 ///
 /// Using a dedicated args model instead of raw primitives guarantees:
 /// - Type safety at the call site.

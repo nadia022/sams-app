@@ -46,6 +46,7 @@ import 'package:sams_app/features/quizzes/presentation/view/create_quiz/model/cr
 import 'package:sams_app/features/quizzes/presentation/view/quiz_tab/quizzes_tab_view.dart';
 import 'package:sams_app/features/quizzes/presentation/view/submissions_list/submissions_list_view.dart';
 import 'package:sams_app/features/quizzes/presentation/view/take_quiz/take_quiz_view.dart';
+import 'package:sams_app/features/quizzes/presentation/view_model/create_quiz_cubit/create_quiz_cubit.dart';
 import 'package:sams_app/features/quizzes/presentation/view_model/get_all_quizes_cubit/get_all_quizes_cubit.dart';
 import 'package:sams_app/features/quizzes/presentation/view_model/grading_cubit/grading_cubit.dart';
 import 'package:sams_app/features/quizzes/presentation/view_model/test_grading_cubit/test_grading_cubit.dart';
@@ -62,7 +63,7 @@ class AppRouter {
 
   static final appRouter = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: '',
+    initialLocation: RoutesName.login,
     errorBuilder: (context, state) => const GeneralErrorPage(),
     routes: [
       // ! --- AUTH ROUTES ---
@@ -291,8 +292,8 @@ class AppRouter {
 
                   return BlocProvider(
                     create: (context) =>
-                        ManageQuizCubit(getIt<QuizRepository>()),
-                    child: CreateQuizView(args: args),
+                        CreateQuizCubit(getIt<QuizRepository>())..init(args),
+                    child: const CreateQuizView(),
                   );
                 },
               ),
