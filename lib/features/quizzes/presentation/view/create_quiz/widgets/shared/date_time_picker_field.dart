@@ -16,29 +16,32 @@ class DateTimePickerField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      readOnly: true,
-      onTap: onTap,
-      style: AppStyles.mobileBodySmallMd.copyWith(
-        color: AppColors.primaryDarkHover,
-      ),
-      decoration: InputDecoration(
-        hintText: 'Pick date & time',
-        hintStyle: AppStyles.mobileBodySmallRg.copyWith(
-          color: AppColors.whiteDarkHover,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: TextFormField(
+        controller: controller,
+        readOnly: true,
+        onTap: onTap,
+        style: AppStyles.mobileBodySmallMd.copyWith(
+          color: AppColors.primaryDarkHover,
         ),
-        suffixIcon: const Icon(
-          Icons.calendar_month_rounded,
-          color: AppColors.primaryDark,
+        decoration: InputDecoration(
+          hintText: 'Pick date & time',
+          hintStyle: AppStyles.mobileBodySmallRg.copyWith(
+            color: AppColors.whiteDarkHover,
+          ),
+          suffixIcon: const Icon(
+            Icons.calendar_month_rounded,
+            color: AppColors.primaryDark,
+          ),
         ),
+        validator: (_) {
+          if (controller.text.isEmpty) {
+            return 'Start time is required';
+          }
+          return null;
+        },
       ),
-      validator: (_) {
-        if (controller.text.isEmpty) {
-          return 'Start time is required';
-        }
-        return null;
-      },
     );
   }
 }

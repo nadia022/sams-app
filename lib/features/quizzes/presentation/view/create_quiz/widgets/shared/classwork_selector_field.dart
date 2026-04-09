@@ -61,26 +61,51 @@ class ClassworkSelectorField extends StatelessWidget {
     );
   }
 
-  // ──────────────── Bottom Sheet ────────────────
+  // ──────────────── Bottom Sheet / Dialog ────────────────
 
   void _showClassworkSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.whiteLight,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (sheetContext) {
-        return _ClassworkSelectionSheet(
-          items: classworkItems,
-          selectedId: selectedClasswork?.id,
-          onSelected: (item) {
-            onSelected(item);
-            Navigator.of(sheetContext).pop();
-          },
-        );
-      },
-    );
+    if (MediaQuery.of(context).size.width >= 800) {
+      showDialog(
+        context: context,
+        builder: (dialogContext) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            backgroundColor: AppColors.whiteLight,
+            child: SizedBox(
+              width: 500,
+              child: _ClassworkSelectionSheet(
+                items: classworkItems,
+                selectedId: selectedClasswork?.id,
+                onSelected: (item) {
+                  onSelected(item);
+                  Navigator.of(dialogContext).pop();
+                },
+              ),
+            ),
+          );
+        },
+      );
+    } else {
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: AppColors.whiteLight,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (sheetContext) {
+          return _ClassworkSelectionSheet(
+            items: classworkItems,
+            selectedId: selectedClasswork?.id,
+            onSelected: (item) {
+              onSelected(item);
+              Navigator.of(sheetContext).pop();
+            },
+          );
+        },
+      );
+    }
   }
 }
 
@@ -172,15 +197,17 @@ class _ClassworkSelectionSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // ── Handle bar ──
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.whiteActive,
-                borderRadius: BorderRadius.circular(12),
+            if (MediaQuery.of(context).size.width < 800) ...[
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.whiteActive,
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
+            ],
 
             // ── Title ──
             Text(
