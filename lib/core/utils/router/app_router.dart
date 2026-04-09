@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sams_app/core/enums/enum_user_role.dart';
 import 'package:sams_app/core/models/course_header_card_model.dart';
-import 'package:sams_app/core/utils/router/build_route.dart';
 import 'package:sams_app/core/utils/router/routes_name.dart';
+import 'package:sams_app/core/utils/router/router_payload_cache.dart';
 import 'package:sams_app/core/utils/services/service_locator.dart';
 import 'package:sams_app/core/widgets/shared/general_error_page.dart';
 
@@ -44,11 +44,28 @@ import 'package:sams_app/features/quizzes/presentation/view_model/quiz_details_c
 import 'package:sams_app/features/quizzes/presentation/view_model/submissions_cubit/submissions_cubit.dart';
 import 'package:sams_app/features/quizzes/presentation/view_model/take_quiz_cubit/take_quiz_cubit.dart';
 
+/// A robust cache system for GoRouter `extra` payloads.
+///
+/// WHY THIS IS NEEDED: GoRouter is fundamentally designed for Web URLs. When
+/// navigating "Back" (or rebuilding the stack), GoRouter recreates previous
+/// or web back-button presses. This cache acts as our own bulletproof preserver.
+
 class AppRouter {
   AppRouter._();
 
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
+
+  /// Returns user to HomeView actively bypassing null paths. Required for F5
+  /// browser hard refreshes where state memory context.extra drops.
+  static Widget _fallbackHome() {
+    return BlocProvider(
+      create: (_) =>
+          HomeCubit(getIt<HomeRepo>(), role: CurrentRole.role)
+            ..fetchMyCourses(role: CurrentRole.role),
+      child: const HomeView(),
+    );
+  }
 
   static final appRouter = GoRouter(
     navigatorKey: navigatorKey,
@@ -56,10 +73,9 @@ class AppRouter {
     errorBuilder: (context, state) => const GeneralErrorPage(),
     routes: [
       // ─────────────────────────────────────────────────────────────────────
-      // AUTH
+      // AUTHENTICATION
       // ─────────────────────────────────────────────────────────────────────
-
-      buildRoute(
+      GoRoute(
         name: RoutesName.login,
         path: RoutesName.login,
         builder: (context, state) => BlocProvider(
@@ -68,7 +84,7 @@ class AppRouter {
         ),
       ),
 
-      // Sign-up flow: SignUpCubit shared across SignUpView → ActivateAccountView
+      // Sign-up flow: shared cubit
       ShellRoute(
         builder: (context, state, child) => BlocProvider(
           create: (_) => SignUpCubit(getIt<AuthRepo>()),
@@ -88,7 +104,7 @@ class AppRouter {
         ],
       ),
 
-      // Password-reset flow: PasswordResetCubit shared across 3 screens
+      // Password reset flow: shared cubit
       ShellRoute(
         builder: (context, state, child) => BlocProvider(
           create: (_) => PasswordResetCubit(getIt<AuthRepo>()),
@@ -116,8 +132,7 @@ class AppRouter {
       // ─────────────────────────────────────────────────────────────────────
       // HOME & PROFILE
       // ─────────────────────────────────────────────────────────────────────
-
-      buildRoute(
+      GoRoute(
         name: RoutesName.courses,
         path: RoutesName.courses,
         builder: (context, state) => BlocProvider(
@@ -128,12 +143,15 @@ class AppRouter {
         ),
       ),
 
-      buildRoute(
+      GoRoute(
         name: RoutesName.createCourse,
         path: RoutesName.createCourse,
         builder: (context, state) {
-          // HomeCubit is passed as extra from HomeView
-          final homeCubit = state.extra as HomeCubit;
+          final homeCubit = RouterPayloadCache.get<HomeCubit>(
+            RoutesName.createCourse,
+            state.extra,
+          );
+          if (homeCubit == null) return _fallbackHome();
           return BlocProvider.value(
             value: homeCubit,
             child: const CreateCourseView(),
@@ -141,43 +159,45 @@ class AppRouter {
         },
       ),
 
-      buildRoute(
+      GoRoute(
         name: RoutesName.profile,
         path: RoutesName.profile,
         builder: (context, state) => BlocProvider(
-          create: (_) =>
-              ProfileCubit(getIt<ProfileRepo>())..getUserProfile(),
+          create: (_) => ProfileCubit(getIt<ProfileRepo>())..getUserProfile(),
           child: const ProfileView(),
         ),
       ),
 
       // ─────────────────────────────────────────────────────────────────────
-      // COURSE DETAILS  — tabs are widgets, NOT routes
-      // extra: CourseHeaderCardModel (required, null-safe guarded below)
+      // COURSE DETAILS
       // ─────────────────────────────────────────────────────────────────────
-
-      buildRoute(
+      GoRoute(
         name: RoutesName.courseDetails,
         path: RoutesName.courseDetails,
         builder: (context, state) {
-          final model = state.extra as CourseHeaderCardModel?;
-          if (model == null) return const GeneralErrorPage();
+          final model = RouterPayloadCache.get<CourseHeaderCardModel>(
+            RoutesName.courseDetails,
+            state.extra,
+          );
+          if (model == null) return _fallbackHome();
           return CourseDetailsView(courseModel: model);
         },
       ),
 
       // ─────────────────────────────────────────────────────────────────────
-      // QUIZ STANDALONE ROUTES — all flat, all at root level
+      // QUIZ STANDALONE ROUTES
       // ─────────────────────────────────────────────────────────────────────
-
-      // extra: { 'quizId': String }
-      buildRoute(
+      GoRoute(
         name: RoutesName.quizDetails,
         path: RoutesName.quizDetails,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          final quizId = extra?['quizId'] as String? ?? '';
-          
+          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+            RoutesName.quizDetails,
+            state.extra,
+          );
+          if (extra == null) return _fallbackHome();
+          final quizId = extra['quizId'] as String? ?? '';
+
           return BlocProvider(
             create: (_) => QuizDetailsCubit(getIt<QuizRepository>()),
             child: QuizDetailsView(quizId: quizId),
@@ -185,34 +205,52 @@ class AppRouter {
         },
       ),
 
-      // extra: { 'courseId': String }
-      buildRoute(
+      GoRoute(
         name: RoutesName.createQuiz,
         path: RoutesName.createQuiz,
-        builder: (context, state) => BlocProvider(
-          create: (_) => ManageQuizCubit(getIt<QuizRepository>()),
-          child: const CreateQuizView(),
-        ),
+        builder: (context, state) {
+          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+            RoutesName.createQuiz,
+            state.extra,
+          );
+          if (extra == null) return _fallbackHome();
+
+          return BlocProvider(
+            create: (_) => ManageQuizCubit(getIt<QuizRepository>()),
+            child: const CreateQuizView(),
+          );
+        },
       ),
 
-      // extra: { 'quizId': String }
-      buildRoute(
+      GoRoute(
         name: RoutesName.manageQuestions,
         path: RoutesName.manageQuestions,
-        builder: (context, state) => BlocProvider(
-          create: (_) => ManageQuizCubit(getIt<QuizRepository>()),
-          child: const ManageQuestionsView(),
-        ),
+        builder: (context, state) {
+          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+            RoutesName.manageQuestions,
+            state.extra,
+          );
+          if (extra == null) return _fallbackHome();
+
+          return BlocProvider(
+            create: (_) => ManageQuizCubit(getIt<QuizRepository>()),
+            child: const ManageQuestionsView(),
+          );
+        },
       ),
 
-      // extra: { 'quizId': String, 'quizTitle': String }
-      buildRoute(
+      GoRoute(
         name: RoutesName.takeQuiz,
         path: RoutesName.takeQuiz,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          final quizId = extra?['quizId'] as String? ?? '';
-          final quizTitle = extra?['quizTitle'] as String? ?? 'Quiz';
+          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+            RoutesName.takeQuiz,
+            state.extra,
+          );
+          if (extra == null) return _fallbackHome();
+          final quizId = extra['quizId'] as String? ?? '';
+          final quizTitle = extra['quizTitle'] as String? ?? 'Quiz';
+
           return BlocProvider(
             create: (_) =>
                 TakeQuizCubit(getIt<QuizRepository>())
@@ -222,29 +260,38 @@ class AppRouter {
         },
       ),
 
-      // extra: { 'quizId': String }
-      buildRoute(
+      GoRoute(
         name: RoutesName.submissionsList,
         path: RoutesName.submissionsList,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          final quizId = extra?['quizId'] as String? ?? '';
+          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+            RoutesName.submissionsList,
+            state.extra,
+          );
+          if (extra == null) return _fallbackHome();
+          final quizId = extra['quizId'] as String? ?? '';
+          final quizTitle = extra['quizTitle'] as String? ?? 'All Submissions';
+
           return BlocProvider(
             create: (_) =>
                 SubmissionsCubit(getIt<QuizRepository>())
                   ..fetchAllSubmissions(quizId: quizId),
-            child: const SubmissionsListView(),
+            child: SubmissionsListView(quizTitle: quizTitle),
           );
         },
       ),
 
-      // extra: { 'submissionId': String }
-      buildRoute(
+      GoRoute(
         name: RoutesName.gradeSubmission,
         path: RoutesName.gradeSubmission,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          final submissionId = extra?['submissionId'] as String? ?? '';
+          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+            RoutesName.gradeSubmission,
+            state.extra,
+          );
+          if (extra == null) return _fallbackHome();
+          final submissionId = extra['submissionId'] as String? ?? '';
+
           return BlocProvider(
             create: (_) => GradingCubit(getIt<QuizRepository>()),
             child: GradeSubmissionView(submissionId: submissionId),
