@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:sams_app/core/enums/text_field_type.dart';
 import 'package:sams_app/core/models/app_button_style_model.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
-import 'package:sams_app/core/validators/app_validators.dart';
 import 'package:sams_app/core/widgets/base/app_button.dart';
 import 'package:sams_app/core/widgets/base/app_text_field.dart';
 import 'package:sams_app/core/widgets/mobile/mobile_custom_app_bar.dart';
@@ -15,19 +13,20 @@ import 'package:sams_app/features/quizzes/data/model/data_models/classwork_item_
 import 'package:sams_app/features/quizzes/data/model/data_models/quiz_model.dart';
 import 'package:sams_app/features/quizzes/data/model/request_bodies_models/create_quiz_request_body.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/shared/classwork_selector_field.dart';
-import 'package:sams_app/features/quizzes/presentation/view/quiz_form/quiz_form_args.dart';
+import 'package:sams_app/features/quizzes/presentation/view/create_quiz/model/create_quiz_form_args.dart';
+import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/shared/date_time_picker_field.dart';
 
 /// A unified "Smart Form" screen for both creating and editing a quiz.
 ///
-/// Behaviour is driven entirely by [QuizFormArgs]:
-/// - [QuizFormArgs.isEditMode] == false → Create mode (blank form, "Create Quiz" title)
-/// - [QuizFormArgs.isEditMode] == true  → Edit mode (pre-filled form, "Edit Quiz" title,
+/// Behaviour is driven entirely by [CreateQuizFormArgs]:
+/// - [CreateQuizFormArgs.isEditMode] == false → Create mode (blank form, "Create Quiz" title)
+/// - [CreateQuizFormArgs.isEditMode] == true  → Edit mode (pre-filled form, "Edit Quiz" title,
 ///   classwork field locked)
 ///
 /// Data flow is ready for Cubit integration — see the TODO comments at the
 /// submit handler.
 class CreateQuizMobileLayout extends StatefulWidget {
-  final QuizFormArgs args;
+  final CreateQuizFormArgs args;
 
   const CreateQuizMobileLayout({super.key, required this.args});
 
@@ -61,7 +60,7 @@ class _CreateQuizMobileLayoutState extends State<CreateQuizMobileLayout> {
     _initControllers();
   }
 
-  /// Initialises controllers from [QuizFormArgs.initialData] in Edit mode,
+  /// Initialises controllers from [CreateQuizFormArgs.initialData] in Edit mode,
   /// or with empty values in Create mode.
   void _initControllers() {
     _titleController = TextEditingController(
@@ -249,7 +248,7 @@ class _CreateQuizMobileLayoutState extends State<CreateQuizMobileLayout> {
               // ─── Start Time ───
               TitledInputField(
                 label: 'Start Time',
-                child: _DateTimePickerField(
+                child: DateTimePickerField(
                   controller: _startTimeDisplayController,
                   onTap: _pickStartDateTime,
                 ),
@@ -328,37 +327,6 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-/// Read-only text field that triggers date + time picker on tap.
-class _DateTimePickerField extends StatelessWidget {
-  final TextEditingController controller;
-  final VoidCallback onTap;
-  const _DateTimePickerField({required this.controller, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      readOnly: true,
-      onTap: onTap,
-      style: AppStyles.mobileBodySmallMd.copyWith(
-        color: AppColors.primaryDarkHover,
-      ),
-      decoration: InputDecoration(
-        hintText: 'Pick date & time',
-        hintStyle: AppStyles.mobileBodySmallRg.copyWith(
-          color: AppColors.whiteDarkHover,
-        ),
-        suffixIcon: const Icon(
-          Icons.calendar_month_rounded,
-          color: AppColors.primaryDark,
-        ),
-      ),
-      validator: (_) =>
-          controller.text.isEmpty ? 'Start time is required' : null,
-    );
-  }
-}
-
 /// Digits-only field for quiz duration in minutes.
 class _DurationInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -370,41 +338,29 @@ class _DurationInputField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        TextFormField(
+        AppTextField(
           controller: controller,
-          keyboardType: TextInputType.number,
-          textInputAction: TextInputAction.done,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: AppStyles.mobileBodySmallMd.copyWith(
-            color: AppColors.primaryDarkHover,
-          ),
-          decoration: InputDecoration(
-            hintText: 'e.g. 30',
-            hintStyle: AppStyles.mobileBodySmallRg.copyWith(
-              color: AppColors.whiteDarkHover,
-            ),
-            suffixIcon: Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'mins',
-                    style: AppStyles.mobileBodySmallMd.copyWith(
-                      color: AppColors.primaryDark,
-                    ),
+          hintText: 'e.g. 30',
+          textFieldType: TextFieldType.numerical,
+          suffixIcon: Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'mins',
+                  style: AppStyles.mobileBodySmallMd.copyWith(
+                    color: AppColors.primaryDark,
                   ),
-                ],
-              ),
-            ),
-            suffixIconConstraints: const BoxConstraints(
-              minHeight: 0,
-              minWidth: 0,
+                ),
+              ],
             ),
           ),
-          validator: (value) => AppValidators.validateNumber(value),
         ),
+
         const SizedBox(height: 6),
+
+        // Helper subtext
         Padding(
           padding: const EdgeInsets.only(left: 4),
           child: Text(

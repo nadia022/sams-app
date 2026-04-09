@@ -42,7 +42,7 @@ import 'package:sams_app/features/quizzes/presentation/view/grade_submission/gra
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/manage_questions_view.dart';
 import 'package:sams_app/features/quizzes/presentation/view/quiz_details/quiz_details_view.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/create_quiz_view.dart';
-import 'package:sams_app/features/quizzes/presentation/view/quiz_form/quiz_form_args.dart';
+import 'package:sams_app/features/quizzes/presentation/view/create_quiz/model/create_quiz_form_args.dart';
 import 'package:sams_app/features/quizzes/presentation/view/quiz_tab/quizzes_tab_view.dart';
 import 'package:sams_app/features/quizzes/presentation/view/submissions_list/submissions_list_view.dart';
 import 'package:sams_app/features/quizzes/presentation/view/take_quiz/take_quiz_view.dart';
@@ -62,7 +62,7 @@ class AppRouter {
 
   static final appRouter = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: RoutesName.login,
+    initialLocation: '',
     errorBuilder: (context, state) => const GeneralErrorPage(),
     routes: [
       // ! --- AUTH ROUTES ---
@@ -278,16 +278,17 @@ class AppRouter {
                   ),
                 ],
               ),
-              // ? --- CREATE QUIZ 
+              // ? --- CREATE QUIZ
               GoRoute(
                 name: RoutesName.createQuiz,
                 path: RoutesName.createQuiz,
                 parentNavigatorKey: navigatorKey, // FULL SCREEN
                 builder: (context, state) {
                   final courseId = state.pathParameters['courseId'] ?? '';
-                  final args = state.extra as QuizFormArgs? ??
-                      QuizFormArgs(courseId: courseId);
-                      
+                  final args =
+                      state.extra as CreateQuizFormArgs? ??
+                      CreateQuizFormArgs(courseId: courseId);
+
                   return BlocProvider(
                     create: (context) =>
                         ManageQuizCubit(getIt<QuizRepository>()),

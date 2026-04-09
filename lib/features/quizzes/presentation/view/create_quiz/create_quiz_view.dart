@@ -5,14 +5,14 @@ import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/web/create_quiz_web_layout.dart';
 import 'package:sams_app/features/quizzes/presentation/view_model/manage_quiz_cubit/manage_quiz_cubit.dart';
 
-import 'package:sams_app/features/quizzes/presentation/view/quiz_form/quiz_form_args.dart';
+import 'package:sams_app/features/quizzes/presentation/view/create_quiz/model/create_quiz_form_args.dart';
 
 /// Adaptive shell for the Create Quiz flow.
 ///
 /// NOTE: The router creates [CreateQuizView] directly via both `createQuiz`
-/// and `quizForm` routes using [QuizFormArgs].
+/// and `quizForm` routes using [CreateQuizFormArgs].
 class CreateQuizView extends StatelessWidget {
-  final QuizFormArgs args;
+  final CreateQuizFormArgs args;
 
   const CreateQuizView({super.key, required this.args});
 

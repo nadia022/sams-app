@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sams_app/core/utils/router/routes_name.dart';
 import 'dart:developer';
 import 'package:sams_app/features/quizzes/data/model/data_models/quiz_model.dart';
-import 'package:sams_app/features/quizzes/presentation/view/quiz_form/quiz_form_args.dart';
+import 'package:sams_app/features/quizzes/presentation/view/create_quiz/model/create_quiz_form_args.dart';
 import 'quiz_action_type.dart';
 
 class InstructorActionHandler {
@@ -36,14 +36,14 @@ class InstructorActionHandler {
   // Navigation Logic
 
   /// Navigates to [QuizFormScreen] in Edit mode, passing the full [QuizModel]
-  /// as [QuizFormArgs.initialData] so every field is pre-populated.
+  /// as [CreateQuizFormArgs.initialData] so every field is pre-populated.
   static void _navigateToEditQuiz(BuildContext context, QuizModel quiz) {
     final courseId = getCourseId(context);
     log('Navigating to EditQuiz: ${quiz.id}');
     context.pushNamed(
       RoutesName.createQuiz,
       pathParameters: {'courseId': courseId},
-      extra: QuizFormArgs(
+      extra: CreateQuizFormArgs(
         courseId: courseId,
         isEditMode: true,
         initialData: quiz,

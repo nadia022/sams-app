@@ -7,7 +7,7 @@ import 'package:sams_app/features/quizzes/data/model/data_models/quiz_model.dart
 /// - Type safety at the call site.
 /// - A single, self-documenting contract for the route.
 /// - Easy extensibility (e.g., adding `courseId` later).
-class QuizFormArgs {
+class CreateQuizFormArgs {
   /// Always required — needed in both API calls (POST create / PATCH update).
   final String courseId;
 
@@ -22,7 +22,7 @@ class QuizFormArgs {
   /// Used to pre-populate all controllers and to lock the classwork field.
   final QuizModel? initialData;
 
-  const QuizFormArgs({
+  const CreateQuizFormArgs({
     required this.courseId,
     this.isEditMode = false,
     this.initialData,
