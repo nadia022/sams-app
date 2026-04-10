@@ -222,7 +222,7 @@ class QuizRepositoryImpl implements QuizRepository {
   Future<Either<String, String>> gradeWrittenQuestion(
     String submissionId,
     String questionId,
-    int grade,
+    num grade,
   ) async {
     try {
       // hit gradeWrittenQuestion request

@@ -21,8 +21,8 @@ class StudentSubmissionModel {
   final String text;
   final String questionType;
   final int timeLimit;
-  final int points;
-  final int earnedPoints;
+  final num points;
+  final num earnedPoints;
   final bool? isCorrect; // Null specifically means pending manual grading
   final bool isGraded;
 

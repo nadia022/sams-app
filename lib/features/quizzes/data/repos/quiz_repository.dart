@@ -50,6 +50,6 @@ abstract class QuizRepository {
   Future<Either<String, String>> gradeWrittenQuestion(
     String submissionId,
     String questionId,
-    int grade,
+    num grade,
   );
 }

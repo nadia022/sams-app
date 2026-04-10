@@ -5,7 +5,7 @@ import 'package:sams_app/features/quizzes/data/model/data_models/submission_mode
 
 class SubmissionListTile extends StatelessWidget {
   final SubmissionModel submission;
-  final int maxScore;
+  final num maxScore;
   final void Function() onTap;
   const SubmissionListTile({
     super.key,

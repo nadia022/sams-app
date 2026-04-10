@@ -9,8 +9,8 @@ class SubmissionModel {
   final String quizId;
   final String academicId;
   final String studentName;
-  final int score;
-  final int totalPoints;
+  final num score;
+  final num totalPoints;
   final DateTime submittedAt;
   final bool isGraded;
 
