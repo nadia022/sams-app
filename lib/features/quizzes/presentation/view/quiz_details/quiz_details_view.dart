@@ -16,16 +16,21 @@ class QuizDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<QuizDetailsCubit>().getQuizDetails(quizId);
+    // * fetch quiz details (in build method to ensure re-fetch on rebuild in pop back from submission or qustions view)
+    if (ModalRoute.of(context)?.isCurrent ?? false) {
+      context.read<QuizDetailsCubit>().getQuizDetails(quizId);
+    }
 
     return BlocBuilder<QuizDetailsCubit, QuizDetailsState>(
       builder: (context, state) {
+        // * handle loading state
         if (state is QuizDetailsLoading) {
           return const Scaffold(
             body: Center(child: AppAnimatedLoadingIndicator()),
           );
         }
 
+        // * handle success state
         if (state is QuizDetailsSuccess) {
           final quiz = state.quiz;
 
@@ -39,6 +44,7 @@ class QuizDetailsView extends StatelessWidget {
           );
         }
 
+        // * handle failure state
         if (state is QuizDetailsFailure) {
           return Scaffold(body: Center(child: Text(state.errorMessage)));
         }

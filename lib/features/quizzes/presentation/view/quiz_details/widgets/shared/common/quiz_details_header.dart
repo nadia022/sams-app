@@ -3,7 +3,7 @@ import 'package:sams_app/core/enums/enum_user_role.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/quiz_model.dart';
-import 'package:sams_app/features/quizzes/presentation/view/quiz_details/widgets/shared/common/quiz_details%20_state_badge.dart';
+import 'package:sams_app/features/quizzes/presentation/view/quiz_details/widgets/shared/common/quiz_details_state_badge.dart';
 
 class QuizDetailsHeader extends StatelessWidget {
   const QuizDetailsHeader({super.key, required this.quiz});

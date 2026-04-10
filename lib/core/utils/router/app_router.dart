@@ -273,10 +273,8 @@ class AppRouter {
           final quizTitle = extra['quizTitle'] as String? ?? 'All Submissions';
 
           return BlocProvider(
-            create: (_) =>
-                SubmissionsCubit(getIt<QuizRepository>())
-                  ..fetchAllSubmissions(quizId: quizId),
-            child: SubmissionsListView(quizTitle: quizTitle),
+            create: (_) => SubmissionsCubit(getIt<QuizRepository>()),
+            child: SubmissionsListView(quizTitle: quizTitle, quizId: quizId),
           );
         },
       ),
@@ -293,8 +291,10 @@ class AppRouter {
           final submissionId = extra['submissionId'] as String? ?? '';
 
           return BlocProvider(
-            create: (_) => GradingCubit(getIt<QuizRepository>()),
-            child: GradeSubmissionView(submissionId: submissionId),
+            create: (_) =>
+                GradingCubit(getIt<QuizRepository>())
+                  ..loadSubmissionDetails(submissionId),
+            child: const GradeSubmissionView(),
           );
         },
       ),
