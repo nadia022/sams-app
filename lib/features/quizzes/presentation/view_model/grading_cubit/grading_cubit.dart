@@ -1,81 +1,124 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sams_app/features/quizzes/data/mock_data.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/student_submission_model.dart';
 import 'package:sams_app/features/quizzes/data/repos/quiz_repository.dart';
 
 part 'grading_state.dart';
 
 class GradingCubit extends Cubit<GradingState> {
-  final QuizRepository _repository;
+  final QuizRepository _repo;
+  late final String submissionId;
 
-  GradingCubit(this._repository) : super(GradingInitial());
+  GradingCubit(this._repo) : super(GradingInitial());
 
-  // ─── Fetch submission details ────────────────────────────────────────────
-  // Currently uses mock data. Replace the body with a real API call:
-  //   final result = await _repository.getSubmissionDetails(submissionId);
-  //   result.fold((err) => emit(GradingFailure(err)), (data) => emit(GradingLoaded(data)));
+  // * ─── Fetch submission details ────────────────────────────────────────────
   Future<void> loadSubmissionDetails(String submissionId) async {
-    emit(GradingLoading());
+    this.submissionId = submissionId;
+
+    emit(StudentSubmissionLoading());
+
     try {
-      // TODO: replace with → final result = await _repository.getSubmissionDetails(submissionId);
-      // Simulating network delay for realistic UX testing
-      await Future.delayed(const Duration(milliseconds: 600));
-      emit(GradingLoaded(mockSubmissionDetails));
+      final result = await _repo.getStudentSubmission(submissionId);
+
+      result.fold(
+        (errorMessage) {
+          emit(
+            StudentSubmissionFetchingFailure(errorMessage: errorMessage),
+          );
+        },
+        (studentSubmission) {
+          emit(
+            StudentSubmissionLoadedSuccessfully(
+              studentSubmission: studentSubmission,
+            ),
+          );
+        },
+      );
     } catch (e) {
-      emit(GradingFailure(e.toString()));
+      emit(StudentSubmissionFetchingFailure(errorMessage: e.toString()));
     }
   }
 
-  // ─── Grade a single written question ────────────────────────────────────
-  // Currently a stub that updates local state optimistically.
-  // Replace the body with a real API call:
-  //   final result = await _repository.gradeSubmissionQuestion(submissionId, questionId, {'score': score});
-  Future<void> gradeQuestion({
-    required String submissionId,
+  // * ─── Grade a single written question ────────────────────────────────────
+  Future<void> gradeWrittenQuestion({
     required String questionId,
     required num score,
   }) async {
-    // 1. Grab current questions list from state (only valid if already loaded)
+    // ? 1. Grab current questions list from state (only valid if already loaded)
     final currentState = state;
-    if (currentState is! GradingLoaded) return;
+    if (currentState is! StudentSubmissionLoadedSuccessfully) return;
 
-    final currentQuestions = currentState.questions;
+    final currentStudentSubmission = currentState.studentSubmission;
 
-    // 2. Emit saving state so the specific row shows a loading indicator
-    emit(GradingQuestionSaving(
-      questions: currentQuestions,
-      savingQuestionId: questionId,
-    ));
+    // ? 2. Optimistically update the local list so the UI refreshes instantly (optimistic update not actual list yet)
+    final updatedQuestions = currentStudentSubmission.map((q) {
+      if (q.id != questionId) return q;
+      return StudentSubmissionModel(
+        id: q.id,
+        text: q.text,
+        questionType: q.questionType,
+        timeLimit: q.timeLimit,
+        points: q.points,
+        earnedPoints: score.toInt(),
+        isCorrect: score > 0,
+        isGraded: true,
+        writtenAnswer: q.writtenAnswer,
+        options: q.options,
+        selectedOptionId: q.selectedOptionId,
+      );
+    }).toList();
+
+    emit(
+      StudentSubmissionLoadedSuccessfully(
+        studentSubmission: updatedQuestions,
+      ),
+    );
 
     try {
-      // TODO: replace with → await _repository.gradeSubmissionQuestion(submissionId, questionId, {'score': score});
-      await Future.delayed(const Duration(milliseconds: 800));
+      final result = await _repo.gradeWrittenQuestion(
+        submissionId,
+        questionId,
+        score,
+      );
 
-      // 3. Optimistically update the local list so the UI refreshes instantly
-      final updatedQuestions = currentQuestions.map((q) {
-        if (q.id != questionId) return q;
-        return StudentSubmissionModel(
-          id: q.id,
-          text: q.text,
-          questionType: q.questionType,
-          timeLimit: q.timeLimit,
-          points: q.points,
-          earnedPoints: score.toInt(),
-          isCorrect: score > 0,
-          isGraded: true,
-          writtenAnswer: q.writtenAnswer,
-          options: q.options,
-          selectedOptionId: q.selectedOptionId,
-        );
-      }).toList();
-
-      emit(GradingLoaded(updatedQuestions));
+      result.fold(
+        (errorMessage) {
+          // Re-emit failure so the listener in GradeSubmissionView can show a toast
+          emit(
+            GradingQuestionSavingFailure(errorMessage: errorMessage),
+          );
+          // On failure — restore the list so the screen is still usable
+          emit(
+            StudentSubmissionLoadedSuccessfully(
+              studentSubmission: currentStudentSubmission,
+            ),
+          );
+        },
+        (studentSubmission) {
+          // On success emit success message
+          emit(
+            GradingQuestionSavingSuccess(
+              successMessage: 'Question graded successfully',
+            ),
+          );
+          // keep optimistic update
+          emit(
+            StudentSubmissionLoadedSuccessfully(
+              studentSubmission: updatedQuestions,
+            ),
+          );
+        },
+      );
     } catch (e) {
-      // On failure — restore the list so the screen is still usable
-      emit(GradingLoaded(currentQuestions));
       // Re-emit failure so the listener in GradeSubmissionView can show a toast
-      emit(GradingFailure(e.toString()));
+      emit(
+        GradingQuestionSavingFailure(errorMessage: e.toString()),
+      );
+      // On failure — restore the list so the screen is still usable
+      emit(
+        StudentSubmissionLoadedSuccessfully(
+          studentSubmission: currentStudentSubmission,
+        ),
+      );
     }
   }
 }
-

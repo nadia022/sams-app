@@ -1,34 +1,37 @@
 part of 'grading_cubit.dart';
 
-abstract class GradingState {}
+sealed class GradingState {}
 
-// Initial / clean-slate
+// ! Initial state
 class GradingInitial extends GradingState {}
 
-// Fetching the full submission details from the API
-class GradingLoading extends GradingState {}
+// ! Fetching the full submission details from the API (loading)
+class StudentSubmissionLoading extends GradingState {}
 
-// Data is ready — holds the questions list to display
-class GradingLoaded extends GradingState {
-  final List<StudentSubmissionModel> questions;
+// ! Data is ready — holds the questions list to display (success fetch)
+class StudentSubmissionLoadedSuccessfully extends GradingState {
+  final List<StudentSubmissionModel> studentSubmission;
 
-  GradingLoaded(this.questions);
+  StudentSubmissionLoadedSuccessfully({required this.studentSubmission});
 }
 
-// A single question score is being saved (shows per-row loading indicator)
-class GradingQuestionSaving extends GradingState {
-  final List<StudentSubmissionModel> questions; // keeps the list visible
-  final String savingQuestionId;
-
-  GradingQuestionSaving({
-    required this.questions,
-    required this.savingQuestionId,
-  });
-}
-
-// Any error occurred (fetching OR saving)
-class GradingFailure extends GradingState {
+// ! Any error occurred (failed fetch)
+class StudentSubmissionFetchingFailure extends GradingState {
   final String errorMessage;
 
-  GradingFailure(this.errorMessage);
+  StudentSubmissionFetchingFailure({required this.errorMessage});
+}
+
+// ! success save graded question
+class GradingQuestionSavingSuccess extends GradingState {
+  final String successMessage;
+
+  GradingQuestionSavingSuccess({required this.successMessage});
+}
+
+// ! failed save graded question
+class GradingQuestionSavingFailure extends GradingState {
+  final String errorMessage;
+
+  GradingQuestionSavingFailure({required this.errorMessage});
 }
