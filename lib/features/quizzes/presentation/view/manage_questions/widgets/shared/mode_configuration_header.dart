@@ -22,13 +22,9 @@ class ModeConfigurationHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 60, 24, 30),
+      padding: const EdgeInsets.fromLTRB(24, 30, 24, 30),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primaryDark, AppColors.primary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: AppColors.primary,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(32),
           bottomRight: Radius.circular(32),
@@ -143,7 +139,7 @@ class ModeConfigurationHeader extends StatelessWidget {
   String get _badgeLabel {
     switch (mode) {
       case QuizMode.draft:
-        return 'DRAFT';
+        return 'CREATING';
       case QuizMode.edit:
         return 'EDITING';
       case QuizMode.view:
