@@ -4,15 +4,21 @@ import 'package:sams_app/features/quizzes/presentation/view/submissions_list/wid
 import 'package:sams_app/features/quizzes/presentation/view/submissions_list/widgets/web/submissions_list_web_layout.dart';
 
 class SubmissionsListView extends StatelessWidget {
-  const SubmissionsListView({super.key, required this.quizTitle});
+  const SubmissionsListView({
+    super.key,
+    required this.quizTitle,
+    required this.quizId,
+  });
   final String quizTitle;
+  final String quizId;
 
   @override
   Widget build(BuildContext context) {
     return AdaptiveLayout(
       mobileLayout: (context) =>
-          SubmissionsListMobileLayout(quizTitle: quizTitle),
-      webLayout: (context) => const SubmissionsListWebLayout(),
+          SubmissionsListMobileLayout(quizTitle: quizTitle, quizId: quizId),
+      webLayout: (context) =>
+          SubmissionsListWebLayout(quizId: quizId, quizTitle: quizTitle),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
+import 'package:sams_app/core/utils/router/routes_name.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 
 import 'package:sams_app/features/quizzes/data/model/data_models/submission_model.dart';
@@ -14,11 +15,20 @@ import 'package:sams_app/features/quizzes/presentation/view_model/submissions_cu
 import 'package:sams_app/features/quizzes/presentation/view/submissions_list/widgets/shared/submissions_stats_bar.dart';
 
 class SubmissionsListMobileLayout extends StatelessWidget {
-  const SubmissionsListMobileLayout({super.key, required this.quizTitle});
+  const SubmissionsListMobileLayout({
+    super.key,
+    required this.quizTitle,
+    required this.quizId,
+  });
   final String quizTitle;
+  final String quizId;
 
   @override
   Widget build(BuildContext context) {
+    // * fetch all submissions (in build method to ensure re-fetch on rebuild in pop back from submission details view)
+    if (ModalRoute.of(context)?.isCurrent ?? false) {
+      context.read<SubmissionsCubit>().fetchAllSubmissions(quizId: quizId);
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -41,7 +51,8 @@ class SubmissionsListMobileLayout extends StatelessWidget {
 
             BlocBuilder<SubmissionsCubit, SubmissionsState>(
               builder: (context, state) {
-                if (state is SubmissionsLoading) {
+                if (state is SubmissionsLoading ||
+                    state is SubmissionsInitial) {
                   return const Padding(
                     padding: EdgeInsets.only(top: 50.0),
                     child: Center(child: AppAnimatedLoadingIndicator()),
@@ -153,9 +164,15 @@ class SubmissionsListMobileLayout extends StatelessWidget {
           height: 110,
           child: SubmissionListTile(
             submission: submissions[index],
-            maxScore: 10, // Pass your max quiz score here
+            maxScore: submissions[index].totalPoints,
             onTap: () {
-              //TODO nav to Grading
+              context.push(
+                RoutesName.gradeSubmission,
+                extra: {
+                  'submissionId': submissions[index].id,
+                  'quizTitle': quizTitle,
+                },
+              );
             },
           ),
         );

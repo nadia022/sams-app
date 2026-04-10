@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:sams_app/core/utils/assets/app_lottie.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
+import 'package:sams_app/core/utils/router/routes_name.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
@@ -11,10 +13,20 @@ import 'package:sams_app/features/quizzes/presentation/view/submissions_list/wid
 import 'package:sams_app/features/quizzes/presentation/view/submissions_list/widgets/shared/submissions_stats_bar.dart';
 
 class SubmissionsListWebLayout extends StatelessWidget {
-  const SubmissionsListWebLayout({super.key});
+  const SubmissionsListWebLayout({
+    super.key,
+    required this.quizId,
+    required this.quizTitle,
+  });
+  final String quizId;
+  final String quizTitle;
 
   @override
   Widget build(BuildContext context) {
+    // * fetch all submissions (in build method to ensure re-fetch on rebuild in pop back from submission details view)
+    if (ModalRoute.of(context)?.isCurrent ?? false) {
+      context.read<SubmissionsCubit>().fetchAllSubmissions(quizId: quizId);
+    }
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Row(
@@ -56,7 +68,7 @@ class SubmissionsListWebLayout extends StatelessWidget {
 
                             BlocBuilder<SubmissionsCubit, SubmissionsState>(
                               builder: (context, state) {
-                                if (state is SubmissionsLoading) {
+                                if (state is SubmissionsLoading || state is SubmissionsInitial) {
                                   return const Padding(
                                     padding: EdgeInsets.only(top: 50.0),
                                     child: Center(
@@ -221,9 +233,15 @@ class SubmissionsListWebLayout extends StatelessWidget {
       ),
       itemBuilder: (context, index) => SubmissionListTile(
         submission: list[index],
-        maxScore: 10,
+        maxScore: list[index].totalPoints,
         onTap: () {
-          //TODO nav to Grading
+          context.push(
+            RoutesName.gradeSubmission,
+            extra: {
+              'submissionId': list[index].id,
+              'quizTitle': quizTitle,
+            },
+          );
         },
       ),
     );
