@@ -36,6 +36,7 @@ import 'package:sams_app/features/quizzes/presentation/view/create_quiz/create_q
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/model/create_quiz_form_args.dart';
 import 'package:sams_app/features/quizzes/presentation/view/grade_submission/grade_submission_view.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/manage_questions_view.dart';
+import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/manage_questions_args.dart';
 import 'package:sams_app/features/quizzes/presentation/view/quiz_details/quiz_details_view.dart';
 import 'package:sams_app/features/quizzes/presentation/view/submissions_list/submissions_list_view.dart';
 import 'package:sams_app/features/quizzes/presentation/view/take_quiz/take_quiz_view.dart';
@@ -231,14 +232,15 @@ class AppRouter {
         name: RoutesName.manageQuestions,
         path: RoutesName.manageQuestions,
         builder: (context, state) {
-          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+          final args = RouterPayloadCache.get<ManageQuestionsArgs>(
             RoutesName.manageQuestions,
             state.extra,
           );
-          if (extra == null) return _fallbackHome();
+          if (args == null) return _fallbackHome();
 
           return BlocProvider(
-            create: (_) => ManageQuizCubit(getIt<QuizRepository>()),
+            create: (_) =>
+                ManageQuizCubit(getIt<QuizRepository>())..init(args),
             child: const ManageQuestionsView(),
           );
         },

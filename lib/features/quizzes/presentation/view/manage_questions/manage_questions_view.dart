@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sams_app/core/helper/app_snack_bar.dart';
 import 'package:sams_app/core/widgets/shared/adaptive_layout.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/widgets/mobile/manage_questions_mobile_layout.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/widgets/web/manage_questions_web_layout.dart';
 import 'package:sams_app/features/quizzes/presentation/view_model/manage_quiz_cubit/manage_quiz_cubit.dart';
+
+/// Adaptive shell for the Manage Questions flow.
+///
+/// Listens for transient success/failure states and shows SnackBars.
+/// Delegates rendering to mobile/web layouts.
 class ManageQuestionsView extends StatelessWidget {
   const ManageQuestionsView({super.key});
 
@@ -11,8 +17,17 @@ class ManageQuestionsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<ManageQuizCubit, ManageQuizState>(
       listener: (context, state) {
-        // TODO: Implement listener logic for ManageQuizFailure and ManageQuizSuccess later
+        if (state is ManageQuizSuccess) {
+          AppSnackBar.success(context, state.message);
+        } else if (state is ManageQuizFailure) {
+          AppSnackBar.error(context, state.message);
+        }
       },
+      buildWhen: (prev, curr) =>
+          curr is ManageQuizLoaded ||
+          curr is ManageQuizLoading ||
+          curr is ManageQuizInitial ||
+          curr is ManageQuizActionLoading,
       builder: (context, state) {
         return AdaptiveLayout(
           mobileLayout: (context) => const ManageQuestionsMobileLayout(),
