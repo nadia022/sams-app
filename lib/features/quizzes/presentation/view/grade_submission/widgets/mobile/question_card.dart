@@ -11,13 +11,10 @@ import 'package:sams_app/features/quizzes/presentation/view_model/grading_cubit/
 class QuestionCard extends StatelessWidget {
   final StudentSubmissionModel question;
   final int index;
-  final String submissionId;
-
   const QuestionCard({
     super.key,
     required this.question,
     required this.index,
-    required this.submissionId,
   });
 
   @override
@@ -95,15 +92,10 @@ class QuestionCard extends StatelessWidget {
                 question.isWritten
                     ? BlocBuilder<GradingCubit, GradingState>(
                         builder: (context, state) {
-                          final bool isSavingThis =
-                              state is GradingQuestionSaving &&
-                              state.savingQuestionId == question.id;
                           return GradingInputScoreField(
                             question: question,
-                            isSaving: isSavingThis,
                             onSave: (score) {
-                              context.read<GradingCubit>().gradeQuestion(
-                                submissionId: submissionId,
+                              context.read<GradingCubit>().gradeWrittenQuestion(
                                 questionId: question.id,
                                 score: score,
                               );

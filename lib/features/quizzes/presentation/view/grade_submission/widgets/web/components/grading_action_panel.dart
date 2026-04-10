@@ -11,17 +11,13 @@ import 'package:sams_app/features/quizzes/presentation/view_model/grading_cubit/
 
 /// Right sidebar panel for the web grading layout.
 ///
-/// Shows: total score summary card, grading input (for written questions)
-/// or auto-grade info (for MCQ/TF), and an instructor note field.
 class GradingActionPanel extends StatelessWidget {
   final StudentSubmissionModel question;
-  final String submissionId;
   final List<StudentSubmissionModel> questions;
 
   const GradingActionPanel({
     super.key,
     required this.question,
-    required this.submissionId,
     required this.questions,
   });
 
@@ -35,8 +31,8 @@ class GradingActionPanel extends StatelessWidget {
     final int gradedCount = questions
         .where((q) => q.state != QuestionUIState.unmarked)
         .length;
-    final int totalPoints = questions.fold(0, (sum, q) => sum + q.points);
-    final int earnedPoints = questions.fold(
+    final num totalPoints = questions.fold(0, (sum, q) => sum + q.points);
+    final num earnedPoints = questions.fold(
       0,
       (sum, q) => sum + q.earnedPoints,
     );
@@ -101,18 +97,13 @@ class GradingActionPanel extends StatelessWidget {
                   // Reuse the shared GradingInputScoreField
                   BlocBuilder<GradingCubit, GradingState>(
                     builder: (context, state) {
-                      final isSavingThis =
-                          state is GradingQuestionSaving &&
-                          state.savingQuestionId == question.id;
                       return FittedBox(
                         fit: BoxFit.scaleDown,
                         child: GradingInputScoreField(
                           key: ValueKey(question.id),
                           question: question,
-                          isSaving: isSavingThis,
                           onSave: (score) {
-                            context.read<GradingCubit>().gradeQuestion(
-                              submissionId: submissionId,
+                            context.read<GradingCubit>().gradeWrittenQuestion(
                               questionId: question.id,
                               score: score,
                             );
@@ -137,8 +128,8 @@ class GradingActionPanel extends StatelessWidget {
 
   Widget _buildHeader({
     required int gradedCount,
-    required int totalPoints,
-    required int earnedPoints,
+    required num totalPoints,
+    required num earnedPoints,
     required double progressValue,
     required bool isVerySmall,
     required bool isSamll,

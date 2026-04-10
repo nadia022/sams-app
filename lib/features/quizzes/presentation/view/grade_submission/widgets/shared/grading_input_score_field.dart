@@ -9,13 +9,10 @@ import 'package:sams_app/features/quizzes/data/model/data_models/student_submiss
 class GradingInputScoreField extends StatefulWidget {
   final StudentSubmissionModel question;
   final Function(num score) onSave;
-  final bool isSaving;
-
   const GradingInputScoreField({
     super.key,
     required this.question,
     required this.onSave,
-    this.isSaving = false,
   });
 
   @override
@@ -160,7 +157,7 @@ class _GradingInputScoreFieldState extends State<GradingInputScoreField> {
           ],
         ),
         const SizedBox(width: 8),
-        _buildSaveButton(widget.isSaving),
+        _buildSaveButton(),
       ],
     );
   }
@@ -244,25 +241,23 @@ class _GradingInputScoreFieldState extends State<GradingInputScoreField> {
     );
   }
 
-  Widget _buildSaveButton(bool isSaving) {
+  Widget _buildSaveButton() {
     return GestureDetector(
-      onTap: isSaving ? null : _saveScore,
+      onTap: _saveScore,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         width: 42,
         height: 42,
         decoration: BoxDecoration(
-          color: isSaving
-              ? AppColors.primary.withValues(alpha: 0.1)
-              : _buttonColor,
+          color: _buttonColor,
           borderRadius: BorderRadius.circular(14),
-          border: _isUngradedEmpty && !isSaving
+          border: _isUngradedEmpty
               ? Border.all(
                   color: StatusColors.orange.withValues(alpha: 0.6),
                   width: 1.5,
                 )
               : null,
-          boxShadow: _isModified && !isSaving
+          boxShadow: _isModified
               ? [
                   BoxShadow(
                     color: _buttonColor.withValues(alpha: 0.3),
@@ -272,16 +267,11 @@ class _GradingInputScoreFieldState extends State<GradingInputScoreField> {
                 ]
               : null,
         ),
-        child: isSaving
-            ? const Padding(
-                padding: EdgeInsets.all(10),
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : Icon(
-                _buttonIcon,
-                color: _buttonIconColor,
-                size: 22,
-              ),
+        child: Icon(
+          _buttonIcon,
+          color: _buttonIconColor,
+          size: 22,
+        ),
       ),
     );
   }

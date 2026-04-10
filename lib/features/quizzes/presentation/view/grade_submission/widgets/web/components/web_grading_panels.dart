@@ -7,12 +7,10 @@ import 'package:sams_app/features/quizzes/presentation/view/grade_submission/wid
 
 class WebGradingPanels extends StatefulWidget {
   final List<StudentSubmissionModel> questions;
-  final String submissionId;
 
   const WebGradingPanels({
     super.key,
     required this.questions,
-    required this.submissionId,
   });
 
   @override
@@ -100,7 +98,6 @@ class _WebGradingPanelsState extends State<WebGradingPanels> {
           // ── Right Panel: Grading Action ─────────────────────────
           GradingActionPanel(
             question: selected,
-            submissionId: widget.submissionId,
             questions: widget.questions,
           ),
         ],
