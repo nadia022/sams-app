@@ -3,12 +3,12 @@ import 'package:sams_app/core/widgets/shared/adaptive_layout.dart';
 import 'package:sams_app/features/announcements/presentation/view/add_announcement/widget/mobile/add_announcement_mobile_view.dart';
 
 class AddAnnouncementLayout extends StatelessWidget {
-  const AddAnnouncementLayout({super.key});
-
+  const AddAnnouncementLayout({super.key, required this.courseId});
+  final String courseId ;
   @override
   Widget build(BuildContext context) {
     return AdaptiveLayout(
-      mobileLayout: (context) => const AddAnnouncementMobileView(),
+      mobileLayout: (context) => AddAnnouncementMobileView(courseId: courseId),
       webLayout: (context) =>  const SizedBox.shrink(),
     );
   }

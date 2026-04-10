@@ -77,7 +77,7 @@ class AnnouncementsWebLayout extends StatelessWidget {
                           // Navigate to Create Screen
                           showDialog(
                             context: context,
-                            builder: (context) => const AddAnnouncementDialog(),
+                            builder: (context) => AddAnnouncementDialog(courseId: courseId),
                             );
                         },
                       );

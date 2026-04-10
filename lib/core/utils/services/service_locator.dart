@@ -7,6 +7,7 @@ import 'package:sams_app/core/utils/services/s3_upload_service.dart';
 import 'package:sams_app/features/announcements/data/data_sources/announcements_local_data_source.dart';
 import 'package:sams_app/features/announcements/data/repos/announcement_repo.dart';
 import 'package:sams_app/features/announcements/data/repos/announcemet_repo_impl.dart';
+import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcement_actions/announcement_actions_cubit.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_cubit.dart';
 import 'package:sams_app/features/auth/data/repos/auth_repo.dart';
 import 'package:sams_app/features/auth/data/repos/auth_repo_impl.dart';
@@ -89,5 +90,10 @@ void setupServiceLocator() {
   //* 3. Register Fetch Cubit (Factory: to get a fresh instance every time)
   getIt.registerFactory<AnnouncementsFetchCubit>(
     () => AnnouncementsFetchCubit(getIt<AnnouncementsRepo>()),
+  );
+  
+  //* 4. Register Actions Cubit (Add, Update, Delete)
+  getIt.registerFactory<AnnouncementsActionsCubit>(
+    () => AnnouncementsActionsCubit(getIt<AnnouncementsRepo>()),
   );
 }

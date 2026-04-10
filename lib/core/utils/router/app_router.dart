@@ -12,6 +12,7 @@ import 'package:sams_app/features/Grades/presentation/view/grades_tab_view.dart'
 import 'package:sams_app/features/announcements/presentation/view/add_announcement/widget/mobile/add_announcement_mobile_view.dart';
 import 'package:sams_app/features/announcements/presentation/view/announcement_details/announcement_details_view.dart';
 import 'package:sams_app/features/announcements/presentation/view/announcement_tab_view/announcements_tab_view.dart';
+import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcement_actions/announcement_actions_cubit.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_cubit.dart';
 import 'package:sams_app/features/assignments/presentation/view/assignments_tab_view.dart';
 // Repos & Cubits
@@ -210,10 +211,11 @@ class AppRouter {
                   final announcementId =
                       state.pathParameters['announcementId'] ?? '';
                   return BlocProvider(
-                    create: (context) => getIt<AnnouncementsFetchCubit>()
-                      ..fetchAnnouncementDetails(
-                        announcementId: announcementId,
-                      ),
+                    create: (context) =>
+                        getIt<AnnouncementsFetchCubit>()
+                          ..fetchAnnouncementDetails(
+                            announcementId: announcementId,
+                          ),
                     child: const AnnouncementDetailsView(),
                   );
                 },
@@ -227,7 +229,11 @@ class AppRouter {
                 builder: (context, state) {
                   // Announcement ID can be extracted here for future logic/API calls
                   // final announcementId = state.pathParameters['announcementId'] ?? '';
-                  return const AddAnnouncementMobileView();
+                  final courseId = state.pathParameters['courseId'] ?? '';
+                  return BlocProvider(
+                    create: (context) => getIt<AnnouncementsActionsCubit>(),
+                    child: AddAnnouncementMobileView(courseId: courseId),
+                  );
                 },
               ),
             ],
