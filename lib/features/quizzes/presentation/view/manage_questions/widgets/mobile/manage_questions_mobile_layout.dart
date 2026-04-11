@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sams_app/core/helper/app_snack_bar.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/constants/api_keys.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
@@ -317,7 +318,40 @@ class _ManageQuestionsBodyState extends State<_ManageQuestionsBody> {
       child: GestureDetector(
         onTap: _questions.isEmpty
             ? null
-            : () => cubit.submitQuestions(_questions),
+            : () {
+                // ─── Local UI Form Validation ───
+                for (int i = 0; i < _questions.length; i++) {
+                  final q = _questions[i];
+                  if (q.text.trim().isEmpty) {
+                    AppSnackBar.error(context, 'Question ${i + 1} is missing its text.');
+                    return;
+                  }
+                  if (q.isMcq || q.isTrueFalse) {
+                    final hasCorrect = q.options.any((o) => o.isCorrect);
+                    if (!hasCorrect) {
+                      AppSnackBar.error(
+                        context,
+                        'Question ${i + 1} needs a correct answer selected.',
+                      );
+                      return;
+                    }
+                    if (q.isMcq) {
+                      final emptyOpts =
+                          q.options.where((o) => o.text.trim().isEmpty);
+                      if (emptyOpts.isNotEmpty) {
+                        AppSnackBar.error(
+                          context,
+                          'Question ${i + 1} has empty option(s).',
+                        );
+                        return;
+                      }
+                    }
+                  }
+                }
+                
+                // All good, pass to the Cubit API handler
+                cubit.submitQuestions(_questions);
+              },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           width: double.infinity,

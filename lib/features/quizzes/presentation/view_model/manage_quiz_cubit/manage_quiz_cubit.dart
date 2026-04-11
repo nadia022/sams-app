@@ -63,41 +63,7 @@ class ManageQuizCubit extends Cubit<ManageQuizState> {
   Future<void> submitQuestions(
     List<EditableQuestionModel> viewQuestions,
   ) async {
-    if (viewQuestions.isEmpty) {
-      emit(const ManageQuizFailure('Please add at least one question.'));
-      return;
-    }
-
-    // ─── Validation ───
-    for (int i = 0; i < viewQuestions.length; i++) {
-      final q = viewQuestions[i];
-      if (q.text.trim().isEmpty) {
-        emit(ManageQuizFailure('Question ${i + 1} is missing its text.'));
-        return;
-      }
-      if (q.isMcq || q.isTrueFalse) {
-        final hasCorrect = q.options.any((o) => o.isCorrect);
-        if (!hasCorrect) {
-          emit(
-            ManageQuizFailure(
-              'Question ${i + 1} needs a correct answer selected.',
-            ),
-          );
-          return;
-        }
-        if (q.isMcq) {
-          final emptyOpts = q.options.where((o) => o.text.trim().isEmpty);
-          if (emptyOpts.isNotEmpty) {
-            emit(
-              ManageQuizFailure(
-                'Question ${i + 1} has empty option(s).',
-              ),
-            );
-            return;
-          }
-        }
-      }
-    }
+    if (viewQuestions.isEmpty) return;
 
     emit(ManageQuizActionLoading());
 
