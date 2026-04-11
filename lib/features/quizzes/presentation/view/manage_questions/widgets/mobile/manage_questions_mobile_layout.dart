@@ -4,39 +4,56 @@ import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/constants/api_keys.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
+import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/editable_question_model.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/quiz_mode.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/widgets/shared/empty_state_widget.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/widgets/shared/mode_configuration_header.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/widgets/shared/question_card.dart';
 import 'package:sams_app/features/quizzes/presentation/view_model/manage_quiz_cubit/manage_quiz_cubit.dart';
+import 'package:sams_app/core/utils/router/router_payload_cache.dart';
+import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/manage_questions_args.dart';
+import 'package:sams_app/core/utils/router/routes_name.dart';
+import 'package:go_router/go_router.dart';
 
 class ManageQuestionsMobileLayout extends StatelessWidget {
   const ManageQuestionsMobileLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Only rebuild the main scaffold if it's the initial loading states
+    // so we don't destroy local UI state during an ActionLoading event.
     return BlocBuilder<ManageQuizCubit, ManageQuizState>(
+      buildWhen: (prev, curr) {
+        return curr is ManageQuizInitial ||
+               curr is ManageQuizLoading ||
+               curr is ManageQuizQuestionsLoaded;
+      },
       builder: (context, state) {
-        // ─── Loading State ───
         if (state is ManageQuizLoading) {
           return const Scaffold(
             body: Center(child: AppAnimatedLoadingIndicator()),
           );
         }
 
-        // ─── Loaded State ───
-        if (state is ManageQuizLoaded) {
-          return _ManageQuestionsBody(state: state);
-        }
+        if (state is ManageQuizQuestionsLoaded) {
+          // Retrieve args since Cubit no longer holds them for UI purposes
+          final args = RouterPayloadCache.get<ManageQuestionsArgs>(
+            RoutesName.manageQuestions,
+            GoRouterState.of(context).extra,
+          );
 
-        // ─── Action Loading (overlay handled by parent) ───
-        if (state is ManageQuizActionLoading) {
-          return const Scaffold(
-            body: Center(child: AppAnimatedLoadingIndicator()),
+          if (args == null) {
+            return const Scaffold(
+              body: Center(child: Text('Error loading quiz args')),
+            );
+          }
+
+          return _ManageQuestionsBody(
+            initialQuestions: state.questions,
+            args: args,
           );
         }
 
-        // ─── Fallback ───
         return const Scaffold(
           body: Center(child: AppAnimatedLoadingIndicator()),
         );
@@ -46,87 +63,242 @@ class ManageQuestionsMobileLayout extends StatelessWidget {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Main Body — extracted for clarity
+// Main Body — StatefulWidget holding ALL data interaction limits
 // ──────────────────────────────────────────────────────────────────────────────
 
-class _ManageQuestionsBody extends StatelessWidget {
-  final ManageQuizLoaded state;
+class _ManageQuestionsBody extends StatefulWidget {
+  final List<EditableQuestionModel> initialQuestions;
+  final ManageQuestionsArgs args;
 
-  const _ManageQuestionsBody({required this.state});
+  const _ManageQuestionsBody({
+    required this.initialQuestions,
+    required this.args,
+  });
+
+  @override
+  State<_ManageQuestionsBody> createState() => _ManageQuestionsBodyState();
+}
+
+class _ManageQuestionsBodyState extends State<_ManageQuestionsBody> {
+  late List<EditableQuestionModel> _questions;
+
+  @override
+  void initState() {
+    super.initState();
+    _questions = List.from(widget.initialQuestions);
+  }
+
+  // ──────────── View-Managed List Logic ────────────
+
+  void _addQuestion(String questionType) {
+    setState(() {
+      final EditableQuestionModel newQuestion;
+      switch (questionType) {
+        case ApiValues.written:
+          newQuestion = EditableQuestionModel.written();
+          break;
+        case ApiValues.mcq:
+          newQuestion = EditableQuestionModel.mcq();
+          break;
+        case ApiValues.trueFalse:
+          newQuestion = EditableQuestionModel.trueFalse();
+          break;
+        default:
+          return;
+      }
+      _questions = [..._questions, newQuestion];
+    });
+  }
+
+  void _removeQuestion(String localId) {
+    setState(() {
+      _questions = _questions.where((q) => q.localId != localId).toList();
+    });
+  }
+
+  void _updateQuestionField(
+      String localId, {
+      String? text,
+      int? timeLimit,
+      int? points,
+      }) {
+    setState(() {
+      _questions = _questions.map((q) {
+        if (q.localId != localId) return q;
+        return q.copyWith(
+          text: text,
+          timeLimit: timeLimit,
+          points: points,
+        );
+      }).toList();
+    });
+  }
+
+  void _changeQuestionType(String localId, String newType) {
+    setState(() {
+      _questions = _questions.map((q) {
+        if (q.localId != localId) return q;
+        if (q.questionType == newType) return q;
+
+        List<EditableOptionModel> newOptions;
+        switch (newType) {
+          case ApiValues.written:
+            newOptions = [];
+            break;
+          case ApiValues.mcq:
+            newOptions = [
+              EditableOptionModel.empty(),
+              EditableOptionModel.empty(),
+            ];
+            break;
+          case ApiValues.trueFalse:
+            newOptions = [
+              EditableOptionModel.trueFalse(label: 'True', isCorrect: true),
+              EditableOptionModel.trueFalse(label: 'False', isCorrect: false),
+            ];
+            break;
+          default:
+            newOptions = [];
+        }
+
+        return q.copyWith(questionType: newType, options: newOptions);
+      }).toList();
+    });
+  }
+
+  void _addOption(String questionLocalId) {
+    setState(() {
+      _questions = _questions.map((q) {
+        if (q.localId != questionLocalId || !q.isMcq) return q;
+        return q.copyWith(
+          options: [...q.options, EditableOptionModel.empty()],
+        );
+      }).toList();
+    });
+  }
+
+  void _removeOption(String questionLocalId, String optionLocalId) {
+    setState(() {
+      _questions = _questions.map((q) {
+        if (q.localId != questionLocalId) return q;
+        if (q.options.length <= 2) return q;
+        return q.copyWith(
+          options: q.options.where((o) => o.localId != optionLocalId).toList(),
+        );
+      }).toList();
+    });
+  }
+
+  void _updateOptionText(
+      String questionLocalId, String optionLocalId, String text) {
+    setState(() {
+      _questions = _questions.map((q) {
+        if (q.localId != questionLocalId) return q;
+        return q.copyWith(
+          options: q.options.map((o) {
+            if (o.localId != optionLocalId) return o;
+            return o.copyWith(text: text);
+          }).toList(),
+        );
+      }).toList();
+    });
+  }
+
+  void _toggleCorrectOption(String questionLocalId, String optionLocalId) {
+    setState(() {
+      _questions = _questions.map((q) {
+        if (q.localId != questionLocalId) return q;
+        return q.copyWith(
+          options: q.options.map((o) {
+            if (o.localId == optionLocalId) return o.copyWith(isCorrect: true);
+            return o.copyWith(isCorrect: false);
+          }).toList(),
+        );
+      }).toList();
+    });
+  }
+
+  // ──────────── Build Methods ────────────
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<ManageQuizCubit>();
+    final isReadOnly = widget.args.mode == QuizMode.view;
+    final canAddNew =
+        widget.args.mode == QuizMode.draft || widget.args.mode == QuizMode.edit;
 
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      bottomNavigationBar: state.isReadOnly
-          ? null
-          : _buildBottomBar(context, cubit),
-      floatingActionButton: state.canAddNew && state.questions.isNotEmpty
-          ? _buildFab(context, cubit)
-          : null,
-      body: Column(
-        children: [
-          // ─── Header ───
-          ModeConfigurationHeader(
-            mode: state.mode,
-            questionCount: state.questions.length,
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: AppColors.white,
+          bottomNavigationBar:
+              isReadOnly ? null : _buildBottomBar(context, cubit),
+          floatingActionButton:
+              canAddNew && _questions.isNotEmpty ? _buildFab(context) : null,
+          body: Column(
+            children: [
+              ModeConfigurationHeader(
+                mode: widget.args.mode,
+                questionCount: _questions.length,
+              ),
+              Expanded(
+                child: _questions.isEmpty
+                    ? EmptyStateWidget(
+                        onAddFirst: canAddNew
+                            ? () => _showAddQuestionSheet(context)
+                            : null,
+                      )
+                    : _buildQuestionsList(),
+              ),
+            ],
           ),
+        ),
 
-          // ─── Question List ───
-          Expanded(
-            child: state.isEmpty
-                ? EmptyStateWidget(
-                    onAddFirst: state.canAddNew
-                        ? () => _showAddQuestionSheet(context, cubit)
-                        : null,
-                  )
-                : _buildQuestionsList(cubit),
-          ),
-        ],
-      ),
+        // Handle Action Loading Overlay locally so we don't lose widget state
+        BlocBuilder<ManageQuizCubit, ManageQuizState>(
+          builder: (context, state) {
+            if (state is ManageQuizActionLoading) {
+              return Container(
+                color: Colors.white.withAlpha(120),
+                child: const Center(
+                  child: AppAnimatedLoadingIndicator(),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
+      ],
     );
   }
 
-  // ──────────── Question List ────────────
-
-  Widget _buildQuestionsList(ManageQuizCubit cubit) {
+  Widget _buildQuestionsList() {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
-      itemCount: state.questions.length,
+      itemCount: _questions.length,
       itemBuilder: (context, index) {
-        final question = state.questions[index];
+        final question = _questions[index];
         return QuestionCard(
           key: ValueKey(question.localId),
           question: question,
-          mode: state.mode,
+          mode: widget.args.mode,
           index: index,
-          onToggleExpand: cubit.toggleQuestionExpanded,
-          onRemove: state.mode == QuizMode.edit && !question.isNew
-              ? (localId) => _confirmDelete(context, cubit, localId)
-              : cubit.removeQuestion,
-          onUpdateField: (localId, {text, timeLimit, points}) =>
-              cubit.updateQuestionField(
-                localId,
-                text: text,
-                timeLimit: timeLimit,
-                points: points,
-              ),
-          onChangeType: cubit.changeQuestionType,
-          onAddOption: cubit.addOption,
-          onRemoveOption: cubit.removeOption,
-          onUpdateOptionText: cubit.updateOptionText,
-          onToggleCorrectOption: cubit.toggleCorrectOption,
+          onRemove: widget.args.mode == QuizMode.edit && !question.isNew
+              ? (localId) => _confirmDeleteServer(context, localId)
+              : _removeQuestion,
+          onUpdateField: _updateQuestionField,
+          onChangeType: _changeQuestionType,
+          onAddOption: _addOption,
+          onRemoveOption: _removeOption,
+          onUpdateOptionText: _updateOptionText,
+          onToggleCorrectOption: _toggleCorrectOption,
         );
       },
     );
   }
 
-  // ──────────── Bottom Bar (Save Button) ────────────
-
   Widget _buildBottomBar(BuildContext context, ManageQuizCubit cubit) {
-    final label = state.mode == QuizMode.draft
+    final label = widget.args.mode == QuizMode.draft
         ? 'Save Questions'
         : 'Save Changes';
 
@@ -143,20 +315,22 @@ class _ManageQuestionsBody extends StatelessWidget {
         ],
       ),
       child: GestureDetector(
-        onTap: state.questions.isEmpty ? null : cubit.submitQuestions,
+        onTap: _questions.isEmpty
+            ? null
+            : () => cubit.submitQuestions(_questions),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            gradient: state.questions.isEmpty
+            gradient: _questions.isEmpty
                 ? null
                 : const LinearGradient(
                     colors: [AppColors.primary, AppColors.primaryDark],
                   ),
-            color: state.questions.isEmpty ? AppColors.whiteHover : null,
+            color: _questions.isEmpty ? AppColors.whiteHover : null,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: state.questions.isNotEmpty
+            boxShadow: _questions.isNotEmpty
                 ? [
                     BoxShadow(
                       color: AppColors.primary.withAlpha(60),
@@ -170,7 +344,7 @@ class _ManageQuestionsBody extends StatelessWidget {
             label,
             textAlign: TextAlign.center,
             style: AppStyles.mobileBodySmallMd.copyWith(
-              color: state.questions.isEmpty
+              color: _questions.isEmpty
                   ? AppColors.whiteDarkActive
                   : Colors.white,
             ),
@@ -180,20 +354,16 @@ class _ManageQuestionsBody extends StatelessWidget {
     );
   }
 
-  // ──────────── FAB (Add Question) ────────────
-
-  Widget _buildFab(BuildContext context, ManageQuizCubit cubit) {
+  Widget _buildFab(BuildContext context) {
     return FloatingActionButton(
-      onPressed: () => _showAddQuestionSheet(context, cubit),
+      onPressed: () => _showAddQuestionSheet(context),
       backgroundColor: AppColors.primary,
       elevation: 4,
       child: const Icon(Icons.add_rounded, color: Colors.white),
     );
   }
 
-  // ──────────── Add Question Bottom Sheet ────────────
-
-  void _showAddQuestionSheet(BuildContext context, ManageQuizCubit cubit) {
+  void _showAddQuestionSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -239,7 +409,7 @@ class _ManageQuestionsBody extends StatelessWidget {
               subtitle: 'Free-form text answer',
               onTap: () {
                 Navigator.pop(context);
-                cubit.addQuestion(ApiValues.written);
+                _addQuestion(ApiValues.written);
               },
             ),
             const SizedBox(height: 12),
@@ -250,7 +420,7 @@ class _ManageQuestionsBody extends StatelessWidget {
               subtitle: 'Select one correct option',
               onTap: () {
                 Navigator.pop(context);
-                cubit.addQuestion(ApiValues.mcq);
+                _addQuestion(ApiValues.mcq);
               },
             ),
             const SizedBox(height: 12),
@@ -261,7 +431,7 @@ class _ManageQuestionsBody extends StatelessWidget {
               subtitle: 'Binary true or false answer',
               onTap: () {
                 Navigator.pop(context);
-                cubit.addQuestion(ApiValues.trueFalse);
+                _addQuestion(ApiValues.trueFalse);
               },
             ),
             const SizedBox(height: 16),
@@ -329,13 +499,10 @@ class _ManageQuestionsBody extends StatelessWidget {
     );
   }
 
-  // ──────────── Confirm Delete Dialog (Edit Mode) ────────────
+  void _confirmDeleteServer(BuildContext context, String localId) {
+    final cubit = context.read<ManageQuizCubit>();
+    final serverId = _questions.firstWhere((q) => q.localId == localId).serverId;
 
-  void _confirmDelete(
-    BuildContext context,
-    ManageQuizCubit cubit,
-    String localId,
-  ) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -365,7 +532,11 @@ class _ManageQuestionsBody extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              cubit.deleteQuestionFromServer(localId);
+              if (serverId != null) {
+                // Optimistic local delete before telling server
+                _removeQuestion(localId);
+                cubit.deleteQuestionFromServer(serverId, _questions);
+              }
             },
             child: Text(
               'Delete',

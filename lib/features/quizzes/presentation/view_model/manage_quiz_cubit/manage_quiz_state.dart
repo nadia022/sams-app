@@ -14,47 +14,12 @@ final class ManageQuizInitial extends ManageQuizState {}
 /// Questions are being fetched from the API (edit / view mode).
 final class ManageQuizLoading extends ManageQuizState {}
 
-/// The primary "working" state — the loaded list + mode.
-///
-/// This is emitted after:
-/// - Draft init (empty list)
-/// - Successful API fetch (edit/view)
-/// - Any local list mutation (add/remove/update question/option)
-final class ManageQuizLoaded extends ManageQuizState {
-  final QuizMode mode;
+/// Initial load complete. Contains the data fetched from the API (or empty for draft).
+/// The UI will take this data and manage it locally.
+final class ManageQuizQuestionsLoaded extends ManageQuizState {
   final List<EditableQuestionModel> questions;
-  final String quizId;
-  final String? quizTitle;
-  final bool isDirty;
 
-  const ManageQuizLoaded({
-    required this.mode,
-    required this.questions,
-    required this.quizId,
-    this.quizTitle,
-    this.isDirty = false,
-  });
-
-  // ──────────── Convenience Getters ────────────
-
-  bool get isReadOnly => mode == QuizMode.view;
-  bool get canAddNew => mode == QuizMode.draft || mode == QuizMode.edit;
-  bool get isEmpty => questions.isEmpty;
-
-  // ──────────── CopyWith ────────────
-
-  ManageQuizLoaded copyWith({
-    List<EditableQuestionModel>? questions,
-    bool? isDirty,
-  }) {
-    return ManageQuizLoaded(
-      mode: mode,
-      questions: questions ?? this.questions,
-      quizId: quizId,
-      quizTitle: quizTitle,
-      isDirty: isDirty ?? this.isDirty,
-    );
-  }
+  const ManageQuizQuestionsLoaded(this.questions);
 }
 
 /// An API action (add/update/delete) is in progress.

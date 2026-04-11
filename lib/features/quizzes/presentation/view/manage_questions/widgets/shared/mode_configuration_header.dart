@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/quiz_mode.dart';
+import 'package:sams_app/features/quizzes/presentation/view/manage_questions/utils/manage_questions_ui_utils.dart';
 
 /// Displays the screen title and subtitle based on the current [QuizMode].
 ///
@@ -47,7 +48,7 @@ class ModeConfigurationHeader extends StatelessWidget {
 
             // ─── Title ───
             Text(
-              _title,
+              ManageQuestionsUiUtils.getHeaderTitle(mode),
               style: AppStyles.mobileTitleMediumSb.copyWith(
                 color: Colors.white,
               ),
@@ -56,7 +57,7 @@ class ModeConfigurationHeader extends StatelessWidget {
 
             // ─── Subtitle ───
             Text(
-              _subtitle,
+              ManageQuestionsUiUtils.getHeaderSubtitle(mode),
               style: AppStyles.mobileBodySmallRg.copyWith(
                 color: Colors.white.withAlpha(180),
               ),
@@ -98,63 +99,20 @@ class ModeConfigurationHeader extends StatelessWidget {
   }
 
   Widget _buildModeBadge() {
+    final badgeColor = ManageQuestionsUiUtils.getBadgeColor(mode);
+    final badgeLabel = ManageQuestionsUiUtils.getBadgeLabel(mode);
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: _badgeColor.withAlpha(40),
+        color: badgeColor.withAlpha(40),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _badgeColor.withAlpha(100), width: 1),
+        border: Border.all(color: badgeColor.withAlpha(100), width: 1),
       ),
       child: Text(
-        _badgeLabel,
-        style: AppStyles.mobileBodyXsmallMd.copyWith(color: _badgeColor),
+        badgeLabel,
+        style: AppStyles.mobileBodyXsmallMd.copyWith(color: badgeColor),
       ),
     );
-  }
-
-  // ──────────── Mode-Driven Getters ────────────
-
-  String get _title {
-    switch (mode) {
-      case QuizMode.draft:
-        return 'Add Questions';
-      case QuizMode.edit:
-        return 'Manage Questions';
-      case QuizMode.view:
-        return 'View Questions';
-    }
-  }
-
-  String get _subtitle {
-    switch (mode) {
-      case QuizMode.draft:
-        return 'Build your quiz by adding questions below.';
-      case QuizMode.edit:
-        return 'Review or edit your questions before publishing.';
-      case QuizMode.view:
-        return 'Browse quiz content and correct answers.';
-    }
-  }
-
-  String get _badgeLabel {
-    switch (mode) {
-      case QuizMode.draft:
-        return 'CREATING';
-      case QuizMode.edit:
-        return 'EDITING';
-      case QuizMode.view:
-        return 'READ-ONLY';
-    }
-  }
-
-  Color get _badgeColor {
-    switch (mode) {
-      case QuizMode.draft:
-        return StatusColors.orange;
-      case QuizMode.edit:
-        return AppColors.secondaryLightHover;
-      case QuizMode.view:
-        return Colors.white;
-    }
   }
 }

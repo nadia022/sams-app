@@ -74,7 +74,6 @@ class EditableQuestionModel {
   final int timeLimit;
   final int points;
   final List<EditableOptionModel> options;
-  final bool isExpanded;
 
   const EditableQuestionModel({
     required this.localId,
@@ -84,7 +83,6 @@ class EditableQuestionModel {
     this.timeLimit = 30,
     this.points = 1,
     this.options = const [],
-    this.isExpanded = true,
   });
 
   // ──────────── Factory Constructors ────────────
@@ -139,7 +137,6 @@ class EditableQuestionModel {
       timeLimit: model.timeLimit,
       points: model.points,
       options: options,
-      isExpanded: false,
     );
   }
 
@@ -158,7 +155,6 @@ class EditableQuestionModel {
     int? timeLimit,
     int? points,
     List<EditableOptionModel>? options,
-    bool? isExpanded,
   }) {
     return EditableQuestionModel(
       localId: localId,
@@ -168,7 +164,6 @@ class EditableQuestionModel {
       timeLimit: timeLimit ?? this.timeLimit,
       points: points ?? this.points,
       options: options ?? this.options,
-      isExpanded: isExpanded ?? this.isExpanded,
     );
   }
 

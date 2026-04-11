@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
-import 'package:sams_app/core/utils/constants/api_keys.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/editable_question_model.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/quiz_mode.dart';
@@ -11,6 +10,7 @@ import 'package:sams_app/features/quizzes/presentation/view/manage_questions/wid
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/widgets/shared/question_type_selector.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/widgets/shared/read_only_option_tile.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/widgets/shared/true_false_toggle.dart';
+import 'package:sams_app/features/quizzes/presentation/view/manage_questions/utils/manage_questions_ui_utils.dart';
 
 /// The main question card widget — a [StatefulWidget] that manages
 /// local [TextEditingController]s and [FocusNode]s.
@@ -23,24 +23,28 @@ class QuestionCard extends StatefulWidget {
   final int index;
 
   // ──────────── Callbacks (to Cubit) ────────────
-  final void Function(String localId) onToggleExpand;
   final void Function(String localId) onRemove;
-  final void Function(String localId, {String? text, int? timeLimit, int? points})
-      onUpdateField;
+  final void Function(
+    String localId, {
+    String? text,
+    int? timeLimit,
+    int? points,
+  })
+  onUpdateField;
   final void Function(String localId, String newType) onChangeType;
   final void Function(String questionLocalId) onAddOption;
-  final void Function(String questionLocalId, String optionLocalId) onRemoveOption;
-  final void Function(String questionLocalId, String optionLocalId, String text)
-      onUpdateOptionText;
   final void Function(String questionLocalId, String optionLocalId)
-      onToggleCorrectOption;
+  onRemoveOption;
+  final void Function(String questionLocalId, String optionLocalId, String text)
+  onUpdateOptionText;
+  final void Function(String questionLocalId, String optionLocalId)
+  onToggleCorrectOption;
 
   const QuestionCard({
     super.key,
     required this.question,
     required this.mode,
     required this.index,
-    required this.onToggleExpand,
     required this.onRemove,
     required this.onUpdateField,
     required this.onChangeType,
@@ -59,6 +63,7 @@ class _QuestionCardState extends State<QuestionCard> {
   late TextEditingController _textController;
   late TextEditingController _pointsController;
   late TextEditingController _timeLimitController;
+  bool _isExpanded = true;
 
   /// Option controllers, keyed by option localId.
   final Map<String, TextEditingController> _optionControllers = {};
@@ -93,10 +98,12 @@ class _QuestionCardState extends State<QuestionCard> {
 
   void _initControllers() {
     _textController = TextEditingController(text: widget.question.text);
-    _pointsController =
-        TextEditingController(text: widget.question.points.toString());
-    _timeLimitController =
-        TextEditingController(text: widget.question.timeLimit.toString());
+    _pointsController = TextEditingController(
+      text: widget.question.points.toString(),
+    );
+    _timeLimitController = TextEditingController(
+      text: widget.question.timeLimit.toString(),
+    );
     _syncOptionControllers();
   }
 
@@ -114,8 +121,9 @@ class _QuestionCardState extends State<QuestionCard> {
     // Add controllers for new options
     for (final option in widget.question.options) {
       if (!_optionControllers.containsKey(option.localId)) {
-        _optionControllers[option.localId] =
-            TextEditingController(text: option.text);
+        _optionControllers[option.localId] = TextEditingController(
+          text: option.text,
+        );
       }
     }
   }
@@ -175,11 +183,11 @@ class _QuestionCardState extends State<QuestionCard> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: q.isExpanded ? AppColors.primaryLightActive : AppColors.whiteHover,
+          color: _isExpanded ? AppColors.primaryLightActive : AppColors.whiteHover,
           width: 1,
         ),
         boxShadow: [
-          if (q.isExpanded)
+          if (_isExpanded)
             BoxShadow(
               color: AppColors.primary.withAlpha(15),
               blurRadius: 16,
@@ -199,7 +207,7 @@ class _QuestionCardState extends State<QuestionCard> {
           AnimatedCrossFade(
             firstChild: const SizedBox(width: double.infinity),
             secondChild: _buildBody(q),
-            crossFadeState: q.isExpanded
+            crossFadeState: _isExpanded
                 ? CrossFadeState.showSecond
                 : CrossFadeState.showFirst,
             duration: const Duration(milliseconds: 250),
@@ -213,7 +221,11 @@ class _QuestionCardState extends State<QuestionCard> {
 
   Widget _buildHeader(EditableQuestionModel q) {
     return GestureDetector(
-      onTap: () => widget.onToggleExpand(q.localId),
+      onTap: () {
+        setState(() {
+          _isExpanded = !_isExpanded;
+        });
+      },
       behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -244,12 +256,12 @@ class _QuestionCardState extends State<QuestionCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _typeLabel(q.questionType),
+                    ManageQuestionsUiUtils.getQuestionTypeLabel(q.questionType),
                     style: AppStyles.mobileBodySmallMd.copyWith(
                       color: AppColors.primaryDark,
                     ),
                   ),
-                  if (!q.isExpanded && q.text.isNotEmpty)
+                  if (!_isExpanded && q.text.isNotEmpty)
                     Text(
                       q.text,
                       maxLines: 1,
@@ -300,7 +312,7 @@ class _QuestionCardState extends State<QuestionCard> {
 
             // ─── Expand/Collapse ───
             AnimatedRotation(
-              turns: q.isExpanded ? 0.5 : 0,
+              turns: _isExpanded ? 0.5 : 0,
               duration: const Duration(milliseconds: 250),
               child: const Icon(
                 Icons.keyboard_arrow_down_rounded,
@@ -389,10 +401,7 @@ class _QuestionCardState extends State<QuestionCard> {
         ),
         const SizedBox(height: 8),
 
-        if (q.isTrueFalse)
-          _buildTrueFalseSection(q)
-        else
-          _buildMcqSection(q),
+        if (q.isTrueFalse) _buildTrueFalseSection(q) else _buildMcqSection(q),
       ],
     );
   }
@@ -449,8 +458,7 @@ class _QuestionCardState extends State<QuestionCard> {
             canRemove: q.options.length > 2,
             onToggleCorrect: () =>
                 widget.onToggleCorrectOption(q.localId, option.localId),
-            onRemove: () =>
-                widget.onRemoveOption(q.localId, option.localId),
+            onRemove: () => widget.onRemoveOption(q.localId, option.localId),
             onEditingComplete: () => _syncOptionTextToCubit(option.localId),
           );
         }),
@@ -460,20 +468,5 @@ class _QuestionCardState extends State<QuestionCard> {
         ),
       ],
     );
-  }
-
-  // ──────────── Helpers ────────────
-
-  String _typeLabel(String type) {
-    switch (type) {
-      case ApiValues.written:
-        return 'Written';
-      case ApiValues.mcq:
-        return 'Multiple Choice';
-      case ApiValues.trueFalse:
-        return 'True / False';
-      default:
-        return 'Unknown';
-    }
   }
 }

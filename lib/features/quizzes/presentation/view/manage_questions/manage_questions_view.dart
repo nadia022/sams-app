@@ -24,10 +24,9 @@ class ManageQuestionsView extends StatelessWidget {
         }
       },
       buildWhen: (prev, curr) =>
-          curr is ManageQuizLoaded ||
+          curr is ManageQuizQuestionsLoaded ||
           curr is ManageQuizLoading ||
-          curr is ManageQuizInitial ||
-          curr is ManageQuizActionLoading,
+          curr is ManageQuizInitial,
       builder: (context, state) {
         return AdaptiveLayout(
           mobileLayout: (context) => const ManageQuestionsMobileLayout(),
