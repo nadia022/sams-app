@@ -12,7 +12,7 @@ class EditableOptionTile extends StatelessWidget {
   final int index;
   final VoidCallback onToggleCorrect;
   final VoidCallback? onRemove;
-  final VoidCallback? onEditingComplete;
+  final ValueChanged<String>? onChanged;
   final bool canRemove;
 
   const EditableOptionTile({
@@ -22,7 +22,7 @@ class EditableOptionTile extends StatelessWidget {
     required this.index,
     required this.onToggleCorrect,
     this.onRemove,
-    this.onEditingComplete,
+    this.onChanged,
     this.canRemove = true,
   });
 
@@ -62,7 +62,7 @@ class EditableOptionTile extends StatelessWidget {
           Expanded(
             child: TextField(
               controller: controller,
-              onEditingComplete: onEditingComplete,
+              onChanged: onChanged,
               style: AppStyles.mobileBodySmallRg.copyWith(
                 color: AppColors.blackDark,
               ),

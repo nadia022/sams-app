@@ -80,16 +80,20 @@ class _QuestionCardState extends State<QuestionCard> {
   void didUpdateWidget(covariant QuestionCard oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Sync controllers when data changes from the Cubit
-    if (oldWidget.question.text != widget.question.text &&
-        _textController.text != widget.question.text) {
+    // Sync controllers only if the value has changed externally (e.g. from Cubit)
+    // and is different from what's currently in the controller.
+    if (widget.question.text != _textController.text) {
       _textController.text = widget.question.text;
     }
-    if (oldWidget.question.points != widget.question.points) {
-      _pointsController.text = widget.question.points.toString();
+    
+    final pointsStr = widget.question.points.toString();
+    if (pointsStr != _pointsController.text) {
+      _pointsController.text = pointsStr;
     }
-    if (oldWidget.question.timeLimit != widget.question.timeLimit) {
-      _timeLimitController.text = widget.question.timeLimit.toString();
+
+    final timeStr = widget.question.timeLimit.toString();
+    if (timeStr != _timeLimitController.text) {
+      _timeLimitController.text = timeStr;
     }
 
     // Sync option controllers
@@ -118,9 +122,15 @@ class _QuestionCardState extends State<QuestionCard> {
       return false;
     });
 
-    // Add controllers for new options
+    // Sync controllers for existing options
     for (final option in widget.question.options) {
-      if (!_optionControllers.containsKey(option.localId)) {
+      if (_optionControllers.containsKey(option.localId)) {
+        final ctrl = _optionControllers[option.localId]!;
+        if (ctrl.text != option.text) {
+          ctrl.text = option.text;
+        }
+      } else {
+        // Add controllers for new options
         _optionControllers[option.localId] = TextEditingController(
           text: option.text,
         );
@@ -141,8 +151,8 @@ class _QuestionCardState extends State<QuestionCard> {
 
   // ──────────── Focus-Loss Sync ────────────
 
-  void _syncTextToCubit() {
-    widget.onUpdateField(widget.question.localId, text: _textController.text);
+  void _syncTextToCubit(String val) {
+    widget.onUpdateField(widget.question.localId, text: val);
   }
 
   void _syncPointsToCubit() {
@@ -159,15 +169,12 @@ class _QuestionCardState extends State<QuestionCard> {
     }
   }
 
-  void _syncOptionTextToCubit(String optionLocalId) {
-    final controller = _optionControllers[optionLocalId];
-    if (controller != null) {
-      widget.onUpdateOptionText(
-        widget.question.localId,
-        optionLocalId,
-        controller.text,
-      );
-    }
+  void _syncOptionTextToCubit(String optionLocalId, String text) {
+    widget.onUpdateOptionText(
+      widget.question.localId,
+      optionLocalId,
+      text,
+    );
   }
 
   // ──────────── Build ────────────
@@ -183,7 +190,9 @@ class _QuestionCardState extends State<QuestionCard> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: _isExpanded ? AppColors.primaryLightActive : AppColors.whiteHover,
+          color: _isExpanded
+              ? AppColors.primaryLightActive
+              : AppColors.whiteHover,
           width: 1,
         ),
         boxShadow: [
@@ -364,7 +373,7 @@ class _QuestionCardState extends State<QuestionCard> {
           QuestionTextField(
             controller: _textController,
             enabled: !_isReadOnly,
-            onEditingComplete: _syncTextToCubit,
+            onChanged: _syncTextToCubit,
           ),
           const SizedBox(height: 16),
 
@@ -373,8 +382,8 @@ class _QuestionCardState extends State<QuestionCard> {
             pointsController: _pointsController,
             timeLimitController: _timeLimitController,
             enabled: !_isReadOnly,
-            onPointsEditingComplete: _syncPointsToCubit,
-            onTimeLimitEditingComplete: _syncTimeLimitToCubit,
+            onPointsChanged: (val) => _syncPointsToCubit(),
+            onTimeLimitChanged: (val) => _syncTimeLimitToCubit(),
           ),
           const SizedBox(height: 16),
 
@@ -459,7 +468,7 @@ class _QuestionCardState extends State<QuestionCard> {
             onToggleCorrect: () =>
                 widget.onToggleCorrectOption(q.localId, option.localId),
             onRemove: () => widget.onRemoveOption(q.localId, option.localId),
-            onEditingComplete: () => _syncOptionTextToCubit(option.localId),
+            onChanged: (val) => _syncOptionTextToCubit(option.localId, val),
           );
         }),
         const SizedBox(height: 4),

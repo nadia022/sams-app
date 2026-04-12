@@ -10,16 +10,16 @@ class PointsTimeRow extends StatelessWidget {
   final TextEditingController pointsController;
   final TextEditingController timeLimitController;
   final bool enabled;
-  final VoidCallback? onPointsEditingComplete;
-  final VoidCallback? onTimeLimitEditingComplete;
+  final ValueChanged<String>? onPointsChanged;
+  final ValueChanged<String>? onTimeLimitChanged;
 
   const PointsTimeRow({
     super.key,
     required this.pointsController,
     required this.timeLimitController,
     this.enabled = true,
-    this.onPointsEditingComplete,
-    this.onTimeLimitEditingComplete,
+    this.onPointsChanged,
+    this.onTimeLimitChanged,
   });
 
   @override
@@ -31,7 +31,7 @@ class PointsTimeRow extends StatelessWidget {
             label: 'Points',
             controller: pointsController,
             icon: Icons.star_rounded,
-            onEditingComplete: onPointsEditingComplete,
+            onChanged: onPointsChanged,
           ),
         ),
         const SizedBox(width: 12),
@@ -40,7 +40,7 @@ class PointsTimeRow extends StatelessWidget {
             label: 'Time (sec)',
             controller: timeLimitController,
             icon: Icons.timer_rounded,
-            onEditingComplete: onTimeLimitEditingComplete,
+            onChanged: onTimeLimitChanged,
           ),
         ),
       ],
@@ -51,7 +51,7 @@ class PointsTimeRow extends StatelessWidget {
     required String label,
     required TextEditingController controller,
     required IconData icon,
-    VoidCallback? onEditingComplete,
+    ValueChanged<String>? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,7 +68,7 @@ class PointsTimeRow extends StatelessWidget {
           enabled: enabled,
           keyboardType: TextInputType.number,
           textInputAction: TextInputAction.done,
-          onEditingComplete: onEditingComplete,
+          onChanged: onChanged,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           style: AppStyles.mobileBodySmallMd.copyWith(
             color: AppColors.primaryDark,

@@ -9,14 +9,14 @@ class QuestionTextField extends StatelessWidget {
   final TextEditingController controller;
   final bool enabled;
   final String hintText;
-  final VoidCallback? onEditingComplete;
+  final ValueChanged<String>? onChanged;
 
   const QuestionTextField({
     super.key,
     required this.controller,
     this.enabled = true,
     this.hintText = 'Enter your question here...',
-    this.onEditingComplete,
+    this.onChanged,
   });
 
   @override
@@ -27,7 +27,7 @@ class QuestionTextField extends StatelessWidget {
       maxLines: null,
       minLines: 2,
       textInputAction: TextInputAction.done,
-      onEditingComplete: onEditingComplete,
+      onChanged: onChanged,
       style: AppStyles.mobileBodySmallRg.copyWith(
         color: AppColors.blackDark,
       ),

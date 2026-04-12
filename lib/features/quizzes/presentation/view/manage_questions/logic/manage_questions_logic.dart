@@ -50,15 +50,19 @@ mixin ManageQuestionsLogic<T extends StatefulWidget> on State<T> {
     int? timeLimit,
     int? points,
   }) {
+    // We create a completely new list instance to ensure Flutter detects the state change.
+    final updatedQuestions = questions.map((q) {
+      if (q.localId != localId) return q;
+      // copyWith returns a fresh instance with updated values.
+      return q.copyWith(
+        text: text,
+        timeLimit: timeLimit,
+        points: points,
+      );
+    }).toList();
+
     setState(() {
-      questions = questions.map((q) {
-        if (q.localId != localId) return q;
-        return q.copyWith(
-          text: text,
-          timeLimit: timeLimit,
-          points: points,
-        );
-      }).toList();
+      questions = updatedQuestions;
     });
   }
 
