@@ -141,18 +141,17 @@ class AnnouncementsRepoImpl implements AnnouncementsRepo {
 
   //* POST → Add comment to announcement
   @override
-  Future<Either<String, CommentDetails>> addComment({
+ Future<Either<String, Unit>> addComment({
     required String announcementId,
     required CommentRequestModel request,
   }) async {
     try {
-      final response = await api.post(
-        EndPoints.addComment(announcementId), 
+      await api.post(
+        EndPoints.addComment(announcementId),
         data: request.toJson(),
       );
 
-      final comment = CommentDetails.fromJson(response[ApiKeys.data]);
-      return right(comment);
+      return right(unit); 
     } on ApiException catch (e) {
       return left(e.errorModel.errorMessage);
     } catch (e) {

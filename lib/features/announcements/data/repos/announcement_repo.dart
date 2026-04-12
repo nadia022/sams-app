@@ -44,7 +44,7 @@ abstract class AnnouncementsRepo {
   //* --- Comment Operations ---
 
   /// Adds a comment to a specific announcement
-  Future<Either<String, CommentDetails>> addComment({
+  Future<Either<String, Unit>> addComment({
     required String announcementId,
     required CommentRequestModel request,
   });
