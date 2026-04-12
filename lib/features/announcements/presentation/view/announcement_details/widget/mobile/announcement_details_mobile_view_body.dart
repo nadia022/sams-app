@@ -7,15 +7,16 @@ import 'package:sams_app/features/announcements/presentation/view/announcement_d
 import 'package:sams_app/features/announcements/presentation/view/announcement_details/widget/shared/comments_section.dart';
 
 class AnnouncementDetailsMobileViewBody extends StatelessWidget {
-  const AnnouncementDetailsMobileViewBody({super.key});
+  const AnnouncementDetailsMobileViewBody({super.key, required this.announcementId});
+  final String announcementId;
   @override
   Widget build(BuildContext context) {
-    return   const Column(
+    return    Column(
       children: [
-        MobileHeaderSection(
+        const MobileHeaderSection(
       
         ),
-        Expanded(
+        const Expanded(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Column(
@@ -30,7 +31,7 @@ class AnnouncementDetailsMobileViewBody extends StatelessWidget {
             ),
           ),
         ),
-        AddCommentBar(),
+        AddCommentBar(announcementId: announcementId,),
       ],
     );
   }

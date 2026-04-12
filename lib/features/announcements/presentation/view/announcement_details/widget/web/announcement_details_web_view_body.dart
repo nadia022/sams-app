@@ -6,7 +6,8 @@ import 'package:sams_app/features/announcements/presentation/view/announcement_d
 import 'package:sams_app/features/announcements/presentation/view/announcement_details/widget/web/web_header_section.dart';
 
 class AnnouncementDetailsWebViewBody extends StatelessWidget {
-  const AnnouncementDetailsWebViewBody({super.key});
+  const AnnouncementDetailsWebViewBody({super.key, required this.announcementId});
+  final String announcementId;
   
   @override
   Widget build(BuildContext context) {
@@ -40,11 +41,11 @@ class AnnouncementDetailsWebViewBody extends StatelessWidget {
                     ),
 
                     // ── Right column: Comments + input ──
-                    const Expanded(
+                     Expanded(
                       flex: 4,
                       child: Column(
                         children: [
-                          Expanded(
+                          const Expanded(
                             child: SingleChildScrollView(
                               padding: EdgeInsets.only(
                                 left: 24,
@@ -53,7 +54,7 @@ class AnnouncementDetailsWebViewBody extends StatelessWidget {
                               child: CommentsSection(),
                             ),
                           ),
-                          AddCommentBar(),
+                          AddCommentBar(announcementId: announcementId,),
                         ],
                       ),
                     ),

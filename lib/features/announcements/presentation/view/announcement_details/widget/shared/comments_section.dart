@@ -8,6 +8,8 @@ import 'package:sams_app/features/announcements/presentation/view/announcement_d
 import 'package:sams_app/features/announcements/presentation/view/announcement_details/widget/shared/comment_item.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_cubit.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_state.dart';
+import 'package:sams_app/features/announcements/presentation/view_model/cubit/comment_actions/comment_actions_cubit.dart';
+import 'package:sams_app/features/announcements/presentation/view_model/cubit/comment_actions/comment_actions_state.dart';
 
 class CommentsSection extends StatelessWidget {
   const CommentsSection({super.key});
@@ -104,58 +106,114 @@ class CommentsSection extends StatelessWidget {
   }
 
   void _showEditDialog(BuildContext context, comment) {
-    final controller = TextEditingController(text: comment.content);
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Edit Comment'),
-        content: TextField(
-          controller: controller,
-          maxLines: 3,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // context.read<YourCubit>().updateComment(comment.id, controller.text);
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          ),
-        ],
+  final controller = TextEditingController(text: comment.content);
+  final commentActionsCubit = context.read<CommentActionsCubit>();
+  
+  showDialog(
+    context: context,
+    builder: (dialogContext) => BlocProvider.value(
+      value: commentActionsCubit,
+      child: BlocConsumer<CommentActionsCubit, CommentActionsState>(
+        listener: (context, state) {
+          if (state is UpdateCommentSuccess) {
+            Navigator.pop(dialogContext); 
+            // ممكن هنا تعملي Refresh للبيانات لو حابة
+          }
+          if (state is UpdateCommentFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.errMessage), backgroundColor: Colors.red),
+            );
+          }
+        },
+        builder: (context, state) {
+          return AlertDialog(
+            
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: const Text('Edit Comment'),
+            content: TextField(
+              controller: controller,
+              maxLines: 3,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: state is UpdateCommentLoading ? null : () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: state is UpdateCommentLoading
+                    ? null
+                    : () {
+                        context.read<CommentActionsCubit>().updateComment(
+                              commentId: comment.id,
+                              content: controller.text,
+                            );
+                      },
+                child: state is UpdateCommentLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text('Save'),
+              ),
+            ],
+          );
+        },
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _showDeleteConfirm(BuildContext context, String commentId) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete Comment'),
-        content: const Text('Are you sure you want to delete this comment?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              // context.read<YourCubit>().deleteComment(commentId);
-              Navigator.pop(context);
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
-          ),
-        ],
+    final commentActionsCubit = context.read<CommentActionsCubit>();
+  showDialog(
+    context: context,
+    builder: (dialogContext) => BlocProvider.value(
+      value: commentActionsCubit,
+      child: BlocConsumer<CommentActionsCubit, CommentActionsState>(
+        listener: (context, state) {
+          if (state is DeleteCommentSuccess) {
+            Navigator.pop(dialogContext); 
+          }
+          if (state is DeleteCommentFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.errMessage), backgroundColor: Colors.red),
+            );
+          }
+        },
+        builder: (context, state) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: const Text('Delete Comment'),
+            content: const Text('Are you sure you want to delete this comment?'),
+            actions: [
+              TextButton(
+                onPressed: state is DeleteCommentLoading ? null : () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: state is DeleteCommentLoading
+                    ? null
+                    : () {
+                        context.read<CommentActionsCubit>().deleteComment(commentId: commentId);
+                      },
+                child: state is DeleteCommentLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text('Delete', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          );
+        },
       ),
-    );
-  }
+    ),
+  );
+}
 }

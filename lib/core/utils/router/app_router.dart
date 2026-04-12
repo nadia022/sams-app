@@ -223,7 +223,7 @@ class AppRouter {
                         create: (context) => getIt<AnnouncementsActionsCubit>(),
                       ),
                     ],
-                    child:  const AnnouncementDetailsView(),
+                    child:   AnnouncementDetailsView(announcementId: announcementId,),
                   );
                 },
               ),
