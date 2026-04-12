@@ -1,14 +1,14 @@
-  //! --- JSON KEYS (The names that Dio sends and receives) ---
+//! --- JSON KEYS (The names that Dio sends and receives) ---
 
 abstract class ApiKeys {
   ApiKeys._();
 
   //? --- Common Response & General Keys ---
   static const String data = 'data';
-  static const String message = 'message';  
+  static const String message = 'message';
   static const String id = '_id';
   static const String status = 'status';
-  static const String validationErrors = 'validationErrors'; 
+  static const String validationErrors = 'validationErrors';
   static const String name = 'name';
 
   //? User Model Keys
@@ -68,10 +68,12 @@ abstract class ApiKeys {
   static const String student = 'student';
   static const String confirmPassword = 'confirmPassword';
 
- //? --- Announcement Keys 
+  //? --- Announcement Keys
   static const String title = 'title';
   static const String content = 'content';
   static const String comments = 'comments';
+  static const String commentedAt = 'commentedAt';
+  static const String author = 'author';
 }
 
 //! --- API VALUES (Fixed values that the server expects inside the fields) ---

@@ -1,10 +1,11 @@
 import 'package:sams_app/core/utils/constants/api_keys.dart';
+import 'package:sams_app/features/announcements/data/model/comment_details.dart';
 
 class AnnouncementDetailsModel {
   final String id;
   final String title;
   final String content;
-  final List<CommentModel> comments; 
+  final List<CommentDetails> comments; 
 
   AnnouncementDetailsModel({
     required this.id,
@@ -20,7 +21,7 @@ class AnnouncementDetailsModel {
       title: (json[ApiKeys.title] as String?) ?? 'No Title',
       content: (json[ApiKeys.content] as String?) ?? 'No Content',
 comments: (json[ApiKeys.comments] as List<dynamic>?)
-              ?.map((e) => CommentModel.fromJson(e as Map<String, dynamic>))
+              ?.map((e) => CommentDetails.fromJson(e as Map<String, dynamic>))
               .toList() ?? [],    );
   }
 
@@ -39,29 +40,13 @@ comments: (json[ApiKeys.comments] as List<dynamic>?)
     String? id,
     String? title,
     String? content,
-    List<CommentModel>? comments,
+    List<CommentDetails>? comments,
   }) {
     return AnnouncementDetailsModel(
       id: id ?? this.id,
       title: title ?? this.title,
       content: content ?? this.content,
       comments: comments ?? this.comments,
-    );
-  }
-}
-class CommentModel {
-  final String content;
-  final String date;
-  final String userName;
-
-  CommentModel({required this.content, required this.date, required this.userName});
-
-  factory CommentModel.fromJson(Map<String, dynamic> json) {
-    return CommentModel(
-      content: json['content'] ?? '',
-      date: json['commentedAt'] ?? '',
-      // هنا السر: بندخل جوه الـ author وبعدين نجيب الـ name
-      userName: json['author'] != null ? json['author']['name'] ?? 'User' : 'User',
     );
   }
 }
