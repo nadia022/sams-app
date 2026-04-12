@@ -6,6 +6,8 @@ import 'package:sams_app/core/utils/constants/api_endpoints.dart';
 import 'package:sams_app/features/announcements/data/data_sources/announcements_local_data_source.dart';
 import 'package:sams_app/features/announcements/data/model/announcement_details_model.dart';
 import 'package:sams_app/features/announcements/data/model/announcement_model.dart';
+import 'package:sams_app/features/announcements/data/model/comment_details.dart';
+import 'package:sams_app/features/announcements/data/model/comment_request_model.dart';
 import 'package:sams_app/features/announcements/data/model/create_announcement_request_model.dart';
 import 'package:sams_app/features/announcements/data/model/update_announcement_request_model.dart';
 import 'package:sams_app/features/announcements/data/repos/announcement_repo.dart';
@@ -130,6 +132,66 @@ class AnnouncementsRepoImpl implements AnnouncementsRepo {
 
       final updatedAnnouncement = AnnouncementModel.fromJson(response[ApiKeys.data]);
       return right(updatedAnnouncement);
+    } on ApiException catch (e) {
+      return left(e.errorModel.errorMessage);
+    } catch (e) {
+      return left(e.toString());
+    }
+  }
+
+  //* POST → Add comment to announcement
+  @override
+  Future<Either<String, CommentDetails>> addComment({
+    required String announcementId,
+    required CommentRequestModel request,
+  }) async {
+    try {
+      final response = await api.post(
+        EndPoints.addComment(announcementId), 
+        data: request.toJson(),
+      );
+
+      final comment = CommentDetails.fromJson(response[ApiKeys.data]);
+      return right(comment);
+    } on ApiException catch (e) {
+      return left(e.errorModel.errorMessage);
+    } catch (e) {
+      return left(e.toString());
+    }
+  }
+
+  //* PATCH → Update existing comment
+  @override
+  Future<Either<String, CommentDetails>> updateComment({
+    required String commentId,
+    required CommentRequestModel request,
+  }) async {
+    try {
+      final response = await api.patch(
+        EndPoints.commentById(commentId), 
+        data: request.toJson(),
+      );
+
+      final updatedComment = CommentDetails.fromJson(response[ApiKeys.data]);
+      return right(updatedComment);
+    } on ApiException catch (e) {
+      return left(e.errorModel.errorMessage);
+    } catch (e) {
+      return left(e.toString());
+    }
+  }
+
+ //* DELETE → Remove a comment
+  @override
+  Future<Either<String, Unit>> deleteComment({
+    required String commentId,
+  }) async {
+    try {
+      await api.delete(
+        EndPoints.commentById(commentId),
+      );
+
+      return right(unit);
     } on ApiException catch (e) {
       return left(e.errorModel.errorMessage);
     } catch (e) {
