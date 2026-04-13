@@ -3,6 +3,7 @@ import 'package:sams_app/core/errors/exceptions/api_exception.dart';
 import 'package:sams_app/core/network/api_consumer.dart';
 import 'package:sams_app/core/utils/constants/api_endpoints.dart';
 import 'package:sams_app/core/utils/constants/api_keys.dart';
+import 'package:sams_app/features/quizzes/data/model/data_models/classwork_item_model.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/question/question_model.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/student_submission_model.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/submission_model.dart';
@@ -236,6 +237,62 @@ class QuizRepositoryImpl implements QuizRepository {
       return Right(
         response[ApiKeys.message],
       ); // success case, return success message
+    } on ApiException catch (e) {
+      return Left(e.errorModel.errorMessage); // failure case
+    } catch (e) {
+      return Left(e.toString()); // failure case
+    }
+  }
+
+  // ! --- Instructor Flow: create/get Classworks ---
+
+  // * add new classwork (/api/v1/instructor/courses/{courseId}/classworks)
+  @override
+  Future<Either<String, String>> addNewClasswork(
+    String courseId,
+    String classworkName,
+    num points,
+  ) async {
+    try {
+      // hit addNewClasswork request
+      final response = await api.post(
+        EndPoints.addNewClasswork(courseId),
+        data: {
+          ApiKeys.name: classworkName,
+          ApiKeys.points: points,
+        },
+      );
+
+      return Right(
+        response[ApiKeys.message],
+      ); // success case, return success message
+    } on ApiException catch (e) {
+      return Left(e.errorModel.errorMessage); // failure case
+    } catch (e) {
+      return Left(e.toString()); // failure case
+    }
+  }
+
+  // * get available classworks (/api/v1/instructor/courses/{courseId}/classworks)
+  @override
+  Future<Either<String, List<ClassworkItemModel>>> getAvailableClassworks(
+    String courseId,
+  ) async {
+    try {
+      // hit getAvailableClassworks request
+      final response = await api.get(
+        EndPoints.getAvailableClassworks(courseId),
+      );
+
+      // parsing and initialize classworkItemsList
+      final classworkItemsList = response[ApiKeys.data] as List<dynamic>;
+      final classworkItems = classworkItemsList
+          .map((e) => ClassworkItemModel.fromJson(e))
+          .toList();
+
+      return Right(
+        classworkItems,
+      ); // success case, return list of classwork items
     } on ApiException catch (e) {
       return Left(e.errorModel.errorMessage); // failure case
     } catch (e) {

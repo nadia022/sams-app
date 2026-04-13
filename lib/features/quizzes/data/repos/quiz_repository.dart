@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:sams_app/features/quizzes/data/model/data_models/classwork_item_model.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/question/question_model.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/student_submission_model.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/submission_model.dart';
@@ -51,5 +52,18 @@ abstract class QuizRepository {
     String submissionId,
     String questionId,
     num grade,
+  );
+
+  // ! --- Instructor Flow: create/get Classworks ---
+  // /api/v1/instructor/courses/{courseId}/classworks
+  Future<Either<String, List<ClassworkItemModel>>> getAvailableClassworks(
+    String courseId,
+  );
+
+  // /api/v1/instructor/courses/{courseId}/classworks
+  Future<Either<String, String>> addNewClasswork(
+    String courseId,
+    String classworkName,
+    num points,
   );
 }
