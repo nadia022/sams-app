@@ -4,11 +4,15 @@ sealed class CreateQuizState {
   const CreateQuizState();
 }
 
+// ── Generic UI ──────────────────────────────────────────────────────────────
+
+/// Emitted once on [init] and after every local field change
+/// (classwork selection, date/time pick) so the form can rebuild.
 final class CreateQuizInitial extends CreateQuizState {}
 
 final class CreateQuizUIUpdated extends CreateQuizState {}
 
-// * create quiz state
+// ── Submit Quiz ─────────────────────────────────────────────────────────────
 
 final class CreateQuizLoading extends CreateQuizState {}
 
@@ -22,7 +26,8 @@ final class CreateQuizFailure extends CreateQuizState {
   const CreateQuizFailure(this.message);
 }
 
-// * create classwork state
+// ── Create Classwork ────────────────────────────────────────────────────────
+// Emitted when the user creates a new classwork item from the picker dialog.
 
 final class CreateClassworkLoading extends CreateQuizState {}
 
@@ -36,23 +41,17 @@ final class CreateClassworkFailure extends CreateQuizState {
   const CreateClassworkFailure(this.message);
 }
 
-// * get available classworks state
+// ── Fetch Available Classworks ──────────────────────────────────────────────
+// Used exclusively inside the classwork picker dialog / bottom-sheet.
 
-final class GetAvailableClassworks extends CreateQuizState {
-  const GetAvailableClassworks();
-}
+final class AvailableClassworksLoading extends CreateQuizState {}
 
-final class GetAvailableClassworksLoading extends GetAvailableClassworks {}
-
-final class GetAvailableClassworksSuccess extends GetAvailableClassworks {
+final class AvailableClassworksLoaded extends CreateQuizState {
   final List<ClassworkItemModel> classworks;
-  const GetAvailableClassworksSuccess(this.classworks);
+  const AvailableClassworksLoaded(this.classworks);
 }
 
-final class GetAvailableClassworksFailure extends GetAvailableClassworks {
+final class AvailableClassworksFailure extends CreateQuizState {
   final String message;
-  const GetAvailableClassworksFailure(this.message);
+  const AvailableClassworksFailure(this.message);
 }
-
-// TODO: think about create another cubit for manage classwork (create, update)
-/// and provide it by multi bloc provider in router

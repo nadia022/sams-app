@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sams_app/features/quizzes/data/repos/quiz_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/classwork_item_model.dart';
 import 'package:sams_app/features/quizzes/data/model/data_models/quiz_model.dart';
 import 'package:sams_app/features/quizzes/data/model/request_bodies_models/create_quiz_request_body.dart';
+import 'package:sams_app/features/quizzes/data/repos/quiz_repository.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/model/create_quiz_form_args.dart';
 
 part 'create_quiz_state.dart';
@@ -16,14 +16,14 @@ class CreateQuizCubit extends Cubit<CreateQuizState> {
     _initControllers();
   }
 
-  // * ──────────────────── Form Elements ────────────────────
+  // ── Form Elements ─────────────────────────────────────────────────────────
   final formKey = GlobalKey<FormState>();
   late final TextEditingController titleController;
   late final TextEditingController descriptionController;
   late final TextEditingController durationController;
   late final TextEditingController startTimeDisplayController;
 
-  // * ──────────────────── Data Variables ────────────────────
+  // ── Data Variables ────────────────────────────────────────────────────────
   ClassworkItemModel? selectedClasswork;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
@@ -39,7 +39,7 @@ class CreateQuizCubit extends Cubit<CreateQuizState> {
     startTimeDisplayController = TextEditingController();
   }
 
-  /// * Initialises the form based on Create or Edit mode
+  /// Initialises the form based on Create or Edit mode.
   void init(CreateQuizFormArgs args) {
     isEditMode = args.isEditMode;
     courseId = args.courseId;
@@ -58,8 +58,9 @@ class CreateQuizCubit extends Cubit<CreateQuizState> {
     emit(CreateQuizUIUpdated());
   }
 
-  // * ──────────────────── Input Actions ────────────────────
+  // ── Input Actions ─────────────────────────────────────────────────────────
 
+  /// Called when the user picks a classwork from the picker dialog.
   void onClassworkSelected(ClassworkItemModel item) {
     selectedClasswork = item;
     emit(CreateQuizUIUpdated());
@@ -89,12 +90,10 @@ class CreateQuizCubit extends Cubit<CreateQuizState> {
     }
   }
 
-  // * ──────────────────── helper methods ────────────────────
-
   String _formatDateTime(DateTime dt) =>
       DateFormat('MMM dd, yyyy - hh:mm a').format(dt);
 
-  // * ──────────────────── Submit ────────────────────
+  // ── Submit ────────────────────────────────────────────────────────────────
   Future<void> onSubmit() async {
     // 1. Validation
     if (isEditMode == false && selectedClasswork == null) {
@@ -129,9 +128,9 @@ class CreateQuizCubit extends Cubit<CreateQuizState> {
 
     try {
       // if (isEditMode) {
-      //   await _repository.updateQuiz(initialData!.id, body);
+      //   await _repo.updateQuiz(initialData!.id, body);
       // } else {
-      //   await _repository.createQuiz(courseId, body);
+      //   await _repo.createQuiz(courseId, body);
       // }
 
       await Future.delayed(const Duration(seconds: 1)); // Fake delay
@@ -145,18 +144,24 @@ class CreateQuizCubit extends Cubit<CreateQuizState> {
     }
   }
 
-  // * ──────────────────── Get Available Classworks ────────────────────
+  // ── Fetch Available Classworks ────────────────────────────────────────────
+  /// Fetches the list of available classworks for [courseId].
+  /// Emits [AvailableClassworksLoading] → [AvailableClassworksLoaded] or
+  /// [AvailableClassworksFailure].
   Future<void> getAvailableClassworks() async {
-    emit(GetAvailableClassworksLoading());
+    emit(AvailableClassworksLoading());
 
     final result = await _repo.getAvailableClassworks(courseId);
     result.fold(
-      (failureMessage) => emit(GetAvailableClassworksFailure(failureMessage)),
-      (classworks) => emit(GetAvailableClassworksSuccess(classworks)),
+      (failureMessage) => emit(AvailableClassworksFailure(failureMessage)),
+      (classworks) => emit(AvailableClassworksLoaded(classworks)),
     );
   }
 
-  // * ──────────────────── Add new classwork ────────────────────
+  // ── Add new classwork ──────────────────────────────────────────────────────
+  /// Creates a new classwork for [courseId].
+  /// On success, emits [CreateClassworkSuccess] then auto-refreshes
+  /// the classwork list via [getAvailableClassworks].
   Future<void> addNewClasswork(String classworkName, num totalPoints) async {
     emit(CreateClassworkLoading());
 
@@ -167,7 +172,11 @@ class CreateQuizCubit extends Cubit<CreateQuizState> {
     );
     result.fold(
       (failureMessage) => emit(CreateClassworkFailure(failureMessage)),
-      (successMessage) => emit(CreateClassworkSuccess(successMessage)),
+      (successMessage) {
+        emit(CreateClassworkSuccess(successMessage));
+        // Auto-refresh so the new item appears in the picker list
+        getAvailableClassworks();
+      },
     );
   }
 
