@@ -104,6 +104,8 @@ class AppTextField extends StatelessWidget {
             return AppValidators.validateAcademicEmail(value);
           case TextFieldType.numerical:
             return AppValidators.validateNumber(value);
+          case TextFieldType.decimal:
+            return AppValidators.validateDecimal(value);
           case TextFieldType.alphabetical:
             return AppValidators.validateName(value);
           case TextFieldType.normal:
@@ -124,6 +126,8 @@ class AppTextField extends StatelessWidget {
     switch (textFieldType) {
       case TextFieldType.numerical:
         return TextInputType.number;
+      case TextFieldType.decimal:
+        return const TextInputType.numberWithOptions(decimal: true);
       case TextFieldType.academicEmail:
         return TextInputType.emailAddress;
       default:
