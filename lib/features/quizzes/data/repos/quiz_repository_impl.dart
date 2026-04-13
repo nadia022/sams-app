@@ -103,9 +103,15 @@ class QuizRepositoryImpl implements QuizRepository {
   }
 
   @override
-  Future<Either<String, String>> deleteQuiz(String quizId) async {
-    // TODO: implement deleteQuiz
-    throw UnimplementedError();
+  Future<Either<String, Unit>> deleteQuiz(String quizId) async {
+    try {
+      await api.delete(EndPoints.deleteQuiz(quizId));
+      return const Right(unit);
+    } on ApiException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
   }
 
   @override
@@ -115,7 +121,7 @@ class QuizRepositoryImpl implements QuizRepository {
   }
 
   // --- Instructor Flow: Questions CRUD ---
-  
+
   @override
   Future<Either<String, Unit>> addQuestion(
     String quizId,

@@ -20,7 +20,7 @@ abstract class QuizRepository {
     String quizId,
     Map<String, dynamic> data,
   );
-  Future<Either<String, String>> deleteQuiz(String quizId);
+  Future<Either<String, Unit>> deleteQuiz(String quizId);
   Future<Either<String, String>> toggleQuizPublished(String quizId);
 
   // --- Instructor Flow: Questions CRUD ---

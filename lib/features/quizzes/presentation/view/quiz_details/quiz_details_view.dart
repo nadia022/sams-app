@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sams_app/core/helper/app_snack_bar.dart';
 import 'package:sams_app/core/enums/enum_user_role.dart';
 import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
 import 'package:sams_app/core/widgets/shared/adaptive_layout.dart';
@@ -26,7 +28,19 @@ class QuizDetailsView extends StatelessWidget {
       context.read<QuizDetailsCubit>().getQuizDetails(quizId);
     }
 
-    return BlocBuilder<QuizDetailsCubit, QuizDetailsState>(
+    return BlocConsumer<QuizDetailsCubit, QuizDetailsState>(
+      listener: (context, state) {
+        if (state is QuizDetailsDeleteSuccess) {
+          AppSnackBar.success(context, state.message);
+          context.pop(); // Go back to the course screen or previous screen
+        } else if (state is QuizDetailsDeleteFailure) {
+          AppSnackBar.error(context, state.errorMessage);
+        }
+      },
+      buildWhen: (previous, current) =>
+          current is QuizDetailsLoading ||
+          current is QuizDetailsSuccess ||
+          current is QuizDetailsFailure,
       builder: (context, state) {
         // * handle loading state
         if (state is QuizDetailsLoading) {
