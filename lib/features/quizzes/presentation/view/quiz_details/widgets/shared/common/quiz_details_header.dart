@@ -54,6 +54,7 @@ class QuizDetailsHeader extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
+                          width: 38,
                           decoration: BoxDecoration(
                             color: AppColors.whiteLight.withAlpha(20),
                             shape: BoxShape.circle,
@@ -68,20 +69,20 @@ class QuizDetailsHeader extends StatelessWidget {
                               );
                             },
                             icon: const Icon(
+                              size: 20,
                               Icons.edit_square,
                               color: AppColors.whiteLight,
                             ),
                           ),
                         ),
 
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 16),
 
                         Container(
+                          width: 38,
                           margin: const EdgeInsets.only(right: 8),
-                          decoration: BoxDecoration(
-                            color: StatusColors.red.withValues(
-                              alpha: 0.1,
-                            ),
+                          decoration: const BoxDecoration(
+                            color: AppColors.redLight,
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
@@ -96,8 +97,9 @@ class QuizDetailsHeader extends StatelessWidget {
                               );
                             },
                             icon: const Icon(
+                              size: 22,
                               Icons.delete_forever,
-                              color: StatusColors.red,
+                              color: AppColors.red,
                             ),
                           ),
                         ),
