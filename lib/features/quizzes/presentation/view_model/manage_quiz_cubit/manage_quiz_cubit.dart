@@ -77,9 +77,10 @@ class ManageQuizCubit extends Cubit<ManageQuizState> {
 
         result.fold(
           (error) => emit(ManageQuizFailure(error)),
-          (_) {
+          (_) async {
             emit(const ManageQuizSuccess('Questions added successfully!'));
-            // Re-emit loaded so the UI can remove its loading overlay but keep data
+            // Refresh from server to get the real IDs for subsequent edits
+            await _fetchQuestions();
             emit(ManageQuizQuestionsLoaded(viewQuestions));
           },
         );
@@ -123,6 +124,7 @@ class ManageQuizCubit extends Cubit<ManageQuizState> {
         }
 
         emit(const ManageQuizSuccess('Changes saved successfully!'));
+        await _fetchQuestions();
         emit(ManageQuizQuestionsLoaded(viewQuestions));
       }
     } catch (e) {
@@ -147,7 +149,7 @@ class ManageQuizCubit extends Cubit<ManageQuizState> {
           emit(ManageQuizFailure(error));
         },
         (_) {
-          emit(const ManageQuizSuccess('Question deleted.'));
+          emit(const ManageQuizDeleteSuccess('Question deleted.'));
           // Let the UI know so it can potentially sync, though UI usually
           // performs local deletion first for optimistic updates.
           emit(ManageQuizQuestionsLoaded(viewQuestions));

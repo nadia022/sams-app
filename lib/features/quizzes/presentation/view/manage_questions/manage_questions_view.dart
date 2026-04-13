@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sams_app/core/helper/app_snack_bar.dart';
 import 'package:sams_app/core/widgets/shared/adaptive_layout.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/manage_questions_args.dart';
@@ -20,6 +21,9 @@ class ManageQuestionsView extends StatelessWidget {
     return BlocConsumer<ManageQuizCubit, ManageQuizState>(
       listener: (context, state) {
         if (state is ManageQuizSuccess) {
+          AppSnackBar.success(context, state.message);
+          context.pop();
+        } else if (state is ManageQuizDeleteSuccess) {
           AppSnackBar.success(context, state.message);
         } else if (state is ManageQuizFailure) {
           AppSnackBar.error(context, state.message);

@@ -31,6 +31,12 @@ final class ManageQuizSuccess extends ManageQuizState {
   const ManageQuizSuccess(this.message);
 }
 
+/// A specific API action (like deletion) succeeded and should NOT trigger a pop.
+final class ManageQuizDeleteSuccess extends ManageQuizState {
+  final String message;
+  const ManageQuizDeleteSuccess(this.message);
+}
+
 /// An error occurred.
 final class ManageQuizFailure extends ManageQuizState {
   final String message;
