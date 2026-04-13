@@ -115,29 +115,47 @@ class QuizRepositoryImpl implements QuizRepository {
   }
 
   // --- Instructor Flow: Questions CRUD ---
-
+  
   @override
-  Future<Either<String, String>> addQuestion(
+  Future<Either<String, Unit>> addQuestion(
     String quizId,
     Map<String, dynamic> data,
   ) async {
-    // TODO: implement addQuestion
-    throw UnimplementedError();
+    try {
+      await api.post(EndPoints.createQuestion(quizId), data: data);
+      return const Right(unit);
+    } on ApiException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
   }
 
   @override
-  Future<Either<String, String>> updateQuestion(
+  Future<Either<String, Unit>> updateQuestion(
     String questionId,
     Map<String, dynamic> data,
   ) async {
-    // TODO: implement updateQuestion
-    throw UnimplementedError();
+    try {
+      await api.patch(EndPoints.updateQuestion(questionId), data: data);
+      return const Right(unit);
+    } on ApiException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
   }
 
   @override
-  Future<Either<String, String>> deleteQuestion(String questionId) async {
-    // TODO: implement deleteQuestion
-    throw UnimplementedError();
+  Future<Either<String, Unit>> deleteQuestion(String questionId) async {
+    try {
+      await api.delete(EndPoints.deleteQuestion(questionId));
+      return const Right(unit);
+    } on ApiException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
   }
 
   // ! --- Student Flow: Taking Quizzes ---
