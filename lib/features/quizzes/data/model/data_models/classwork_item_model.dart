@@ -3,7 +3,7 @@ import 'package:sams_app/core/utils/constants/api_keys.dart';
 class ClassworkItemModel {
   final String id;
   final String name;
-  final int points;
+  final num points;
   final bool isVisible;
 
   const ClassworkItemModel({

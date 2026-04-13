@@ -7,7 +7,6 @@ import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
 import 'package:sams_app/core/widgets/base/app_button.dart';
 import 'package:sams_app/core/widgets/base/app_text_field.dart';
 import 'package:sams_app/core/widgets/shared/titled_input_field.dart';
-import 'package:sams_app/features/quizzes/data/mock_data.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/helper/date_time_picker_helper.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/widgets/shared/classwork_selector_field.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/model/create_quiz_form_args.dart';
