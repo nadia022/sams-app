@@ -11,7 +11,26 @@ class AnnouncementsFetchCubit extends Cubit<AnnouncementsFetchState>
   final AnnouncementsRepo announcementsRepo;
   String? currentCourseId; // هنخزن الـ ID هنا
 
-  AnnouncementsFetchCubit(this.announcementsRepo) : super(AnnouncementsFetchInitial());
+  static final List<AnnouncementsFetchCubit> _instances = [];
+
+  AnnouncementsFetchCubit(this.announcementsRepo) : super(AnnouncementsFetchInitial()) {
+    _instances.add(this);
+  }
+
+  @override
+  Future<void> close() {
+    _instances.remove(this);
+    return super.close();
+  }
+
+  /// Triggers a refresh on all alive cubit instances for the given courseId.
+  static void refreshAllLists(String courseId) {
+    for (var cubit in _instances) {
+      if (cubit.currentCourseId == courseId) {
+        cubit.fetchAnnouncements(courseId: courseId);
+      }
+    }
+  }
 
   /// Fetches announcements for a specific course.
   /// 1. Immediately emits cached data if available.

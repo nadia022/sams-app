@@ -94,7 +94,7 @@ class AnnouncementsWebLayout extends StatelessWidget {
                         title: announcements[dataIndex].title,
                         description: announcements[dataIndex].content,
                         image: AppImages.imagesAnnouncementCard,
-                        onTap: () {
+                        onTap: () async {
                           /// Fetch specific details before navigating
                           context
                               .read<AnnouncementsFetchCubit>()
@@ -102,13 +102,18 @@ class AnnouncementsWebLayout extends StatelessWidget {
                                 announcementId: announcements[dataIndex].id,
                               );
 
-                          context.pushNamed(
+                          await context.pushNamed(
                             RoutesName.announcementDetails,
                             pathParameters: {
                               'courseId': courseId,
                               'announcementId': announcements[dataIndex].id,
                             },
                           );
+                          if (context.mounted) {
+                            context
+                                .read<AnnouncementsFetchCubit>()
+                                .fetchAnnouncements(courseId: courseId);
+                          }
                         },
                       ),
                     );

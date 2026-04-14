@@ -8,10 +8,10 @@ import 'package:sams_app/features/announcements/presentation/view/announcement_a
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcement_actions/announcement_actions_cubit.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_cubit.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_state.dart';
+import 'package:go_router/go_router.dart';
 
 class AnnouncementCard extends StatelessWidget {
   const AnnouncementCard({super.key});
-  // final String courseId;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +71,6 @@ class AnnouncementCard extends StatelessWidget {
                             .read<AnnouncementsFetchCubit>();
                         final actionsCubit = context
                             .read<AnnouncementsActionsCubit>();
-                        final String? storedCourseId = fetchCubit.currentCourseId;
                         final result = await showDialog<String>(
                           context: context,
                           builder: (context) => MultiBlocProvider(
@@ -90,30 +89,29 @@ class AnnouncementCard extends StatelessWidget {
                         );
 
                         if (context.mounted && result != null) {
+                          final courseId = GoRouterState.of(context).pathParameters['courseId'];
                           if (result == 'updated') {
                             fetchCubit.fetchAnnouncementDetails(
                               announcementId: announcementDetails.id,
                               showLoading: false,
                             );
-                            if (storedCourseId != null) {
-                              fetchCubit.fetchAnnouncements(courseId: storedCourseId);
-                            }
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
                                   'Announcement updated successfully',
                                 ),
                                 backgroundColor: AppColors.green
-
                               ),
                             );
-                            // fetchCubit.fetchAnnouncements(courseId: courseId);
-                          } else if (result == 'deleted') {
-                            // fetchCubit.fetchAnnouncements(courseId: courseId);
-                            // تحديث القائمة قبل الـ pop عشان الويب يحس بالتغيير
-                            if (storedCourseId != null) {
-                              fetchCubit.fetchAnnouncements(courseId: storedCourseId);
+                            if (courseId != null) {
+                              AnnouncementsFetchCubit.refreshAllLists(courseId);
                             }
+                          } else if (result == 'deleted') {
+                            if (courseId != null) {
+                              AnnouncementsFetchCubit.refreshAllLists(courseId);
+                            }
+                           
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

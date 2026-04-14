@@ -109,6 +109,11 @@ class AnnouncementsRepoImpl implements AnnouncementsRepo {
         EndPoints.deleteAnnouncement(announcementId),
       );
 
+      // Update local cache manually
+      final currentCache = localDataSource.getCachedAnnouncements();
+      final updatedCache = currentCache.where((ann) => ann.id != announcementId).toList();
+      await localDataSource.cacheAnnouncements(updatedCache);
+
       // We return the success message from the API response
       return right(response[ApiKeys.message] ?? 'Deleted Successfully');
     } on ApiException catch (e) {
@@ -131,6 +136,17 @@ class AnnouncementsRepoImpl implements AnnouncementsRepo {
       );
 
       final updatedAnnouncement = AnnouncementModel.fromJson(response[ApiKeys.data]);
+
+      // Update local cache manually
+      final currentCache = localDataSource.getCachedAnnouncements();
+      final updatedCache = currentCache.map((ann) {
+        if (ann.id == announcementId) {
+          return updatedAnnouncement;
+        }
+        return ann;
+      }).toList();
+      await localDataSource.cacheAnnouncements(updatedCache);
+
       return right(updatedAnnouncement);
     } on ApiException catch (e) {
       return left(e.errorModel.errorMessage);
