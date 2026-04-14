@@ -22,19 +22,19 @@ abstract class QuizRepository {
     String quizId,
     CreateQuizRequestBody data,
   );
-  Future<Either<String, String>> deleteQuiz(String quizId);
+  Future<Either<String, Unit>> deleteQuiz(String quizId);
   Future<Either<String, String>> toggleQuizPublished(String quizId);
 
   // --- Instructor Flow: Questions CRUD ---
-  Future<Either<String, String>> addQuestion(
+  Future<Either<String, Unit>> addQuestion(
     String quizId,
     Map<String, dynamic> data,
   );
-  Future<Either<String, String>> updateQuestion(
+  Future<Either<String, Unit>> updateQuestion(
     String questionId,
     Map<String, dynamic> data,
   );
-  Future<Either<String, String>> deleteQuestion(String questionId);
+  Future<Either<String, Unit>> deleteQuestion(String questionId);
 
   // ! --- Student Flow: Taking Quizzes ---
   Future<Either<String, String>> submitQuiz(

@@ -17,3 +17,17 @@ class QuizDetailsFailure extends QuizDetailsState {
 
   QuizDetailsFailure({required this.errorMessage});
 }
+
+class QuizDetailsDeleteLoading extends QuizDetailsState {}
+
+class QuizDetailsDeleteSuccess extends QuizDetailsState {
+  final String message;
+
+  QuizDetailsDeleteSuccess({required this.message});
+}
+
+class QuizDetailsDeleteFailure extends QuizDetailsState {
+  final String errorMessage;
+
+  QuizDetailsDeleteFailure({required this.errorMessage});
+}

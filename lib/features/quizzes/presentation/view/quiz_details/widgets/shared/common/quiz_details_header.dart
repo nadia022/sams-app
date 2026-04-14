@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sams_app/features/quizzes/presentation/view/quiz_details/widgets/shared/instructor/delete_quiz_dialog.dart';
+import 'package:sams_app/features/quizzes/presentation/view_model/quiz_details_cubit/quiz_details_cubit.dart';
 import 'package:sams_app/core/enums/enum_user_role.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
@@ -47,19 +50,60 @@ class QuizDetailsHeader extends StatelessWidget {
               ),
 
               CurrentRole.role == UserRole.instructor
-                  ? IconButton(
-                      onPressed: () {
-                        InstructorActionHandler.execute(
-                          context: context,
-                          action: QuizActionType.editQuiz,
-                          quiz: quiz,
-                          courseId: courseId,
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.edit_square,
-                        color: AppColors.whiteLight,
-                      ),
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 38,
+                          decoration: BoxDecoration(
+                            color: AppColors.whiteLight.withAlpha(20),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              InstructorActionHandler.execute(
+                                context: context,
+                                action: QuizActionType.editQuiz,
+                                quiz: quiz,
+                                courseId: courseId,
+                              );
+                            },
+                            icon: const Icon(
+                              size: 20,
+                              Icons.edit_square,
+                              color: AppColors.whiteLight,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 16),
+
+                        Container(
+                          width: 38,
+                          margin: const EdgeInsets.only(right: 8),
+                          decoration: const BoxDecoration(
+                            color: AppColors.redLight,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              DeleteQuizDialog.show(
+                                context,
+                                onConfirm: () {
+                                  context.read<QuizDetailsCubit>().deleteQuiz(
+                                    quiz.id,
+                                  );
+                                },
+                              );
+                            },
+                            icon: const Icon(
+                              size: 22,
+                              Icons.delete_forever,
+                              color: AppColors.red,
+                            ),
+                          ),
+                        ),
+                      ],
                     )
                   : const SizedBox(),
             ],

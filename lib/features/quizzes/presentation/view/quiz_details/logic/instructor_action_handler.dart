@@ -4,6 +4,8 @@ import 'package:sams_app/core/utils/router/routes_name.dart';
 import 'dart:developer';
 import 'package:sams_app/features/quizzes/data/model/data_models/quiz_model.dart';
 import 'package:sams_app/features/quizzes/presentation/view/create_quiz/model/create_quiz_form_args.dart';
+import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/manage_questions_args.dart';
+import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/quiz_mode.dart';
 import 'quiz_action_type.dart';
 
 class InstructorActionHandler {
@@ -58,7 +60,11 @@ class InstructorActionHandler {
     log('Navigating to Add Questions for quiz: ${quiz.id}');
     context.push(
       RoutesName.manageQuestions,
-      extra: {'quizId': quiz.id},
+      extra: ManageQuestionsArgs(
+        quizId: quiz.id,
+        mode: QuizMode.draft,
+        quizTitle: quiz.title,
+      ),
     );
   }
 
@@ -66,7 +72,11 @@ class InstructorActionHandler {
     log('Navigating to Manage Questions for quiz: ${quiz.id}');
     context.push(
       RoutesName.manageQuestions,
-      extra: {'quizId': quiz.id},
+      extra: ManageQuestionsArgs(
+        quizId: quiz.id,
+        mode: QuizMode.edit,
+        quizTitle: quiz.title,
+      ),
     );
   }
 
@@ -74,7 +84,11 @@ class InstructorActionHandler {
     log('Navigating to View Questions for quiz: ${quiz.id}');
     context.push(
       RoutesName.manageQuestions,
-      extra: {'quizId': quiz.id},
+      extra: ManageQuestionsArgs(
+        quizId: quiz.id,
+        mode: QuizMode.view,
+        quizTitle: quiz.title,
+      ),
     );
   }
 

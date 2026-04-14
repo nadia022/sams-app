@@ -21,4 +21,16 @@ class QuizDetailsCubit extends Cubit<QuizDetailsState> {
       ),
     );
   }
+
+  Future<void> deleteQuiz(String quizId) async {
+    emit(QuizDetailsDeleteLoading());
+
+    final result = await _quizRepo.deleteQuiz(quizId);
+
+    result.fold(
+      (error) => emit(QuizDetailsDeleteFailure(errorMessage: error)),
+      (message) =>
+          emit(QuizDetailsDeleteSuccess(message: 'Quiz deleted successfully')),
+    );
+  }
 }
