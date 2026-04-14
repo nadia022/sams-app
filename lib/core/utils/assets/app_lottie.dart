@@ -6,4 +6,5 @@ class AppLottie {
   static const String empty = 'assets/lottie/empty.json';
   static const String success = 'assets/lottie/success.json';
   static const String fireWorks = 'assets/lottie/fire_works.json';
+  static const String error = 'assets/lottie/Error.json';
 }
