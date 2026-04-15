@@ -43,9 +43,9 @@ class _ShineOverlayState extends State<ShineOverlay>
                 _shineController.value + 0.4,
               ],
               colors: [
-                AppColors.whiteLight.withOpacity(0),
-                AppColors.whiteLight.withOpacity(0.4), // Using your app's white
-                AppColors.whiteLight.withOpacity(0),
+                AppColors.whiteLight.withValues(alpha: 0.0),
+                AppColors.whiteLight.withValues(alpha: 0.4),
+                AppColors.whiteLight.withValues(alpha: 0.0),
               ],
             ),
           ),

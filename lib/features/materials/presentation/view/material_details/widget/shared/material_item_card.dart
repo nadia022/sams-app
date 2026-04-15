@@ -6,8 +6,13 @@ import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/materials/presentation/view/material_details/widget/shared/shine_overlay.dart';
 
+//* Defines the type of material .
 enum CourseMaterialType { pdf, video }
 
+//* A custom card widget used to display course materials (PDFs or Videos).
+// * Hover effects for web/desktop.
+// * Pulse animation on tap.
+// * Visual feedback with [ShineOverlay].
 class MaterialItemCard extends StatefulWidget {
   final String fileName;
   final String description;
@@ -15,6 +20,7 @@ class MaterialItemCard extends StatefulWidget {
   final IconData? icon;
   final Color? iconColor;
   final VoidCallback? onTap;
+  final VoidCallback? onDelete;
 
   const MaterialItemCard({
     super.key,
@@ -24,6 +30,7 @@ class MaterialItemCard extends StatefulWidget {
     this.icon,
     this.iconColor,
     this.onTap,
+    this.onDelete,
   });
 
   @override
@@ -33,18 +40,16 @@ class MaterialItemCard extends StatefulWidget {
 class _MaterialItemCardState extends State<MaterialItemCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
   bool _isShining = false;
+  bool _isHovered = false;
 
   @override
   void initState() {
     super.initState();
+    //* Initialize controller for the pulse scale effect.
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 150),
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.03).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+      duration: const Duration(milliseconds: 100),
     );
   }
 
@@ -54,149 +59,164 @@ class _MaterialItemCardState extends State<MaterialItemCard>
     super.dispose();
   }
 
-  void _handleTap() async {
-    // Start Scale animation
+  /// Handles the tap interaction including animation and shine effect.
+  void _handleTap() {
+    //* Trigger scale pulse animation.
     _controller.forward().then((_) => _controller.reverse());
-
-    // Trigger Shine effect
     setState(() => _isShining = true);
 
-    // Delay to let the shine finish before executing logic
-    await Future.delayed(const Duration(milliseconds: 600));
-    if (mounted) setState(() => _isShining = false);
-
-    widget.onTap?.call();
+    Future.delayed(const Duration(milliseconds: 200), () {
+      widget.onTap?.call();
+      if (mounted) setState(() => _isShining = false);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    //? Select icon path based on material type.
     final String iconPath = widget.materialType == CourseMaterialType.video
         ? AppIcons.iconsVideoMaterial
         : AppIcons.iconsPdfMaterials;
 
-    // Use AppColors.primary as fallback for video, AppColors.red for PDF
+    //? Determine icon color based on material type if not explicitly provided.
     final Color finalIconColor =
         widget.iconColor ??
         (widget.materialType == CourseMaterialType.video
             ? AppColors.primary
             : AppColors.red);
 
-    return ScaleTransition(
-      scale: _scaleAnimation,
-      child: GestureDetector(
-        onTap: _handleTap,
-        child: Stack(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ), // margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.whiteLight, // Your App Color
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    // Using your brand color for the shadow to keep it premium
-                    color: AppColors.primaryDarkHover.withAlpha(12),
-                    blurRadius: _controller.isAnimating ? 20 : 15,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  widget.icon != null
-                      ? Expanded(
-                          flex: 1,
-                          child: AspectRatio(
-                            aspectRatio: 70 / 56,
-                            child: Icon(
-                              widget.icon,
-                              size: 40,
-                              color: finalIconColor,
-                            ),
-                          ),
-                        )
-                      : Expanded(
-                          flex: 1,
-                          child: AspectRatio(
-                            aspectRatio: 70 / 56,
-                            child: SvgPicture.asset(
-                              iconPath,
-                              width: 44,
-                              height: 44,
-                              fit: BoxFit.contain,
-                              colorFilter: ColorFilter.mode(
-                                finalIconColor,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                        ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 4,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Flexible(
-                          flex: 1,
-                          child: AutoSizeText(
-                            widget.fileName,
-                            minFontSize: 8,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppStyles.mobileTitleSmallSb.copyWith(
-                              color: AppColors.primaryDarkHover,
-                            ),
-                          ),
-                        ),
-                        const Flexible(
-                          flex: 1,
-                          child: SizedBox(height: 2),
-                        ),
-                        if (widget.description.isNotEmpty)
-                          Flexible(
-                            flex: 4,
-                            child: AutoSizeText(
-                              maxLines: 2,
-                              minFontSize: 8,                         
-                              widget.description,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppStyles.mobileBodySmallRg.copyWith(
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Shine Overlay using AppColors.whiteLight with opacity
-            if (_isShining)
-              Positioned.fill(
-                child: Padding(
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          double pulseScale = 1.0 - (_controller.value * 0.03);
+          return Transform.scale(
+            scale: _controller.isAnimating ? pulseScale : 1.0,
+            child: child,
+          );
+        },
+        child: SizedBox(
+          //* Fixed height maintains list stability when internal container expands on hover.
+          height: 70,
+          child: Stack(
+            //! Clip.none is essential for the hover expansion to overlay adjacent widgets.
+            clipBehavior: Clip.none,
+            children: [
+              GestureDetector(
+                onTap: _handleTap,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  width: double.infinity,
+                  //_ Constraints allow the card to expand vertically for long titles on hover.
+                  constraints: const BoxConstraints(minHeight: 70),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 12,
                     vertical: 8,
                   ),
-                  child: ClipRRect(
+                  decoration: BoxDecoration(
+                    color: _isHovered ? AppColors.white : AppColors.greenLight,
                     borderRadius: BorderRadius.circular(16),
-                    child: const ShineOverlay(),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryDarkHover.withAlpha(
+                          _isHovered ? 30 : 12,
+                        ),
+                        blurRadius: _isHovered ? 25 : 15,
+                        offset: Offset(0, _isHovered ? 8 : 4),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: _isHovered
+                          ? AppColors.primary.withValues(alpha: 0.2)
+                          : Colors.transparent,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: _isHovered
+                        ? CrossAxisAlignment.start
+                        : CrossAxisAlignment.center,
+                    children: [
+                      _buildIcon(finalIconColor, iconPath),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 4,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            AutoSizeText(
+                              widget.fileName,
+                              minFontSize: 16,
+                              maxFontSize: 24,
+                              maxLines: _isHovered ? 2 : 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppStyles.mobileBodyLargeMd.copyWith(
+                                color: AppColors.primaryDarkHover,
+                                height: 1.2,
+                              ),
+                            ),
+                            //_ Hide description during hover to focus on the full title.
+                            if (widget.description.isNotEmpty &&
+                                !_isHovered) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                widget.description,
+                                maxLines: 1,
+                                style: AppStyles.mobileBodySmallRg.copyWith(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.red,
+                          size: 20,
+                        ),
+                        onPressed: widget.onDelete,
+                      ),
+                    ],
                   ),
                 ),
               ),
-          ],
+              if (_isShining)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: const ShineOverlay(),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  /// Builds the leading icon for the card, supporting both IconData and SVG.
+  Widget _buildIcon(Color color, String path) {
+    return Container(
+      //? Slightly offset the icon when the card expands on hover.
+      margin: EdgeInsets.only(top: _isHovered ? 4 : 0),
+      child: widget.icon != null
+          ? Icon(widget.icon, size: 36, color: color)
+          : SvgPicture.asset(
+              path,
+              width: 40,
+              height: 40,
+              colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+            ),
     );
   }
 }
