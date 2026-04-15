@@ -113,7 +113,7 @@ class QuizFailureWebWidget extends StatelessWidget {
                       ),
                       const SizedBox(height: 56),
                       CustomAppButton(
-                        label: 'Try Again Safely',
+                        label: 'Back',
                         backgroundColor: AppColors.primary,
                         onPressed: () => backToQuizTab(context: context),
                         borderRadius: 20,

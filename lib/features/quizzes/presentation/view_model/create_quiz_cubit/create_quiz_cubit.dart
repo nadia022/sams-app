@@ -115,19 +115,51 @@ class CreateQuizCubit extends Cubit<CreateQuizState> {
     }
 
     // 2. Prepare Data
-    final body = CreateQuizRequestBody(
-      classworkId: isEditMode ? null : selectedClasswork?.id,
-      title: titleController.text.trim(),
-      description: descriptionController.text.trim(),
-      startTime: DateTime(
-        _selectedDate!.year,
-        _selectedDate!.month,
-        _selectedDate!.day,
-        _selectedTime!.hour,
-        _selectedTime!.minute,
-      ),
-      duration: int.tryParse(durationController.text.trim()),
+    final String currentTitle = titleController.text.trim();
+    final String currentDescription = descriptionController.text.trim();
+    final DateTime currentStartTime = DateTime(
+      _selectedDate!.year,
+      _selectedDate!.month,
+      _selectedDate!.day,
+      _selectedTime!.hour,
+      _selectedTime!.minute,
     );
+    final int? currentDuration = int.tryParse(durationController.text.trim());
+
+    CreateQuizRequestBody body;
+
+    if (isEditMode && initialData != null) {
+      final bool titleChanged = currentTitle != initialData!.title;
+      final bool descChanged =
+          currentDescription != (initialData!.description ?? '');
+      
+      final bool timeChanged = initialData!.startTime.year != currentStartTime.year ||
+          initialData!.startTime.month != currentStartTime.month ||
+          initialData!.startTime.day != currentStartTime.day ||
+          initialData!.startTime.hour != currentStartTime.hour ||
+          initialData!.startTime.minute != currentStartTime.minute;
+
+      final int originalDuration =
+          initialData!.endTime.difference(initialData!.startTime).inMinutes;
+      final bool durationChanged = currentDuration != originalDuration;
+
+      // Only include fields in the body if they have actually been modified
+      body = CreateQuizRequestBody(
+        classworkId: null,
+        title: titleChanged ? currentTitle : null,
+        description: descChanged ? currentDescription : null,
+        startTime: timeChanged ? currentStartTime : null,
+        duration: durationChanged ? currentDuration : null,
+      );
+    } else {
+      body = CreateQuizRequestBody(
+        classworkId: selectedClasswork?.id,
+        title: currentTitle,
+        description: currentDescription,
+        startTime: currentStartTime,
+        duration: currentDuration,
+      );
+    }
 
     // 3. Execution
     emit(CreateQuizLoading());

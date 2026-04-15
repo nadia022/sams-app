@@ -102,7 +102,7 @@ class QuizFailureMobileWidget extends StatelessWidget {
                     Hero(
                       tag: 'failure_action',
                       child: CustomAppButton(
-                        label: 'Try Again Safely',
+                        label: 'Back',
                         backgroundColor: AppColors.primary,
                         onPressed: () => backToQuizTab(context: context),
                         borderRadius: 18,
