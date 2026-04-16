@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
+import 'package:sams_app/core/utils/configs/size_config.dart';
 import 'package:sams_app/core/utils/constants/api_keys.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/editable_question_model.dart';
@@ -45,16 +46,22 @@ class WebQuestionsCanvas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = SizeConfig.screenWidth(context);
+    final horizontalPadding = screenWidth < 900 ? 16.0 : 40.0;
+
     return Container(
       color: const Color(0xFFF8FAFC), // Ultra-clean light background
       child: Column(
         children: [
           // ─── Subtle Canvas Header ───
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: 20,
+            ),
             decoration: BoxDecoration(
               color: Colors.white.withAlpha(200),
-              border: Border(
+              border: const Border(
                 bottom: BorderSide(color: AppColors.whiteHover, width: 1),
               ),
             ),
@@ -96,16 +103,16 @@ class WebQuestionsCanvas extends StatelessWidget {
                         ? () => onAddQuestionBtn(ApiValues.mcq)
                         : null,
                   )
-                : _buildScrollableList(),
+                : _buildScrollableList(horizontalPadding),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildScrollableList() {
+  Widget _buildScrollableList(double padding) {
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(40, 32, 40, 100),
+      padding: EdgeInsets.fromLTRB(padding, 32, padding, 100),
       itemCount: questions.length,
       itemBuilder: (context, index) {
         final question = questions[index];

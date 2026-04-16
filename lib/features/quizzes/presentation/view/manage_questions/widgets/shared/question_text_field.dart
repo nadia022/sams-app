@@ -44,11 +44,11 @@ class QuestionTextField extends StatelessWidget {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: AppColors.whiteActive, width: 1),
+          borderSide: const BorderSide(color: AppColors.whiteActive, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: AppColors.whiteActive, width: 1),
+          borderSide: const BorderSide(color: AppColors.whiteActive, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -56,7 +56,7 @@ class QuestionTextField extends StatelessWidget {
         ),
         disabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: AppColors.whiteHover, width: 1),
+          borderSide: const BorderSide(color: AppColors.whiteHover, width: 1),
         ),
       ),
     );

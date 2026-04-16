@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sams_app/core/helper/app_snack_bar.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
+import 'package:sams_app/core/utils/configs/size_config.dart';
 import 'package:sams_app/core/utils/constants/api_keys.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/editable_question_model.dart';
@@ -69,8 +70,11 @@ class WebActionSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = SizeConfig.screenWidth(context);
+    final paddingVal = screenWidth < 900 ? 16.0 : 24.0;
+
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(
           right: BorderSide(color: AppColors.whiteHover, width: 1),
@@ -81,10 +85,10 @@ class WebActionSidebar extends StatelessWidget {
         children: [
           // ─── Header Section (Quiz Info) ───
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(paddingVal),
             decoration: BoxDecoration(
               color: AppColors.primary.withAlpha(5),
-              border: Border(
+              border: const Border(
                 bottom: BorderSide(color: AppColors.whiteHover, width: 1),
               ),
             ),
@@ -113,7 +117,7 @@ class WebActionSidebar extends StatelessWidget {
           // ─── Action Palette ───
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(paddingVal),
               children: [
                 Text(
                   'Add Question',
@@ -146,7 +150,7 @@ class WebActionSidebar extends StatelessWidget {
           // ─── Save Button Area ───
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
               border: Border(
                 top: BorderSide(color: AppColors.whiteHover, width: 1),

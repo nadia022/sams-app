@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sams_app/core/utils/configs/size_config.dart';
 import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/logic/manage_questions_logic.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/editable_question_model.dart';
@@ -55,6 +58,8 @@ class _WebManageQuestionsBodyState extends State<WebManageQuestionsBody>
     final mode = widget.args.mode;
     final isReadOnly = mode == QuizMode.view;
     final canAddNew = mode == QuizMode.draft || mode == QuizMode.edit;
+    final screenWidth = SizeConfig.screenWidth(context);
+    log(screenWidth.toString());
 
     return Stack(
       children: [
@@ -64,7 +69,11 @@ class _WebManageQuestionsBodyState extends State<WebManageQuestionsBody>
             // ─── Left Action Sidebar (Sticky Controls) ───
             if (!isReadOnly)
               SizedBox(
-                width: 320,
+                width: screenWidth < 520
+                    ? 200
+                    : screenWidth < 900
+                    ? 250
+                    : 320,
                 child: WebActionSidebar(
                   args: widget.args,
                   questions: questions,
