@@ -4,12 +4,15 @@ import 'package:sams_app/core/cache/get_storage.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/constants/cache_keys.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
+import 'package:sams_app/features/announcements/data/model/comment_details.dart';
+import 'package:sams_app/features/announcements/presentation/view/announcement_actions/widget/shared/edit_comment_dialog.dart';
 import 'package:sams_app/features/announcements/presentation/view/announcement_details/widget/shared/comment_divider.dart';
 import 'package:sams_app/features/announcements/presentation/view/announcement_details/widget/shared/comment_item.dart';
+import 'package:sams_app/features/announcements/presentation/view/announcement_details/widget/shared/delete_comment_dialog.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_cubit.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_state.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/comment_actions/comment_actions_cubit.dart';
-import 'package:sams_app/features/announcements/presentation/view_model/cubit/comment_actions/comment_actions_state.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class CommentsSection extends StatelessWidget {
   const CommentsSection({super.key});
@@ -18,21 +21,30 @@ class CommentsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AnnouncementsFetchCubit, AnnouncementsFetchState>(
       builder: (context, state) {
-        if (state is AnnouncementDetailsFetchLoading) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (state is AnnouncementDetailsFetchFailure) {
-          return SnackBar(
-            content: Text(state.errMessage),
-          );
-        } else if (state is AnnouncementFetchDetailsSuccess) {
-          final announcementDetails = state.announcementDetails;
-          return Column(
+        // Flag to trigger the skeleton loading effect
+        bool isLoading = state is AnnouncementDetailsFetchLoading;
+
+        if (state is AnnouncementDetailsFetchFailure) {
+          return Center(child: Text(state.errMessage));
+        }
+
+        // Extract announcement data only if the fetch is successful
+        final announcementDetails = (state is AnnouncementFetchDetailsSuccess)
+            ? state.announcementDetails
+            : null;
+
+        // Safety check: Avoid rendering if there's no data and not in loading state
+        if (announcementDetails == null && !isLoading) return const SizedBox();
+
+        return Skeletonizer(
+          enabled: isLoading,
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   Text(
-                    announcementDetails.comments.isEmpty
+                    (announcementDetails?.comments.isEmpty ?? true)
                         ? 'No Comments'
                         : 'Comments',
                     style: AppStyles.web30Regular.copyWith(
@@ -42,201 +54,121 @@ class CommentsSection extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: announcementDetails.comments.isEmpty
-                          ? Colors.transparent
-                          : AppColors.primaryDarkHover,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      announcementDetails.comments.isEmpty
-                          ? ''
-                          : announcementDetails.comments.length.toString(),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
+                  // Hide badge during loading for a cleaner skeleton look
+                  if (!isLoading &&
+                      (announcementDetails?.comments.isNotEmpty ?? false))
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: announcementDetails!.comments.isEmpty
+                            ? Colors.transparent
+                            : AppColors.primaryDarkHover,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        announcementDetails.comments.isEmpty
+                            ? ''
+                            : announcementDetails.comments.length.toString(),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
               const SizedBox(height: 20),
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: announcementDetails.comments.length,
+                // Show 4 dummy items while loading to fill the screen with skeletons
+                itemCount: isLoading ? 4 : announcementDetails!.comments.length,
                 itemBuilder: (context, index) {
-                  final comment = announcementDetails.comments[index];
+                  // Provide dummy data during loading so Skeletonizer has a layout to mask
+                  final comment = isLoading
+                      ? CommentDetails(
+                          userName: 'User Name',
+                          content:
+                              'This is a dummy comment content for loading state',
+                          date: 'Date',
+                          authorAcademicId: '',
+                          id: '',
+                          profilePic: '',
+                        )
+                      : announcementDetails!.comments[index];
+                  // Identify the current user to allow edit/delete permissions
                   final academicEmail =
                       GetStorageHelper.read(CacheKeys.academicEmail) ?? '';
                   final currentAcademicId = academicEmail.split('@').first;
+
                   return Column(
                     children: [
                       CommentItem(
                         name: comment.userName,
                         date: comment.date,
                         text: comment.content,
-                        isOwner: comment.authorAcademicId == currentAcademicId,
+                        // Ownership logic: Always false during loading, then checked against user ID
+                        isOwner: isLoading
+                            ? false
+                            : comment.authorAcademicId == currentAcademicId,
                         imageUrl: comment.profilePic,
-                        onEdit: () {
-                          _showEditDialog(context, comment);
-                        },
-                        onDelete: () {
-                          _showDeleteConfirm(context, comment.id);
-                        },
+                        onEdit: () => _showEditDialog(context, comment),
+                        onDelete: () => _showDeleteConfirm(context, comment.id),
                       ),
                       const CommentDivider(),
                     ],
                   );
                 },
               ),
-              
             ],
-          );
-        }
-        return const SizedBox();
+          ),
+        );
       },
     );
   }
 
-  void _showEditDialog(BuildContext context, comment) {
-  final controller = TextEditingController(text: comment.content);
-  final commentActionsCubit = context.read<CommentActionsCubit>();
-    final fetchCubit = context.read<AnnouncementsFetchCubit>();
-    String? announcementId;
-    if (fetchCubit.state is AnnouncementFetchDetailsSuccess) {
-      announcementId = (fetchCubit.state as AnnouncementFetchDetailsSuccess).announcementDetails.id;
-    }
-  
-  showDialog(
-    context: context,
-    builder: (dialogContext) => BlocProvider.value(
-      value: commentActionsCubit,
-      child: BlocConsumer<CommentActionsCubit, CommentActionsState>(
-        listener: (context, state) {
-          if (state is UpdateCommentSuccess) {
-            Navigator.pop(dialogContext); 
-            // ممكن هنا تعملي Refresh للبيانات لو حابة
-            // عمل الـ Refresh في صمت
-              if (announcementId != null) {
-                fetchCubit.fetchAnnouncementDetails(
-                  announcementId: announcementId,
-                  showLoading: false, // بدون لودينج
-                );
-              }
-          }
-          if (state is UpdateCommentFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errMessage), backgroundColor: Colors.red),
-            );
-          }
-        },
-        builder: (context, state) {
-          return AlertDialog(
-            
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: const Text('Edit Comment'),
-            content: TextField(
-              controller: controller,
-              maxLines: 3,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: state is UpdateCommentLoading ? null : () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: state is UpdateCommentLoading
-                    ? null
-                    : () {
-                        context.read<CommentActionsCubit>().updateComment(
-                              commentId: comment.id,
-                              content: controller.text,
-                            );
-                      },
-                child: state is UpdateCommentLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Text('Save'),
-              ),
-            ],
-          );
-        },
-      ),
-    ),
-  );
-}
-
-  void _showDeleteConfirm(BuildContext context, String commentId) {
+  /// Opens a dialog to edit an existing comment
+  void _showEditDialog(BuildContext context, CommentDetails comment) {
     final commentActionsCubit = context.read<CommentActionsCubit>();
     final fetchCubit = context.read<AnnouncementsFetchCubit>();
+    // Retrieve the announcement ID from the current state to refresh the list later
     String? announcementId;
     if (fetchCubit.state is AnnouncementFetchDetailsSuccess) {
-      announcementId = (fetchCubit.state as AnnouncementFetchDetailsSuccess).announcementDetails.id;
+      announcementId = (fetchCubit.state as AnnouncementFetchDetailsSuccess)
+          .announcementDetails
+          .id;
     }
-  showDialog(
-    context: context,
-    builder: (dialogContext) => BlocProvider.value(
-      value: commentActionsCubit,
-      child: BlocConsumer<CommentActionsCubit, CommentActionsState>(
-        listener: (context, state) {
-          if (state is DeleteCommentSuccess) {
-            Navigator.pop(dialogContext); 
-            if (announcementId != null) {
-                fetchCubit.fetchAnnouncementDetails(
-                  announcementId: announcementId,
-                  showLoading: false,
-                );
-              }
-          }
-          if (state is DeleteCommentFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errMessage), backgroundColor: Colors.red),
-            );
-          }
-        },
-        builder: (context, state) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: const Text('Delete Comment'),
-            content: const Text('Are you sure you want to delete this comment?'),
-            actions: [
-              TextButton(
-                onPressed: state is DeleteCommentLoading ? null : () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: state is DeleteCommentLoading
-                    ? null
-                    : () {
-                        context.read<CommentActionsCubit>().deleteComment(commentId: commentId);
-                      },
-                child: state is DeleteCommentLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Text('Delete', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          );
-        },
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: commentActionsCubit),
+        ],
+        child: EditCommentDialog(
+          comment: comment,
+          announcementId: announcementId,
+          fetchCubit: fetchCubit,
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
+  /// Opens a confirmation dialog to delete a comment
+  void _showDeleteConfirm(BuildContext context, String commentId) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => BlocProvider.value(
+        value: context.read<CommentActionsCubit>(),
+        child: DeleteCommentDialog(
+          commentId: commentId,
+          fetchCubit: context.read<AnnouncementsFetchCubit>(),
+        ),
+      ),
+    );
+  }
 }
