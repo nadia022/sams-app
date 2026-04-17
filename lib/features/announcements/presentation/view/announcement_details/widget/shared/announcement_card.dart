@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:sams_app/core/enums/enum_user_role.dart';
 import 'package:sams_app/core/utils/assets/app_icons.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
@@ -57,20 +58,7 @@ class AnnouncementCard extends StatelessWidget {
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Expanded(
-                        //   child: AutoSizeText(
-                        //     isLoading
-                        //         ? 'Loading Announcement Title'
-                        //         : announcementDetails!.title,
-                        //     minFontSize: 18,
-                        //     maxLines: 3,
-                        //     // overflow: TextOverflow.ellipsis,
-                        //     style: AppStyles.web14Regular.copyWith(
-                        //       color: AppColors.primaryDarkHover,
-                        //       fontWeight: FontWeight.w700,
-                        //     ),
-                        //   ),
-                        // ),
+                       
                         Expanded(
                           child: AutoSizeText(
                             isLoading
@@ -87,7 +75,8 @@ class AnnouncementCard extends StatelessWidget {
                             wrapWords: false,
                           ),
                         ),
-                        if (!isLoading) ...[
+                        if (!isLoading &&
+                            CurrentRole.role == UserRole.instructor) ...[
                           const SizedBox(width: 14),
                           InkWell(
                             borderRadius: BorderRadius.circular(8),
@@ -206,4 +195,3 @@ class AnnouncementCard extends StatelessWidget {
     );
   }
 }
-
