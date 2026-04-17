@@ -5,22 +5,21 @@ import 'package:sams_app/core/enums/enum_user_role.dart';
 import 'package:sams_app/core/models/main_card_model.dart';
 import 'package:sams_app/core/utils/assets/app_icons.dart';
 import 'package:sams_app/core/utils/assets/app_images.dart';
-import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/configs/size_config.dart';
 import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
 import 'package:sams_app/core/widgets/shared/add_new_card.dart';
 import 'package:sams_app/core/widgets/shared/app_grid_style.dart';
 import 'package:sams_app/core/widgets/shared/tab_body_view.dart';
 import 'package:sams_app/core/widgets/web/web_main_card.dart';
-import 'package:sams_app/features/materials/data/model/material_model.dart';
 import 'package:sams_app/features/materials/presentation/logic/material_navigation_handler.dart';
 import 'package:sams_app/features/materials/presentation/logic/material_refresh_trigger.dart';
+import 'package:sams_app/features/materials/presentation/view/material_tab_view/logic/material_tap_handler.dart';
 import 'package:sams_app/features/materials/presentation/view_model/cubits/material_fetch/material_fetch_cubit.dart';
 import 'package:sams_app/features/materials/presentation/view_model/cubits/material_fetch/material_fetch_state.dart';
 
-/// Web-optimized layout for course materials.
-/// Features a grid-based system that adapts to screen width and integrates
-/// instructor-specific management tools directly into the grid flow.
+/// Web-specific layout for displaying course materials in a responsive grid.
+/// It includes a fixed-width sidebar for metadata and a flexible grid for content.
+/// It also provides the ability to add new materials.
 class MaterialsWebLayout extends StatefulWidget {
   const MaterialsWebLayout({super.key, required this.courseId});
   final String courseId;
@@ -33,17 +32,20 @@ class _MaterialsWebLayoutState extends State<MaterialsWebLayout> {
   @override
   void initState() {
     super.initState();
-    //* Observer Pattern: Real-time UI synchronization across different modules.
+    //* Register listener for external refresh triggers.
     MaterialRefreshTrigger.shouldRefresh.addListener(_fetch);
   }
 
   @override
   void dispose() {
+    //* Cleanup listener to prevent memory leaks.
     MaterialRefreshTrigger.shouldRefresh.removeListener(_fetch);
     super.dispose();
   }
 
+  /// Dispatches fetch event to MaterialFetchCubit.
   void _fetch() {
+    //? Ensure widget is active before updating state.
     if (mounted) {
       context.read<MaterialFetchCubit>().fetchMaterials(
         courseId: widget.courseId,
@@ -53,11 +55,13 @@ class _MaterialsWebLayoutState extends State<MaterialsWebLayout> {
 
   @override
   Widget build(BuildContext context) {
+    //* Identify user privileges and screen constraints.
     final bool isInstructor = CurrentRole.role == UserRole.instructor;
     final bool isMobile = SizeConfig.isMobile(context);
 
     return TabBodyView(
       child: BlocBuilder<MaterialFetchCubit, MaterialFetchState>(
+        //? Optimized rebuilds: only trigger on core data state changes.
         buildWhen: (previous, current) =>
             current is MaterialFetchSuccess ||
             current is MaterialFetchLoading ||
@@ -69,6 +73,7 @@ class _MaterialsWebLayoutState extends State<MaterialsWebLayout> {
           if (state is MaterialFetchFailure) {
             return Center(child: Text(state.errMessage));
           }
+
           if (state is MaterialFetchSuccess) {
             final materials = state.materials;
             return CustomScrollView(
@@ -76,22 +81,29 @@ class _MaterialsWebLayoutState extends State<MaterialsWebLayout> {
                 SliverGrid(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      //* Logic: The 'Add Material' card is appended as the LAST item for instructors.
-                      if (isInstructor && index == materials.length) {
+                      //* Role-based UI: Inject "Add" card at the end of the list for Instructors.
+                      if (isInstructor && index == 0) {
                         return AddNewCard(
                           isMobile: isMobile,
                           title: 'Add Material',
-                          onTap: () => _navigateToAddMaterial(context),
+                          onTap: () =>
+                              MaterialsNavigationHandler.navigateToManageMaterial(
+                                context,
+                                courseId: widget.courseId,
+                              ),
                         );
                       }
 
-                      final material = materials[index];
+                      final material =
+                          materials[index - (isInstructor ? 1 : 0)];
+                      //* Individual Material Card logic.
                       return Builder(
                         builder: (cardContext) => WebMainCard(
                           model: MainCardModel(
                             title: material.title,
                             description: material.description,
                             image: AppImages.imagesMaterialCard,
+                            //_ Conditional action widget for management menu.
                             actionWidget: isInstructor
                                 ? SvgPicture.asset(
                                     AppIcons.iconsMenu,
@@ -100,18 +112,24 @@ class _MaterialsWebLayoutState extends State<MaterialsWebLayout> {
                                   )
                                 : null,
                             onActionTap: isInstructor
-                                ? () => _showWebPopupMenu(
-                                    cardContext,
-                                    context,
-                                    material,
-                                  )
+                                ? () =>
+                                      MaterialTabHandler.showMaterialActionsMenu(
+                                        context: context,
+                                        anchorContext: cardContext,
+                                        material: material,
+                                        courseId: widget.courseId,
+                                      )
                                 : null,
-                            onTap: () => _navigateToDetails(context, material),
+                            onTap: () => MaterialTabHandler.handleCardTap(
+                              context,
+                              material,
+                              widget.courseId,
+                            ),
                           ),
                         ),
                       );
                     },
-                    //* childCount adjusts based on user role to accommodate the action card.
+                    //? List length + 1 for the instructor's action card.
                     childCount: materials.length + (isInstructor ? 1 : 0),
                   ),
                   gridDelegate: AppGridStyles.tapGridDelegate,
@@ -123,86 +141,5 @@ class _MaterialsWebLayoutState extends State<MaterialsWebLayout> {
         },
       ),
     );
-  }
-
-  void _navigateToDetails(BuildContext context, MaterialModel material) {
-    MaterialsNavigationHandler.navigateToDetails(
-      context,
-      courseId: widget.courseId,
-      material: material,
-    );
-  }
-
-  void _navigateToAddMaterial(BuildContext context) {
-    MaterialsNavigationHandler.navigateToManageMaterial(
-      context,
-      courseId: widget.courseId,
-    );
-  }
-
-  /// Calculates visual coordinates for the popup menu to ensure it aligns
-  /// with the specific grid card on the web surface.
-  void _showWebPopupMenu(
-    BuildContext cardContext,
-    BuildContext pageContext,
-    MaterialModel material,
-  ) async {
-    final RenderBox button = cardContext.findRenderObject() as RenderBox;
-    final RenderBox overlay =
-        Navigator.of(pageContext).overlay!.context.findRenderObject()
-            as RenderBox;
-
-    final RelativeRect position = RelativeRect.fromRect(
-      Rect.fromPoints(
-        button.localToGlobal(Offset(button.size.width, 0), ancestor: overlay),
-        button.localToGlobal(
-          button.size.bottomRight(Offset.zero),
-          ancestor: overlay,
-        ),
-      ),
-      Offset.zero & overlay.size,
-    );
-
-    final String? selected = await showMenu<String>(
-      context: pageContext,
-      position: position,
-      color: AppColors.whiteLight,
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      items: [
-        const PopupMenuItem<String>(
-          value: 'delete',
-          child: Row(
-            children: [
-              Icon(Icons.delete_outline, color: Colors.red, size: 20),
-              SizedBox(width: 10),
-              Text('Delete', style: TextStyle(color: Colors.red)),
-            ],
-          ),
-        ),
-        const PopupMenuItem<String>(
-          value: 'edit',
-          child: Row(
-            children: [
-              Icon(Icons.edit, color: AppColors.primary, size: 20),
-              SizedBox(width: 10),
-              Text('Edit', style: TextStyle(color: AppColors.primary)),
-            ],
-          ),
-        ),
-      ],
-    );
-
-    if (selected == 'delete' && mounted) {
-      MaterialsNavigationHandler.showDeleteDialog(context, material: material);
-    }
-
-    if (selected == 'edit' && mounted) {
-      MaterialsNavigationHandler.navigateToEditMaterial(
-        context,
-        courseId: widget.courseId,
-        material: material,
-      );
-    }
   }
 }
