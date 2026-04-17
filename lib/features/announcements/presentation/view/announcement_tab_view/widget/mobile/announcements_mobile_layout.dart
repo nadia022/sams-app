@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sams_app/core/enums/enum_user_role.dart';
 import 'package:sams_app/core/models/main_card_model.dart';
+import 'package:sams_app/core/utils/assets/app_icons.dart';
 import 'package:sams_app/core/utils/assets/app_images.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/router/routes_name.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/core/widgets/mobile/mobile_main_card.dart';
 import 'package:sams_app/core/widgets/shared/add_new_card.dart';
+import 'package:sams_app/features/announcements/presentation/view/announcement_tab_view/widget/shared/delete_announcement_dialog.dart';
+import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcement_actions/announcement_actions_cubit.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_cubit.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_state.dart';
 
@@ -90,6 +94,17 @@ class AnnouncementsMobileLayout extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 12),
                       child: MobileMainCard(
                         cardModel: MainCardModel(
+                          actionWidget:
+                              (CurrentRole.role == UserRole.instructor)
+                              ? SvgPicture.asset(
+                                  AppIcons.iconsMenu,
+                                  width: 22,
+                                  height: 22,
+                                )
+                              : null,
+                          onActionTap: () {
+                            _showDeleteDialog(context, announcements[index].id);
+                          },
                           title: announcements[index].title,
                           description: announcements[index].content,
                           image: AppImages.imagesAnnouncementCard,
@@ -132,5 +147,25 @@ class AnnouncementsMobileLayout extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _showDeleteDialog(
+    BuildContext context,
+    String announcementId,
+  ) async {
+    final actionsCubit = context.read<AnnouncementsActionsCubit>();
+    final fetchCubit = context.read<AnnouncementsFetchCubit>();
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => BlocProvider.value(
+        value: actionsCubit,
+        child: DeleteAnnouncementDialog(announcementId: announcementId),
+      ),
+    );
+
+    if (result == 'deleted' && context.mounted) {
+      fetchCubit.fetchAnnouncements(courseId: courseId);
+    }
   }
 }

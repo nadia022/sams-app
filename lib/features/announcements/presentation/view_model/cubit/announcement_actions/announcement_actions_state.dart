@@ -36,6 +36,9 @@ final class DeleteAnnouncementSuccess extends DeleteAnnouncementState {
   final String message;
   DeleteAnnouncementSuccess(this.message);
 }
+final class DeleteAnnouncementLoading extends DeleteAnnouncementState {
+
+}
 final class DeleteAnnouncementFailure extends DeleteAnnouncementState {
   final String errMessage;
   DeleteAnnouncementFailure(this.errMessage);
