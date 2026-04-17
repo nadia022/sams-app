@@ -51,7 +51,7 @@ class DeleteAnnouncementDialog extends StatelessWidget {
           title: const Text('Delete Announcement?'),
           titleTextStyle: AppStyles.mobileTitleMediumSb.copyWith(
             color: AppColors.primaryDarkHover,
-            fontSize: isMobile ? screenWidth * 0.06 : screenWidth * 0.02,
+            fontSize: isMobile ? screenWidth * 0.06 : screenWidth * 0.025,
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -61,6 +61,7 @@ class DeleteAnnouncementDialog extends StatelessWidget {
                 '• Are you sure you want to delete this announcement? This action cannot be undone.',
                 style: AppStyles.mobileBodyMediumRg.copyWith(
                   color: AppColors.primaryDark,
+                  fontSize: isMobile ? screenWidth * 0.04 : screenWidth * 0.018,
                 ),
               ),
               const SizedBox(height: 8),
