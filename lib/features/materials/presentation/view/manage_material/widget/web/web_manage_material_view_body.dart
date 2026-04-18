@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:sams_app/core/helper/app_snack_bar.dart';
 import 'package:sams_app/core/models/input_field_model.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
-import 'package:sams_app/core/widgets/base/custom_app_button.dart';
 import 'package:sams_app/features/home/presentation/views/create_course/widgets/shared/basic_information_section.dart';
 import 'package:sams_app/features/home/presentation/views/home/widgets/web/web_home_header.dart';
-import 'package:sams_app/features/materials/presentation/logic/manage_material_mixin.dart';
+import 'package:sams_app/features/materials/presentation/view/manage_material/logic/manage_material_mixin.dart';
 import 'package:sams_app/features/materials/presentation/view/manage_material/widget/shared/course_material_section.dart';
-import 'package:sams_app/features/materials/presentation/view/manage_material/widget/shared/update_progress_overlay.dart';
-import 'package:sams_app/features/materials/presentation/view/manage_material/widget/shared/uploading_overlay.dart';
+import 'package:sams_app/features/materials/presentation/view/manage_material/widget/shared/manage_material_base_layout.dart';
+import 'package:sams_app/features/materials/presentation/view/manage_material/widget/shared/manage_material_submit_button.dart';
 import 'package:sams_app/features/materials/presentation/view_model/cubits/material_crud/material_crud_cubit.dart';
-import 'package:sams_app/features/materials/presentation/view_model/cubits/material_crud/material_crud_state.dart';
 
 /// The Web implementation for managing materials (Create/Edit).
 /// Adapts the form layout for larger screens while sharing logic with mobile via [ManageMaterialMixin].
@@ -51,78 +47,38 @@ class _WebManageMaterialViewBodyState extends State<WebManageMaterialViewBody>
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<MaterialCrudCubit, MaterialCrudState>(
-      listenWhen: (previous, current) =>
-          current is UpdateMaterialSuccess ||
-          current is CreateMaterialSuccess ||
-          current is CreateMaterialFailure ||
-          current is UpdateMaterialFailure,
-      listener: (context, state) {
-        if (state is UpdateMaterialSuccess) {
-          AppSnackBar.success(context, state.message);
-          context.pop(state.material);
-        } else if (state is CreateMaterialSuccess) {
-          //* Return the newly created model so the parent list can update locally.
-          AppSnackBar.success(context, state.message);
-          context.pop(state.material);
-        } else if (state is CreateMaterialFailure ||
-            state is UpdateMaterialFailure) {
-          //! Explicitly cast to dynamic to access errMessage safely if types differ.
-          AppSnackBar.error(context, (state as dynamic).errMessage);
-        }
-      },
-      builder: (context, state) {
-        //* Decouple various loading states to manage UI blocking and overlays.
-        final isCreateLoading = state is CreateMaterialLoading;
-        final isCreateUploading = isCreateLoading && state.isUploadingFiles;
-        final isUpdateLoading = state is UpdateMaterialLoading;
-        final anyLoading = isCreateLoading || isUpdateLoading;
-
-        String updateMsg = '';
-        if (state is UpdateMaterialLoading) {
-          updateMsg = state.message;
-        }
-
-        return Stack(
+    //* Unified BaseLayout handles state transitions and blocking overlays.
+    return ManageMaterialBaseLayout(
+      child: SingleChildScrollView(
+        child: Column(
           children: [
-            //* Interactive UI Layer.
-            //! Disable all clicks and dim the screen during active uploads/updates.
-            IgnorePointer(
-              ignoring: isCreateUploading || isUpdateLoading,
-              child: Opacity(
-                opacity: (isCreateUploading || isUpdateLoading) ? 0.3 : 1.0,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const WebHomeHeader(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 40,
-                        ),
-                        child: Column(
-                          children: [
-                            _buildHeaderTitle(),
-                            const SizedBox(height: 40),
-                            _buildFormContent(),
-                            const SizedBox(height: 50),
-                            //* Submission logic: Only show the button if no background task is running.
-                            if (!anyLoading) _buildSubmitButton(anyLoading),
-                          ],
-                        ),
-                      ),
-                    ],
+            const WebHomeHeader(),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 40,
+              ),
+              child: Column(
+                children: [
+                  _buildHeaderTitle(),
+                  const SizedBox(height: 40),
+                  _buildFormContent(),
+                  const SizedBox(height: 50),
+                  //* Submission logic: Shared button observes loading state and handles triggers.
+                  ManageMaterialSubmitButton(
+                    isEditMode: widget.isEditMode,
+                    onPressed: () => onManageMaterialPressed(
+                      context: context,
+                      courseId: widget.courseId,
+                      isEditMode: widget.isEditMode,
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-
-            //* Feedback Overlays: Appear globally within the Stack during processing.
-            if (isCreateUploading) const UploadingOverlay(),
-            if (isUpdateLoading) UpdateProgressOverlay(message: updateMsg),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -175,30 +131,6 @@ class _WebManageMaterialViewBodyState extends State<WebManageMaterialViewBody>
           ),
         ),
       ],
-    );
-  }
-
-  /// The main action button that triggers form validation and API calls.
-  Widget _buildSubmitButton(bool isLoading) {
-    return CustomAppButton(
-      width: 220,
-      height: 50,
-      borderRadius: 16,
-      label: widget.isEditMode ? 'Edit Material' : 'Add Material',
-      onPressed: isLoading
-          ? null
-          //* Triggers centralized logic in the Mixin to handle file uploads and data mapping.
-          : () => onManageMaterialPressed(
-              context: context,
-              courseId: widget.courseId,
-              isEditMode: widget.isEditMode,
-            ),
-      child: isLoading
-          ? const CircularProgressIndicator(
-              color: Colors.white,
-              strokeWidth: 2,
-            )
-          : null,
     );
   }
 }
