@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 
@@ -66,10 +65,9 @@ class PointsTimeRow extends StatelessWidget {
         TextField(
           controller: controller,
           enabled: enabled,
-          keyboardType: TextInputType.number,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
           textInputAction: TextInputAction.done,
           onChanged: onChanged,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           style: AppStyles.mobileBodySmallMd.copyWith(
             color: AppColors.primaryDark,
           ),
@@ -83,23 +81,31 @@ class PointsTimeRow extends StatelessWidget {
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  const BorderSide(color: AppColors.whiteActive, width: 1),
+              borderSide: const BorderSide(
+                color: AppColors.whiteActive,
+                width: 1,
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  const BorderSide(color: AppColors.whiteActive, width: 1),
+              borderSide: const BorderSide(
+                color: AppColors.whiteActive,
+                width: 1,
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  const BorderSide(color: AppColors.primary, width: 1.5),
+              borderSide: const BorderSide(
+                color: AppColors.primary,
+                width: 1.5,
+              ),
             ),
             disabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  const BorderSide(color: AppColors.whiteHover, width: 1),
+              borderSide: const BorderSide(
+                color: AppColors.whiteHover,
+                width: 1,
+              ),
             ),
           ),
         ),

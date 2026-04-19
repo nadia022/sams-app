@@ -28,7 +28,7 @@ class QuestionCard extends StatefulWidget {
     String localId, {
     String? text,
     int? timeLimit,
-    int? points,
+    num? points,
   })
   onUpdateField;
   final void Function(String localId, String newType) onChangeType;
@@ -80,20 +80,27 @@ class _QuestionCardState extends State<QuestionCard> {
   void didUpdateWidget(covariant QuestionCard oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Sync controllers only if the value has changed externally (e.g. from Cubit)
+    // Sync controllers only if the value has changed externally (from Cubit)
     // and is different from what's currently in the controller.
-    if (widget.question.text != _textController.text) {
+    if (widget.question.text != oldWidget.question.text &&
+        widget.question.text != _textController.text) {
       _textController.text = widget.question.text;
     }
-    
-    final pointsStr = widget.question.points.toString();
-    if (pointsStr != _pointsController.text) {
-      _pointsController.text = pointsStr;
+
+    if (widget.question.points != oldWidget.question.points) {
+      final currentPointsVal = num.tryParse(_pointsController.text);
+      if (currentPointsVal != widget.question.points) {
+        // Only force an update if the underlying mathematical value actually changed from the outside.
+        // This prevents erasing trailing dots (e.g. "1.") while the user is typing.
+        _pointsController.text = widget.question.points.toString();
+      }
     }
 
-    final timeStr = widget.question.timeLimit.toString();
-    if (timeStr != _timeLimitController.text) {
-      _timeLimitController.text = timeStr;
+    if (widget.question.timeLimit != oldWidget.question.timeLimit) {
+      final currentTimeVal = int.tryParse(_timeLimitController.text);
+      if (currentTimeVal != widget.question.timeLimit) {
+        _timeLimitController.text = widget.question.timeLimit.toString();
+      }
     }
 
     // Sync option controllers
@@ -156,7 +163,7 @@ class _QuestionCardState extends State<QuestionCard> {
   }
 
   void _syncPointsToCubit() {
-    final val = int.tryParse(_pointsController.text);
+    final val = num.tryParse(_pointsController.text);
     if (val != null) {
       widget.onUpdateField(widget.question.localId, points: val);
     }

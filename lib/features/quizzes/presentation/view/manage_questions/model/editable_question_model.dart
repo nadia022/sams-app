@@ -72,7 +72,7 @@ class EditableQuestionModel {
   final String text;
   final String questionType;
   final int timeLimit;
-  final int points;
+  final num points;
   final List<EditableOptionModel> options;
 
   const EditableQuestionModel({
@@ -153,7 +153,7 @@ class EditableQuestionModel {
     String? text,
     String? questionType,
     int? timeLimit,
-    int? points,
+    num? points,
     List<EditableOptionModel>? options,
   }) {
     return EditableQuestionModel(

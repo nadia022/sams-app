@@ -7,7 +7,7 @@ abstract class QuestionModel {
   final String text;
   final String questionType;
   final int timeLimit;
-  final int points;
+  final num points;
 
   const QuestionModel({
     required this.id,

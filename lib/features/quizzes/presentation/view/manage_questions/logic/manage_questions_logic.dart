@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sams_app/core/utils/constants/api_keys.dart';
 import 'package:sams_app/features/quizzes/presentation/view/manage_questions/model/editable_question_model.dart';
 
-
 /// A logic mixin that encapsulates all list manipulation for managing questions.
 ///
 /// This separates the "How" (logic) from the "What" (UI), keeping the main
@@ -48,7 +47,7 @@ mixin ManageQuestionsLogic<T extends StatefulWidget> on State<T> {
     String localId, {
     String? text,
     int? timeLimit,
-    int? points,
+    num? points,
   }) {
     // We create a completely new list instance to ensure Flutter detects the state change.
     final updatedQuestions = questions.map((q) {

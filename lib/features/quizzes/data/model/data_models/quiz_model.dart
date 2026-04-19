@@ -27,7 +27,7 @@ class QuizModel {
   final DateTime startTime;
   final DateTime endTime;
   final int totalTime;
-  final int totalScore;
+  final num totalScore;
   final int numberOfQuestions;
   final bool isPublished;
 

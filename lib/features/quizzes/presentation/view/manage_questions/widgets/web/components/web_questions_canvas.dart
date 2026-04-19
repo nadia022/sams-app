@@ -19,7 +19,7 @@ class WebQuestionsCanvas extends StatelessWidget {
     String localId, {
     String? text,
     int? timeLimit,
-    int? points,
+    num? points,
   })
   onUpdateField;
   final void Function(String localId, String newType) onChangeType;
