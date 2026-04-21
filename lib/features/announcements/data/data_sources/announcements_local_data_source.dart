@@ -5,7 +5,6 @@ import 'package:sams_app/features/announcements/data/model/announcement_model.da
 class AnnouncementLocalDataSource {
   final _storage = GetStorage();
   
-  // مفتاح فريد لتخزين الإشعارات (يفضل يكون فيه اسم الكورس لو عاوزه تفصلي بينهم)
   static const String _announcementsKey = 'CACHED_ANNOUNCEMENTS';
 
   //? Serialize and write announcements list to local storage
@@ -23,7 +22,6 @@ class AnnouncementLocalDataSource {
     return [];
   }
 
-  // ميثود إضافية لمسح الكاش لو احتاجتي (مثلاً عند الـ Logout)
   Future<void> clearCache() async {
     await _storage.remove(_announcementsKey);
   }

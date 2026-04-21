@@ -3,7 +3,7 @@ import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 
 class WebHeaderSection extends StatelessWidget {
-  const WebHeaderSection();
+  const WebHeaderSection({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -9,8 +9,7 @@ import 'package:sams_app/features/announcements/presentation/view_model/cubit/an
 class AnnouncementsFetchCubit extends Cubit<AnnouncementsFetchState>
     with CubitMessageMixin, SafeEmitMixin {
   final AnnouncementsRepo announcementsRepo;
-  String? currentCourseId; // هنخزن الـ ID هنا
-
+  String? currentCourseId; 
   static final List<AnnouncementsFetchCubit> _instances = [];
 
   AnnouncementsFetchCubit(this.announcementsRepo) : super(AnnouncementsFetchInitial()) {
@@ -39,7 +38,7 @@ class AnnouncementsFetchCubit extends Cubit<AnnouncementsFetchState>
   Future<void> fetchAnnouncements({required String courseId}) async {
     // Phase 1: Try to retrieve data from local storage for instant feedback
     final cachedData = announcementsRepo.getCachedAnnouncements();
-    currentCourseId = courseId; // احفظيه فوراً
+    currentCourseId = courseId; 
     if (cachedData.isNotEmpty) {
       emit(AnnouncementsFetchSuccess(cachedData));
     } else {

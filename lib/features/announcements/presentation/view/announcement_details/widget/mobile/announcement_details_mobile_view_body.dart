@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sams_app/core/utils/colors/app_colors.dart';
-import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/announcements/presentation/view/announcement_details/widget/mobile/mobile_header_section.dart';
 import 'package:sams_app/features/announcements/presentation/view/announcement_details/widget/shared/add_comment_bar.dart';
 import 'package:sams_app/features/announcements/presentation/view/announcement_details/widget/shared/announcement_card.dart';

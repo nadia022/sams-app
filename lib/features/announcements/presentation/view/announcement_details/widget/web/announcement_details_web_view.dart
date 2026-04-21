@@ -4,7 +4,6 @@ import 'package:sams_app/features/announcements/presentation/view/announcement_d
 class AnnouncementDetailsWebView extends StatelessWidget {
   const AnnouncementDetailsWebView({super.key, required this.announcementId});
   final String announcementId;
-  // final String courseId;
   @override
   Widget build(BuildContext context) {
     return  Scaffold(

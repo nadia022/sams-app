@@ -27,7 +27,6 @@ class _AddCommentBarState extends State<AddCommentBar> {
         // TODO: implement listener
         if (state is AddCommentSuccess) {
           _commentController.clear();
-          // ممكن هنا تعملي Refresh للستة لو مش عاملة Optimistic UI
           context.read<AnnouncementsFetchCubit>().fetchAnnouncementDetails(
       announcementId: widget.announcementId,
       showLoading: false, 
