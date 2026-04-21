@@ -14,7 +14,11 @@ import 'package:sams_app/features/profile/data/services/image_processor.dart';
 
 //* Handles all profile-related API calls and S3 upload logic
 class ProfileRepoImpl extends ProfileRepo {
-  ProfileRepoImpl({required this.api, required this.s3Service, required this.imageProcessor});
+  ProfileRepoImpl({
+    required this.api,
+    required this.s3Service,
+    required this.imageProcessor,
+  });
   final ApiConsumer api;
   final S3UploadService s3Service;
   final ImageProcessor imageProcessor;
@@ -35,41 +39,59 @@ class ProfileRepoImpl extends ProfileRepo {
     }
   }
 
- // POST → get presigned S3 URL and object key
+  //? POST → get presigned S3 URL and object key
   @override
-  Future<Either<String, UserModel>> uploadProfilePicture(XFile imageFile) async {
+  Future<Either<String, UserModel>> uploadProfilePicture(
+    XFile imageFile,
+  ) async {
     try {
-       final processResult = await imageProcessor.processImage(imageFile);
+      final processResult = await imageProcessor.processImage(imageFile);
 
       return await processResult.fold(
-      (error) => Left(error), 
-      (processed) async {
+        (error) => Left(error),
+        (processed) async {
+          final uploadData = await _getPresignedUrl(
+            processed.fileName,
+            processed.bytes.length,
+            processed.contentType,
+          );
 
-      final uploadData = await _getPresignedUrl(
-        processed.fileName,
-          processed.bytes.length,
-          processed.contentType,
+          await s3Service.uploadFile(
+            url: uploadData.uploadUrl,
+            fileBytes: processed.bytes,
+            fileName: processed.fileName,
+            contentType: processed.contentType,
+          );
+
+          final userUpdated = await _savePictureToProfile(uploadData.key);
+          return Right(userUpdated);
+        },
       );
-
-      await s3Service.uploadFile(
-        url: uploadData.uploadUrl,
-          fileBytes: processed.bytes,
-          fileName: processed.fileName,
-          contentType: processed.contentType,
-      );
-
-      final userUpdated = await _savePictureToProfile(uploadData.key);
-        return Right(userUpdated);
-      },
-    );
-  } on ApiException catch (e) {
-    return Left(e.errorModel.errorMessage);
-  } catch (e) {
-    return Left('Failed to upload profile picture: ${e.toString()}');
+    } on ApiException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left('Failed to upload profile picture: ${e.toString()}');
+    }
   }
-}
 
-// POST → returns presigned S3 URL and object key
+  //! DELETE → removes profile picture from server
+  @override
+  Future<Either<String, UserModel>> deleteProfilePicture() async {
+    try {
+      final response = await api.delete(
+        EndPoints.profilePic,
+      );
+
+      final userModel = UserModel.fromMap(response[ApiKeys.data]);
+      return Right(userModel);
+    } on ApiException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  // POST → returns presigned S3 URL and object key
   Future<UploadUrlModel> _getPresignedUrl(
     String name,
     int size,
@@ -91,14 +113,31 @@ class ProfileRepoImpl extends ProfileRepo {
   // PATCH → updates profile pic with the uploaded S3 key
   Future<UserModel> _savePictureToProfile(String key) async {
     final response = await api.patch(
-      EndPoints.saveProfilePic,
+      EndPoints.profilePic,
       data: SaveProfilePicRequest(key: key).toJson(),
     );
-  
+
     return UserModel.fromMap(response[ApiKeys.data]);
   }
 
-// POST → logout user and invalidate session
+  //* PATCH → updates user name
+  @override
+  Future<Either<String, UserModel>> updateName(String newName) async {
+    try {
+      final response = await api.patch(
+        EndPoints.updateProfile,
+        data: {ApiKeys.name: newName},
+      );
+
+      return Right(UserModel.fromMap(response[ApiKeys.data]));
+    } on ApiException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  //! POST → logout user and invalidate session
   @override
   Future<Either<String, String>> logout() async {
     try {
