@@ -30,4 +30,22 @@ class AssignmentRepoImpl implements AssignmentRepo {
       return left(e.toString());
     }
   }
+
+  @override
+  Future<Either<String, AssignmentModel>> fetchAssignmentDetails({
+    required String assignmentId,
+  }) async {
+    try {
+      final response = await api.get(
+        EndPoints.getAssignmentDetails(assignmentId),
+      );
+      return right(AssignmentModel.fromJson(response[ApiKeys.data]));
+    } on ApiException catch (e) {
+      return left(e.errorModel.errorMessage);
+    } catch (e) {
+      return left(e.toString());
+    }
+  }
+
+  
 }

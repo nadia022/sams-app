@@ -5,4 +5,8 @@ abstract class AssignmentRepo {
   Future<Either<String, List<AssignmentModel>>> fetchAssignments({
     required String courseId,
   });
+
+  Future<Either<String, AssignmentModel>> fetchAssignmentDetails({
+    required String assignmentId,
+  });
 }
