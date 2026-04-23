@@ -19,3 +19,24 @@ final class AssignmentDetailsFailure extends AssignmentDetailsState {
   AssignmentDetailsFailure(this.errMessage);
 }
 
+
+sealed class AssignmentActionState extends AssignmentDetailsState {}
+
+
+final class AssignmentActionLoading extends AssignmentActionState {
+  final String message;
+  AssignmentActionLoading(this.message);
+}
+
+final class AssignmentActionSuccess extends AssignmentActionState {
+  final AssignmentModel? assignment;
+  final String message;
+  AssignmentActionSuccess({this.assignment, required this.message});
+}
+
+
+final class AssignmentActionFailure extends AssignmentActionState {
+  final String errMessage;
+  AssignmentActionFailure(this.errMessage);
+}
+

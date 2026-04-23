@@ -11,7 +11,6 @@ class AssignmentDetailsCubit extends Cubit<AssignmentDetailsState>
   AssignmentDetailsCubit(this.assignmentRepo)
     : super(AssignmentDetailsInitial());
 
-  
   Future<void> fetchAssignmentDetails({required String assignmentId}) async {
     emit(AssignmentDetailsLoading());
 
@@ -22,6 +21,26 @@ class AssignmentDetailsCubit extends Cubit<AssignmentDetailsState>
     result.fold(
       (failure) => emit(AssignmentDetailsFailure(failure)),
       (assignment) => emit(AssignmentDetailsSuccess(assignment)),
+    );
+  }
+
+  Future<void> deleteAssignment({required String assignmentId}) async {
+    emit(AssignmentActionLoading('Deleting assignment...'));
+
+    final result = await assignmentRepo.deleteAssignment(
+      assignmentId: assignmentId,
+    );
+
+    result.fold(
+      (failure) {
+        emitMessage(failure);
+        emit(AssignmentActionFailure(failure));
+      },
+      (_) {
+        emit(
+          AssignmentActionSuccess(message: 'Assignment deleted successfully'),
+        );
+      },
     );
   }
 }
