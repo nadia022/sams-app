@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
@@ -10,8 +11,9 @@ import 'package:sams_app/features/assignments/presentation/view/assignment_detai
 import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/widgets/shared/common/assignment_stats_row.dart';
 import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/widgets/shared/student/app_instructions_section.dart';
 import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/widgets/shared/student/assignment_student_action_card.dart';
+import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/widgets/shared/student/work_submission_card.dart';
 
-class AssignmentDetailsWebStudentLayout extends StatelessWidget {
+class AssignmentDetailsWebStudentLayout extends StatefulWidget {
   final AssignmentModel assignment;
   final String courseId;
 
@@ -21,6 +23,14 @@ class AssignmentDetailsWebStudentLayout extends StatelessWidget {
     required this.courseId,
   });
 
+  @override
+  State<AssignmentDetailsWebStudentLayout> createState() =>
+      _AssignmentDetailsWebStudentLayoutState();
+}
+
+class _AssignmentDetailsWebStudentLayoutState
+    extends State<AssignmentDetailsWebStudentLayout> {
+  List<PlatformFile> myPickedFiles = [];
   @override
   Widget build(BuildContext context) {
     var width = SizeConfig.screenWidth(context);
@@ -42,8 +52,8 @@ class AssignmentDetailsWebStudentLayout extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AssignmentDetailsHeader(
-          assignment: assignment,
-          courseId: courseId,
+          assignment: widget.assignment,
+          courseId: widget.courseId,
         ),
         const SizedBox(height: 32),
         Row(
@@ -55,9 +65,9 @@ class AssignmentDetailsWebStudentLayout extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AssignmentStatsRow(assignment: assignment),
+                  AssignmentStatsRow(assignment: widget.assignment),
                   const SizedBox(height: 32),
-                   AssignmentContentGrid(assignment: assignment),
+                  AssignmentContentGrid(assignment: widget.assignment),
                   const SizedBox(height: 32),
                   _buildInstructions(),
                 ],
@@ -81,11 +91,11 @@ class AssignmentDetailsWebStudentLayout extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AssignmentDetailsHeader(
-          assignment: assignment,
-          courseId: courseId,
+          assignment: widget.assignment,
+          courseId: widget.courseId,
         ),
         const SizedBox(height: 32),
-        AssignmentStatsRow(assignment: assignment),
+        AssignmentStatsRow(assignment: widget.assignment),
         const SizedBox(height: 32),
         _buildSideContent(context),
         const SizedBox(height: 32),
@@ -96,7 +106,7 @@ class AssignmentDetailsWebStudentLayout extends StatelessWidget {
 
   // * 3. Instructions & Guidelines Section
   Widget _buildInstructions() {
-    if (assignment.status == AssignmentStatus.missed) {
+    if (widget.assignment.status == AssignmentStatus.missed) {
       return const SizedBox.shrink();
     }
 
@@ -113,8 +123,9 @@ class AssignmentDetailsWebStudentLayout extends StatelessWidget {
 
   // * 4. Side Content (Deadline Timer & Submit Actions)
   Widget _buildSideContent(BuildContext context) {
-    final bool isExpired = assignment.dueDate.isBefore(DateTime.now());
-    final bool isSubmitted = assignment.status == AssignmentStatus.handedIn;
+    final bool isExpired = widget.assignment.dueDate.isBefore(DateTime.now());
+    final bool isSubmitted =
+        widget.assignment.status == AssignmentStatus.handedIn;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,19 +136,53 @@ class AssignmentDetailsWebStudentLayout extends StatelessWidget {
         ],
 
         AssignmentStudentActionCard(
-          assignment: assignment,
+          assignment: widget.assignment,
           onUploadPressed: () {
-            // context.push(
-            //   RoutesName.createAssignment,
-            //   extra: {
-            //     'assignmentId': assignment.id,
-            //     'assignmentTitle': assignment.title,
-            //   },
-            // );
+            _showWorkSubmissionDialog(widget.assignment, myPickedFiles);
           },
         ),
       ],
     );
   }
-  
+
+  void _showWorkSubmissionDialog(
+    AssignmentModel assignment,
+    List<PlatformFile> myPickedFiles,
+  ) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              scrollable: true,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              contentPadding: EdgeInsets.zero,
+              content: SizedBox(
+                width: 500,
+                child: WorkSubmissionCard(
+                  status: assignment.status,
+                  pickedFiles: myPickedFiles,
+                  onFilesPicked: (newFiles) {
+                    setState(() => myPickedFiles.addAll(newFiles));
+                    setDialogState(() {});
+                  },
+
+                  onRemoveFile: (index) {
+                    setState(() => myPickedFiles.removeAt(index));
+                    setDialogState(() {});
+                  },
+
+                  onActionPressed: () {},
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 }
