@@ -16,35 +16,49 @@ class AssignmentInstructionsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(
-        24,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.whiteLight,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: AppColors.primaryLightActive.withValues(alpha: 0.5),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double width = constraints.maxWidth;
+        double height = constraints.maxHeight;
+
+        return Container(
+          padding: const EdgeInsets.all(
+            24,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.whiteLight,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: AppColors.primaryLightActive.withValues(alpha: 0.5),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: AppColors.secondary, size: 22),
-              const SizedBox(width: 12),
-              Text(title, style: AppStyles.mobileTitleSmallSb),
+              Row(
+                children: [
+                  Icon(icon, color: AppColors.secondary, size: 22),
+                  const SizedBox(width: 12),
+                  Text(
+                    title,
+                    style: AppStyles.mobileTitleSmallSb.copyWith(
+                      fontSize: width * 0.058,
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(height: 32),
+              ...instructions.map(
+                (text) => _buildInstructionItem(text, width: width),
+              ),
             ],
           ),
-          const Divider(height: 32),
-          ...instructions.map((text) => _buildInstructionItem(text)),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildInstructionItem(String text) {
+  Widget _buildInstructionItem(String text, {required double width}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -62,6 +76,7 @@ class AssignmentInstructionsSection extends StatelessWidget {
               style: AppStyles.mobileBodySmallRg.copyWith(
                 color: AppColors.secondary,
                 height: 1.4,
+                fontSize: width * 0.049,
               ),
             ),
           ),
