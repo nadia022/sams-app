@@ -4,6 +4,7 @@ import 'package:lottie/lottie.dart';
 import 'package:sams_app/core/utils/assets/app_lottie.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
+import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
 import 'package:sams_app/core/widgets/mobile/mobile_custom_app_bar.dart';
 import 'package:sams_app/features/assignments/data/model/get_all_submissions/ass_submission_model.dart';
 import 'package:sams_app/features/assignments/presentation/view/assignment_submission/shared/approve_all_button.dart';
@@ -13,10 +14,17 @@ import 'package:sams_app/features/assignments/presentation/view_model/cubits/ass
 import 'package:sams_app/features/assignments/presentation/view_model/cubits/assignmemt_submission/assignment_submission_state.dart';
 
 class AssignmentSubmissionMobileLayout extends StatelessWidget {
-  const AssignmentSubmissionMobileLayout({super.key});
+  const AssignmentSubmissionMobileLayout({super.key, required this.assignmentId});
+  final String assignmentId;
 
   @override
   Widget build(BuildContext context) {
+    if (ModalRoute.of(context)?.isCurrent ?? false) {
+      context
+          .read<AssignmentSubmissionCubit>()
+          .getAllSubmissions(assignmentId: assignmentId);
+    }
+
     return Scaffold(
       appBar: const MobileCustomAppBar(
         title: 'Assignmet Submission',
@@ -28,7 +36,9 @@ class AssignmentSubmissionMobileLayout extends StatelessWidget {
             BlocBuilder<AssignmentSubmissionCubit, AssignmentSubmissionState>(
               builder: (context, state) {
                 if (state is SubmissionsLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                              child: AppAnimatedLoadingIndicator(),
+                            );
                 } else if (state is SubmissionsFailure) {
                   return const Center(
                     child: Text('Failed to load submissions'),
