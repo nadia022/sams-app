@@ -135,6 +135,8 @@ abstract class ApiKeys {
   //? Assignment Submissions Keys
   static const String stats = 'stats';
   static const String submissions = 'submissions';
+  static const String approves='approved';
+  static const String rejected='rejected';
 
   //? Stats Keys
   static const String submitted = 'submitted';
