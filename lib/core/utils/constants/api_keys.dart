@@ -131,6 +131,7 @@ abstract class ApiKeys {
   static const String columns = 'columns';
   static const String rows = 'rows';
   static const String grades = 'grades';
+  static const String maxScore = 'maxScore';
 }
 
 //! --- API VALUES (Fixed values that the server expects inside the fields) ---
