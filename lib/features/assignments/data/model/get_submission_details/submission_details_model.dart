@@ -3,7 +3,7 @@ import 'package:sams_app/features/assignments/data/model/get_all_submissions/stu
 import 'package:sams_app/core/utils/constants/api_keys.dart';
 import 'package:sams_app/features/assignments/data/model/get_submission_details/submitted_item_model.dart';
 
-class SubmissionDetails {
+class SubmissionDetailsModel {
   final String id;
   final StudentInfoModel studentInfo;
   final String submittedAt;
@@ -12,7 +12,7 @@ class SubmissionDetails {
   final int points;
   final int earnedPoints;
 
-  SubmissionDetails({
+  SubmissionDetailsModel({
     required this.id,
     required this.studentInfo,
     required this.submittedAt,
@@ -22,8 +22,8 @@ class SubmissionDetails {
     required this.earnedPoints,
   });
 
-  factory SubmissionDetails.fromJson(Map<String, dynamic> json) {
-    return SubmissionDetails(
+  factory SubmissionDetailsModel.fromJson(Map<String, dynamic> json) {
+    return SubmissionDetailsModel(
       id: json[ApiKeys.id],
       studentInfo: StudentInfoModel.fromJson(json[ApiKeys.studentInfo]),
       submittedAt: json[ApiKeys.submittedAt],
