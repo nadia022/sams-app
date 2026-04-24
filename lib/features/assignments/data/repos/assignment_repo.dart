@@ -14,5 +14,11 @@ abstract class AssignmentRepo {
     required String assignmentId,
   });
 
+    Future<Either<String, AssignmentModel>> deleteAssignmentItem({
+    required String assignmentId,
+    required String itemKey,
+  });
+
+
 
 }
