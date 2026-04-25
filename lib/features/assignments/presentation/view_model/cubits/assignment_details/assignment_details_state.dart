@@ -54,3 +54,20 @@ final class DeleteAssignmentFailure extends AssignmentActionState {
   final String errMessage;
   DeleteAssignmentFailure(this.errMessage);
 }
+
+// --- Add/Upload New Items States ---
+final class AddAssignmentItemsLoading extends AssignmentActionState {
+  final String message;
+  AddAssignmentItemsLoading([this.message = 'Uploading files...']);
+}
+
+final class AddAssignmentItemsSuccess extends AssignmentActionState {
+  final AssignmentModel assignment;
+  final String message;
+  AddAssignmentItemsSuccess({required this.assignment, required this.message});
+}
+
+final class AddAssignmentItemsFailure extends AssignmentActionState {
+  final String errMessage;
+  AddAssignmentItemsFailure(this.errMessage);
+}
