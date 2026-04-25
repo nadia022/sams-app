@@ -108,7 +108,7 @@ class EndPoints {
   static String deleteAssignmentItem(String assignmentId) => 'instructor/assignments/$assignmentId/items';
   static String getCourseAssignments(String courseId) => 'courses/$courseId/assignments';
   static String getAssignmentDetails(String assignmentId) => 'assignments/$assignmentId';
-  static String addAssignmentItems(String assignmentId) => 'instructor/materials/$assignmentId/items';
+  static String addAssignmentItems(String assignmentId) => 'instructor/assignments/$assignmentId/items';
 
   //? --- Submissions --- ;
   static String getSubmissions(String assignmentId) => 'assignments/$assignmentId/submissions';
