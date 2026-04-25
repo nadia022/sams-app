@@ -108,11 +108,11 @@ class EndPoints {
   static String deleteAssignmentItem(String assignmentId) => 'instructor/assignments/$assignmentId/items';
   static String getCourseAssignments(String courseId) => 'courses/$courseId/assignments';
   static String getAssignmentDetails(String assignmentId) => 'assignments/$assignmentId';
+  static String addAssignmentItems(String assignmentId) => 'instructor/materials/$assignmentId/items';
 
   //? --- Submissions --- ;
   static String getSubmissions(String assignmentId) => 'assignments/$assignmentId/submissions';
   static String getAssignmentSubmissionDetails(String submissionId) => 'assignments/submissions/$submissionId';
   static String gradeSubmission(String submissionId) => 'assignments/submissions/$submissionId/grade';
-  static String approveSubmissions(String assignmentId) => 'assignments/$assignmentId/approve-submissions';
-      
+  static String approveSubmissions(String assignmentId) => 'assignments/$assignmentId/approve-submissions';   
 }

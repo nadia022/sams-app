@@ -14,9 +14,12 @@ import 'package:sams_app/features/announcements/presentation/view/announcement_a
 import 'package:sams_app/features/announcements/presentation/view/announcement_details/announcement_details_view.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcement_actions/announcement_actions_cubit.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_cubit.dart';
+import 'package:sams_app/features/assignments/data/repos/assignment_repo.dart';
 // Assignments
 import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/assignment_details_view.dart';
+import 'package:sams_app/features/assignments/presentation/view/create_assignment_view/create_assignment_view.dart';
 import 'package:sams_app/features/assignments/presentation/view_model/cubits/assignment_details/assignment_details_cubit.dart';
+import 'package:sams_app/features/assignments/presentation/view_model/cubits/create_assignment/create_assignment_cubit.dart';
 // Auth
 import 'package:sams_app/features/auth/data/repos/auth_repo.dart';
 import 'package:sams_app/features/auth/presentation/view_models/login_cubit/login_cubit.dart';
@@ -382,20 +385,25 @@ class AppRouter {
       // ─────────────────────────────────────────────────────────────────────
       // ASSIGNMENTS
       // ─────────────────────────────────────────────────────────────────────
-      // GoRoute(
-      //   name: RoutesName.createAssignment,
-      //   path: RoutesName.createAssignment,
-      //   builder: (context, state) {
-      //     final extra = RouterPayloadCache.get<Map<String, dynamic>>(
-      //       RoutesName.createAssignment,
-      //       state.extra,
-      //     );
-      //     if (extra == null) return _fallbackHome();
+      GoRoute(
+        name: RoutesName.createAssignment,
+        path: RoutesName.createAssignment,
+        builder: (context, state) {
+          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+            RoutesName.createAssignment,
+            state.extra,
+          );
+          if (extra == null) return _fallbackHome();
 
-      //     return const CreateAssignmentView();
-      //   },
-      // ),
-      
+          final courseId = extra['courseId'] as String? ?? '';
+
+          return BlocProvider(
+            create: (context) => CreateAssignmentCubit( assignmentRepo: getIt<AssignmentRepo>(), quizRepo:  getIt<QuizRepository>())..init(courseId),
+            child: const CreateAssignmentView(),
+          );
+        },
+      ),
+
       GoRoute(
         name: RoutesName.assignmentDetails,
         path: RoutesName.assignmentDetails,
@@ -410,9 +418,10 @@ class AppRouter {
           final courseId = extra['courseId'] as String? ?? '';
 
           return BlocProvider(
-            create: (context) => getIt<AssignmentDetailsCubit>()..fetchAssignmentDetails(
-              assignmentId: assignmentId,
-            ),
+            create: (context) =>
+                getIt<AssignmentDetailsCubit>()..fetchAssignmentDetails(
+                  assignmentId: assignmentId,
+                ),
             child: AssignmentDetailsView(
               assignmentId: assignmentId,
               courseId: courseId,
