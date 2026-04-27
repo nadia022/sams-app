@@ -115,24 +115,16 @@ class EndPoints {
       'courses/$courseId/context/presigned-urls';
 
   //* Management (Instructor)
-  static String addAssignment(String courseId) =>
-      'instructor/courses/$courseId/assignments';
-  static String deleteAssignment(String assignmentId) =>
-      'instructor/assignments/$assignmentId';
-  static String deleteAssignmentItem(String assignmentId) =>
-      'instructor/assignments/$assignmentId/items';
-  static String getCourseAssignments(String courseId) =>
-      'courses/$courseId/assignments';
-  static String getAssignmentDetails(String assignmentId) =>
-      'assignments/$assignmentId';
+  static String addAssignment(String courseId) => 'instructor/courses/$courseId/assignments';
+  static String deleteAssignment(String assignmentId) => 'instructor/assignments/$assignmentId';
+  static String deleteAssignmentItem(String assignmentId) => 'instructor/assignments/$assignmentId/items';
+  static String getCourseAssignments(String courseId) => 'courses/$courseId/assignments';
+  static String getAssignmentDetails(String assignmentId) => 'assignments/$assignmentId';
+  static String addAssignmentItems(String assignmentId) => 'instructor/assignments/$assignmentId/items';
 
   //? --- Submissions --- ;
-static String getSubmissions(String assignmentId) =>
-    '/instructor/assignments/$assignmentId/submissions';
-  static String getAssignmentSubmissionDetails(String submissionId) =>
-      '/instructor/assignments/submissions/$submissionId';
-  static String gradeSubmission(String submissionId) =>
-      '/instructor/assignments/submissions/$submissionId/grade';
-  static String approveSubmissions(String assignmentId) =>
-      '/instructor/assignments/$assignmentId/approve-submissions';
+  static String getSubmissions(String assignmentId) => 'assignments/$assignmentId/submissions';
+  static String getAssignmentSubmissionDetails(String submissionId) => 'assignments/submissions/$submissionId';
+  static String gradeSubmission(String submissionId) => 'assignments/submissions/$submissionId/grade';
+  static String approveSubmissions(String assignmentId) => 'assignments/$assignmentId/approve-submissions';   
 }

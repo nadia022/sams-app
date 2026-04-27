@@ -6,7 +6,7 @@ class CreateAssignmentRequest {
   final String description;
   final String classworkId;
   final String dueDate;
-  final bool enablePlagiarismCheck;
+  final bool? enablePlagiarismCheck;
   final int? plagiarismThreshold;
   final List<FileUploadReference> assignmentItems;
 

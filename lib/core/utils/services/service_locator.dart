@@ -15,7 +15,9 @@ import 'package:sams_app/features/assignments/data/repos/assignment_repo_impl.da
 import 'package:sams_app/features/assignments/data/repos/assignment_submission_reop.dart';
 import 'package:sams_app/features/assignments/data/repos/assignment_submission_repo_impl.dart';
 import 'package:sams_app/features/assignments/presentation/view_model/cubits/assignmemt_submission/assignment_submission_cubit.dart';
+import 'package:sams_app/features/assignments/presentation/view_model/cubits/assignment_details/assignment_details_cubit.dart';
 import 'package:sams_app/features/assignments/presentation/view_model/cubits/assignment_fetch/assignment_fetch_cubit.dart';
+import 'package:sams_app/features/assignments/presentation/view_model/cubits/create_assignment/create_assignment_cubit.dart';
 import 'package:sams_app/features/auth/data/repos/auth_repo.dart';
 import 'package:sams_app/features/auth/data/repos/auth_repo_impl.dart';
 import 'package:sams_app/features/home/data/data_sources/home_local_data_sourse.dart';
@@ -112,17 +114,16 @@ void setupServiceLocator() {
   );
 
   //* register MaterialFetchCubit (Factory to get a new instance for each course)
-  //* This cubit is used to fetch materials 
+  //* This cubit is used to fetch materials
   getIt.registerFactory<MaterialFetchCubit>(
     () => MaterialFetchCubit(getIt<MaterialRepo>()),
   );
 
-  //* register MaterialCrudCubit (Factory to get a new instance for each course) 
+  //* register MaterialCrudCubit (Factory to get a new instance for each course)
   //* This cubit is used to upload, update and delete materials
   getIt.registerFactory<MaterialCrudCubit>(
     () => MaterialCrudCubit(getIt<MaterialRepo>()),
   );
-
 
   //! Announcements Feature
   //* 1. Register Local Data Source
@@ -142,42 +143,52 @@ void setupServiceLocator() {
   getIt.registerFactory<AnnouncementsFetchCubit>(
     () => AnnouncementsFetchCubit(getIt<AnnouncementsRepo>()),
   );
-  
+
   //* 4. Register Actions Cubit (Add, Update, Delete)
   getIt.registerFactory<AnnouncementsActionsCubit>(
     () => AnnouncementsActionsCubit(getIt<AnnouncementsRepo>()),
   );
-    //* 4. Register Actions Cubit (Add, Update, Delete)
+  //* 4. Register Actions Cubit (Add, Update, Delete)
   getIt.registerFactory<CommentActionsCubit>(
     () => CommentActionsCubit(getIt<AnnouncementsRepo>()),
   );
 
-
   //! Assignment Feature
 
-   //* register AssignmentRepo
+  //* register AssignmentRepo
   getIt.registerLazySingleton<AssignmentRepo>(
     () => AssignmentRepoImpl(
       api: getIt<ApiConsumer>(),
+      s3Service: getIt<S3UploadService>(),
     ),
   );
 
-   //* register AssignmentFetchCubit
-   getIt.registerFactory<AssignmentFetchCubit>(
+  //* register AssignmentFetchCubit
+  getIt.registerFactory<AssignmentFetchCubit>(
     () => AssignmentFetchCubit(getIt<AssignmentRepo>()),
   );
 
-   //* register AssignmentSubmissionrepo
-  getIt.registerLazySingleton<AssignmentSubmissionRepo>(
+  //* register AssignmentDetailsCubit
+  getIt.registerFactory<AssignmentDetailsCubit>(
+    () => AssignmentDetailsCubit(getIt<AssignmentRepo>()),
+  );
+
+  //* register CreateAssignmentCubit
+  getIt.registerLazySingleton<CreateAssignmentCubit>(
+    () => CreateAssignmentCubit(
+      assignmentRepo: getIt<AssignmentRepo>(),
+      quizRepo: getIt<QuizRepository>(),
+    ),
+  );
+
+   getIt.registerLazySingleton<AssignmentSubmissionRepo>(
     () => AssignmentSubmissionRepoImpl(
       api: getIt<ApiConsumer>(),
     ),
   );
 
-   //* register AssignmentSubmissionFetchCubit
-   getIt.registerFactory<AssignmentSubmissionCubit>(
+  //* register AssignmentSubmissionFetchCubit
+  getIt.registerFactory<AssignmentSubmissionCubit>(
     () => AssignmentSubmissionCubit(getIt<AssignmentSubmissionRepo>()),
   );
-
-
 }
