@@ -3,14 +3,14 @@ import 'package:sams_app/core/utils/mixins/cubit_message_mixin.dart';
 import 'package:sams_app/core/utils/mixins/safe_emit_mixin.dart';
 import 'package:sams_app/features/assignments/data/model/grade_submission/grade_submission_request.dart';
 import 'package:sams_app/features/assignments/data/repos/assignment_submission_reop.dart';
+
 import 'assignment_submission_state.dart';
 
 class AssignmentSubmissionCubit extends Cubit<AssignmentSubmissionState>
     with CubitMessageMixin, SafeEmitMixin {
   final AssignmentSubmissionRepo repo;
 
-  AssignmentSubmissionCubit(this.repo)
-      : super(AssignmentSubmissionInitial());
+  AssignmentSubmissionCubit(this.repo) : super(AssignmentSubmissionInitial());
 
   // =================  GET ALL =================
 
@@ -67,7 +67,7 @@ class AssignmentSubmissionCubit extends Cubit<AssignmentSubmissionState>
       (failure) => emit(GradeSubmissionFailure(failure)),
       (response) {
         emit(GradeSubmissionSuccess(response));
-        emitMessage(response.message); 
+        emitMessage(response.message);
       },
     );
   }

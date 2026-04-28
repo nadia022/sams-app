@@ -9,7 +9,6 @@ sealed class AssignmentSubmissionState {}
 /// Initial
 final class AssignmentSubmissionInitial extends AssignmentSubmissionState {}
 
-
 // =================  GET ALL SUBMISSIONS =================
 
 final class SubmissionsLoading extends AssignmentSubmissionState {}
@@ -25,7 +24,6 @@ final class SubmissionsFailure extends AssignmentSubmissionState {
 
   SubmissionsFailure(this.errMessage);
 }
-
 
 // ================= SUBMISSION DETAILS =================
 
@@ -45,7 +43,6 @@ final class SubmissionDetailsFailure extends SubmissionDetailsState {
   SubmissionDetailsFailure(this.errMessage);
 }
 
-
 // =================  GRADE SUBMISSION =================
 
 sealed class GradeSubmissionState extends AssignmentSubmissionState {}
@@ -63,7 +60,6 @@ final class GradeSubmissionFailure extends GradeSubmissionState {
 
   GradeSubmissionFailure(this.errMessage);
 }
-
 
 // =================  APPROVE ALL =================
 

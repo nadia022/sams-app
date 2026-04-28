@@ -71,3 +71,37 @@ final class AddAssignmentItemsFailure extends AssignmentActionState {
   final String errMessage;
   AddAssignmentItemsFailure(this.errMessage);
 }
+
+// =================  Student Submission =================
+
+sealed class StudentSubmissionState extends AssignmentActionState {}
+
+final class StudentSubmissionLoading extends StudentSubmissionState {
+  final String message;
+  StudentSubmissionLoading({required this.message});
+}
+
+final class StudentSubmissionSuccess extends StudentSubmissionState {
+  final String message;
+  StudentSubmissionSuccess({required this.message});
+}
+
+final class StudentSubmissionFailure extends StudentSubmissionState {
+  final String errMessage;
+  StudentSubmissionFailure(this.errMessage);
+}
+
+final class UnsubmitAssignmentLoading extends StudentSubmissionState {
+  final String message;
+  UnsubmitAssignmentLoading({required this.message});
+}
+
+final class UnsubmitAssignmentSuccess extends StudentSubmissionState {
+  final String message;
+  UnsubmitAssignmentSuccess({required this.message});
+}
+
+final class UnsubmitAssignmentFailure extends StudentSubmissionState {
+  final String errMessage;
+  UnsubmitAssignmentFailure(this.errMessage);
+}
