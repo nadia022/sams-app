@@ -456,8 +456,10 @@ class AppRouter {
             state.extra,
           );
           if (extra == null) return _fallbackHome();
+          final submissionId = extra['submissionId'] as String? ?? '';
+          final needeReview = extra['neededReview'] as bool;
 
-          return const AssignmentSubmissionDetailsView();
+          return  AssignmentSubmissionDetailsView(submissionId:submissionId,neededReview: needeReview, );
         },
       ),
 
