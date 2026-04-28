@@ -8,8 +8,7 @@ import 'package:sams_app/features/assignments/presentation/view/assignment_detai
 import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/widgets/shared/common/assignment_details_header.dart';
 import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/widgets/shared/common/assignment_stats_row.dart';
 import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/widgets/shared/student/app_instructions_section.dart';
-import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/widgets/shared/student/assignment_student_action_card.dart';
-import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/widgets/shared/student/work_submission_card.dart';
+import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/widgets/shared/student/student_submission_section.dart';
 
 class AssignmentDetailsWebStudentLayout extends StatefulWidget {
   final AssignmentModel assignment;
@@ -108,14 +107,21 @@ class _AssignmentDetailsWebStudentLayoutState
       return const SizedBox.shrink();
     }
 
-    return const AssignmentInstructionsSection(
+    return AssignmentInstructionsSection(
       title: 'Submission Instructions',
-      instructions: [
-        'Accepted formats: PDF, DOCX, or ZIP for multiple files.',
-        'Maximum file size allowed is 50MB.',
-        'Ensure your work is original to pass the plagiarism check.',
-        'You can resubmit anytime before the deadline.',
-      ],
+       instructions: (widget.assignment.enablePlagiarismCheck)
+          ? [
+              'Upload only one file.',
+              'Upload your file in DOCX or DOC format.',
+              'The total file size should not exceed 3 pages.',
+              'Make sure your work is original (Plagiarism check might be enabled).',
+              'You can edit your submission until the deadline.',
+            ]
+          : [
+              'Upload your files in PDF, PPT, PPTX, DOCX, or DOC format.',
+              'You can edit your submission until the deadline.',
+              'Please ensure a stable internet connection until the upload is complete.',
+            ],
     );
   }
 
@@ -132,55 +138,8 @@ class _AssignmentDetailsWebStudentLayoutState
           // DeadlineTimer(endTime: assignment.dueDate),
           const SizedBox(height: 24),
         ],
-
-        AssignmentStudentActionCard(
-          assignment: widget.assignment,
-          onUploadPressed: () {
-            _showWorkSubmissionDialog(widget.assignment, myPickedFiles);
-          },
-        ),
+       StudentSubmissionSection(assignment: widget.assignment, courseId: widget.courseId,),
       ],
-    );
-  }
-
-  void _showWorkSubmissionDialog(
-    AssignmentModel assignment,
-    List<PlatformFile> myPickedFiles,
-  ) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              scrollable: true,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              contentPadding: EdgeInsets.zero,
-              content: SizedBox(
-                width: 500,
-                child: WorkSubmissionCard(
-                  status: assignment.status,
-                  pickedFiles: myPickedFiles,
-                  onFilesPicked: (newFiles) {
-                    setState(() => myPickedFiles.addAll(newFiles));
-                    setDialogState(() {});
-                  },
-
-                  onRemoveFile: (index) {
-                    setState(() => myPickedFiles.removeAt(index));
-                    setDialogState(() {});
-                  },
-
-                  onActionPressed: () {},
-                ),
-              ),
-            );
-          },
-        );
-      },
     );
   }
 }

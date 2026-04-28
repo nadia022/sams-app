@@ -25,11 +25,6 @@ class AssignmentDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     
-    //  if (ModalRoute.of(context)?.isCurrent ?? false) {
-    //   context.read<AssignmentDetailsCubit>().fetchAssignmentDetails(assignmentId: assignmentId);
-    // }
-    
-
     return BlocListener< AssignmentDetailsCubit, AssignmentDetailsState>(
       listener: (context, state) {
         if (state is DeleteAssignmentSuccess) {
@@ -60,6 +55,26 @@ class AssignmentDetailsView extends StatelessWidget {
         if (state is AddAssignmentItemsFailure) {
           AppToast.error(context, state.errMessage);
         }
+        if (state is StudentSubmissionSuccess) {
+          AppToast.success(context, state.message);
+          context.read<AssignmentDetailsCubit>().fetchAssignmentDetails(
+            assignmentId: assignmentId,
+          );
+          context.pop();
+        }
+        if (state is StudentSubmissionFailure) {
+          AppToast.error(context, state.errMessage);
+        }
+        if (state is UnsubmitAssignmentSuccess) {
+          AppToast.success(context, state.message);
+           context.read<AssignmentDetailsCubit>().fetchAssignmentDetails(
+            assignmentId: assignmentId,
+          );
+          context.pop();
+        }
+        if (state is UnsubmitAssignmentFailure) {
+          AppToast.error(context, state.errMessage);
+        }
       },
       child: BlocBuilder<AssignmentDetailsCubit, AssignmentDetailsState >(
         
@@ -68,7 +83,9 @@ class AssignmentDetailsView extends StatelessWidget {
             current is AssignmentDetailsSuccess ||
             current is AssignmentDetailsFailure||
             current is  DeleteAssignmentItemSuccess||
-            current is  AddAssignmentItemsSuccess,
+            current is  AddAssignmentItemsSuccess||
+            current is StudentSubmissionSuccess||
+            current is UnsubmitAssignmentSuccess,
         builder: (context, state) {
           if (state is AssignmentDetailsLoading) {
             return const Scaffold(body: Center(child: AppAnimatedLoadingIndicator()));
@@ -77,7 +94,7 @@ class AssignmentDetailsView extends StatelessWidget {
             return Center(child: Text(state.errMessage));
           }
           
-          if (state is AssignmentDetailsSuccess|| state is  DeleteAssignmentItemSuccess || state is  AddAssignmentItemsSuccess) {
+          if (state is AssignmentDetailsSuccess|| state is  DeleteAssignmentItemSuccess || state is  AddAssignmentItemsSuccess || state is StudentSubmissionSuccess || state is UnsubmitAssignmentSuccess) {
             final assignment = (state as dynamic).assignment;
       
             return AdaptiveLayout(
