@@ -5,7 +5,7 @@ import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
 import 'package:sams_app/features/assignments/data/model/assignment_item_model.dart';
 import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/logic/assignment_details_handler.dart';
 import 'package:sams_app/features/assignments/presentation/view/assignment_submission_details/mobile/mobile_decision_buttons.dart';
-import 'package:sams_app/features/assignments/presentation/view/assignment_submission_details/mobile/submission_details_header.dart';
+import 'package:sams_app/features/assignments/presentation/view/assignment_submission_details/shared/submission_details_header.dart';
 import 'package:sams_app/features/assignments/presentation/view/assignment_submission_details/shared/animated_document_card.dart';
 import 'package:sams_app/features/assignments/presentation/view/assignment_submission_details/shared/similarity_item.dart';
 import 'package:sams_app/features/assignments/presentation/view_model/cubits/assignmemt_submission/assignment_submission_cubit.dart';
@@ -27,11 +27,34 @@ class AssignmentSubmissionDetailsWebLayout extends StatelessWidget {
       body: BlocListener<AssignmentSubmissionCubit, AssignmentSubmissionState>(
         listener: (context, state) {
           if (state is GradeSubmissionSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.response.message,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 3),
+              ),
+            );
             // Trigger a silent refresh (no full-screen loader) to update UI after grading
             context.read<AssignmentSubmissionCubit>().getSubmissionDetails(
-                  submissionId: submissionId,
-                  showLoading: false,
-                );
+              submissionId: submissionId,
+              showLoading: false,
+            );
+          } else if (state is GradeSubmissionFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.errMessage,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 3),
+              ),
+            );
           }
         },
         child: BlocBuilder<AssignmentSubmissionCubit, AssignmentSubmissionState>(
@@ -65,7 +88,9 @@ class AssignmentSubmissionDetailsWebLayout extends StatelessWidget {
                           padding: const EdgeInsets.all(32),
                           decoration: const BoxDecoration(
                             color: Color(0xFFF4F4F4),
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(30),
+                            ),
                           ),
                           child: SingleChildScrollView(
                             child: Column(
@@ -73,16 +98,25 @@ class AssignmentSubmissionDetailsWebLayout extends StatelessWidget {
                               children: [
                                 const Text(
                                   'Documents',
-                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                                 const SizedBox(height: 20),
                                 ...items.map(
                                   (file) => Padding(
                                     padding: const EdgeInsets.only(bottom: 12),
                                     child: AnimatedDocumentCard(
-                                      title: file.originalFileName ?? 'Assignment PDF',
+                                      title:
+                                          file.originalFileName ??
+                                          'Assignment PDF',
                                       subtitle: 'Tap to open document',
-                                      type: file.displayUrl?.fileContentType.split('/').last ?? 'File',
+                                      type:
+                                          file.displayUrl?.fileContentType
+                                              .split('/')
+                                              .last ??
+                                          'File',
                                       icon: Icons.picture_as_pdf,
                                       color: Colors.red,
                                       onTap: () {
@@ -90,7 +124,8 @@ class AssignmentSubmissionDetailsWebLayout extends StatelessWidget {
                                           context,
                                           AssignmentItemModel(
                                             displayUrl: file.displayUrl,
-                                            originalFileName: file.originalFileName,
+                                            originalFileName:
+                                                file.originalFileName,
                                           ),
                                         );
                                       },
@@ -110,11 +145,16 @@ class AssignmentSubmissionDetailsWebLayout extends StatelessWidget {
                                 if (isReviewRequired) ...[
                                   const Text(
                                     'Decision',
-                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                   const SizedBox(height: 16),
                                   // Pass submissionId to buttons to trigger the grade request
-                                  MobileDecisionButtons(submissionId: submissionId),
+                                  MobileDecisionButtons(
+                                    submissionId: submissionId,
+                                  ),
                                 ],
                               ],
                             ),
