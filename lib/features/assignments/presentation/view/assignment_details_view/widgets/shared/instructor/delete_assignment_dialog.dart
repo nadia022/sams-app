@@ -8,53 +8,59 @@ class DeleteAssignmentDialog {
       context: context,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CircleAvatar(
-                backgroundColor: AppColors.redLight,
-                child: Icon(Icons.delete_forever_rounded, color: AppColors.red),
-              ),
-              const SizedBox(height: 16),
-              Text('Delete Assignment?', style: AppStyles.mobileTitleSmallSb),
-              const SizedBox(height: 8),
-              Text(
-                'This will remove all student submissions and files. Proceed?',
-                textAlign: TextAlign.center,
-                style: AppStyles.mobileBodyXsmallRg,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
-                    ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500, minWidth: 300),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircleAvatar(
+                  backgroundColor: AppColors.redLight,
+                  child: Icon(
+                    Icons.delete_forever_rounded,
+                    color: AppColors.red,
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.red,
+                ),
+                const SizedBox(height: 16),
+                Text('Delete Assignment?', style: AppStyles.mobileTitleSmallSb),
+                const SizedBox(height: 8),
+                Text(
+                  'This will remove all student submissions and files. Proceed?',
+                  textAlign: TextAlign.center,
+                  style: AppStyles.mobileBodyXsmallRg,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel'),
                       ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        onConfirm();
-                      },
-                      child: Text(
-                        'Delete',
-                       style: AppStyles.mobileBodySmallMd.copyWith(
-                          color: Colors.white,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.red,
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          onConfirm();
+                        },
+                        child: Text(
+                          'Delete',
+                          style: AppStyles.mobileBodySmallMd.copyWith(
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

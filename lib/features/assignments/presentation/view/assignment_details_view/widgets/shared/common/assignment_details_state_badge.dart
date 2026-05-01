@@ -49,9 +49,9 @@ class AssignmentDetailsStateBadge extends StatelessWidget {
         Icons.check_circle_rounded,
       ),
       AssignmentState.missed || AssignmentState.closed => (
-        StatusColors.red.withValues(alpha: 0.1),
+        AppColors.redLightHover,
         StatusColors.red,
-        Icons.error_outline_rounded,
+        Icons.lock_clock_rounded,
       ),
       _ => (AppColors.whiteHover, StatusColors.greyDark, Icons.help_outline),
     };
