@@ -77,7 +77,7 @@ class CreateAssignmentCubit extends Cubit<CreateAssignmentState>
       (failureMessage) => emit(CreateClassworkFailure(failureMessage)),
       (successMessage) {
         emit(CreateClassworkSuccess(successMessage));
-        getAvailableClassworks(); 
+        getAvailableClassworks();
       },
     );
   }
@@ -146,7 +146,7 @@ class CreateAssignmentCubit extends Cubit<CreateAssignmentState>
       classworkId: selectedClasswork!.id,
       title: titleController.text.trim(),
       description: descriptionController.text.trim(),
-      dueDate: currentDueDate.toIso8601String(),
+      dueDate: currentDueDate.toUtc().toIso8601String(),
       selectedFiles: selectedFiles,
       enablePlagiarismCheck: enablePlagiarism,
       plagiarismThreshold: plagiarismThreshold,
@@ -172,12 +172,11 @@ class CreateAssignmentCubit extends Cubit<CreateAssignmentState>
     enablePlagiarism = value;
     emit(
       CreateAssignmentUIUpdated(),
-    ); 
+    );
   }
 
   void updateThreshold(int value) {
     plagiarismThreshold = value;
-    
   }
 
   String? validatePlagiarismThreshold(String? value) {
