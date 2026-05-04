@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sams_app/core/extentions/filter_files_helper.dart';
 import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
 import 'package:sams_app/features/assignments/data/model/assignment_item_model.dart';
+import 'package:sams_app/features/assignments/data/model/helper/file_extension_helper.dart';
 import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/logic/assignment_details_handler.dart';
 import 'package:sams_app/features/assignments/presentation/view/assignment_submission_details/mobile/mobile_decision_buttons.dart';
 import 'package:sams_app/features/assignments/presentation/view/assignment_submission_details/shared/submission_details_header.dart';
@@ -100,19 +101,27 @@ class AssignmentSubmissionDetailsMobileLayout extends StatelessWidget {
                             ),
                             const SizedBox(height: 16),
                             // Map through submitted files
-                            ...items.map(
-                              (file) => Padding(
+                            ...items.map((file) {
+                              final (
+                                fileIcon,
+                                fileColor,
+                              ) = FileExtensionHelper.getFileTypeDetails(
+                                file.originalFileName,
+                              );
+                              return Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
                                 child: AnimatedDocumentCard(
-                                  title: file.originalFileName ?? '',
-                                  subtitle: 'Tap to open document',
+                                  title:
+                                      file.originalFileName ?? 'Unnamed File',
+                                  subtitle: 'Tap to preview',
                                   type:
-                                      file.displayUrl?.fileContentType
-                                          .split('/')
-                                          .last ??
-                                      '',
-                                  icon: Icons.picture_as_pdf,
-                                  color: Colors.red,
+                                      file.originalFileName
+                                          ?.split('.')
+                                          .last
+                                          .toUpperCase() ??
+                                      'FILE',
+                                  icon: fileIcon,
+                                  color: fileColor,
                                   onTap: () {
                                     AssignmentDetailsHandler.openMaterialItem(
                                       context,
@@ -123,8 +132,8 @@ class AssignmentSubmissionDetailsMobileLayout extends StatelessWidget {
                                     );
                                   },
                                 ),
-                              ),
-                            ),
+                              );
+                            }),
                             AnimatedDocumentCard(
                               title: 'Similarity Report',
                               subtitle: 'Preview plagiarism check',
