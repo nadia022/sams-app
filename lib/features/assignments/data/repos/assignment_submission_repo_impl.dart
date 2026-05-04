@@ -10,6 +10,7 @@ import 'package:sams_app/core/utils/services/s3_upload_service.dart';
 import 'package:sams_app/features/assignments/data/model/base_response.dart';
 import 'package:sams_app/features/assignments/data/model/file_upload_reference.dart';
 import 'package:sams_app/features/assignments/data/model/get_all_submissions/all_submissions_model.dart';
+import 'package:sams_app/features/assignments/data/model/get_plagiarism_report/plagiarism_report_model.dart';
 import 'package:sams_app/features/assignments/data/model/get_submission_details/submission_details_model.dart';
 import 'package:sams_app/features/assignments/data/model/grade_submission/grade_submission_request.dart';
 import 'package:sams_app/features/assignments/data/model/submit_items_request.dart';
@@ -199,4 +200,25 @@ class AssignmentSubmissionRepoImpl implements AssignmentSubmissionRepo {
       return left(e.toString());
     }
   }
+
+  ///  Get similarity report
+@override
+Future<Either<String, PlagiarismReportModel>> getSimilarityReport({
+  required String submissionId,
+}) async {
+  try {
+    final response = await api.get(
+      EndPoints.getSimilarityReport(submissionId), 
+    );
+
+    final result = PlagiarismReportModel.fromJson(response[ApiKeys.data]);
+
+    return right(result);
+  } on ApiException catch (e) {
+    return left(e.errorModel.errorMessage);
+  } catch (e) {
+    return left('Failed to fetch plagiarism report: ${e.toString()}');
+  }
 }
+}
+

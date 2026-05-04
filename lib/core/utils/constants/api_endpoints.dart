@@ -157,10 +157,13 @@ static String gradeSubmission(String submissionId) =>
 /// 4. Approves all submissions for a given assignment in a single action.
 static String approveSubmissions(String assignmentId) => 
     'instructor/assignments/$assignmentId/submissions/approve-all';
-
+/// 5. Allows students to submit their assignment work for a specific assignment.
   static String submitAssignment(String assignmentId) =>
       'assignments/$assignmentId/submissions';
-      
+/// 6. Enables students to unsubmit their previously submitted assignment work.
   static String unsubmitAssignment(String submissionId) =>
       'assignment-submissions/$submissionId';
+/// 7. Retrieves the similarity report for a specific assignment submission.
+static String getSimilarityReport(String submissionId) => 
+    'instructor/assignment-submissions/$submissionId/similarity-report';
 }

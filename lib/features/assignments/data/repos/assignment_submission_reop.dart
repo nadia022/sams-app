@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sams_app/features/assignments/data/model/base_response.dart';
 import 'package:sams_app/features/assignments/data/model/get_all_submissions/all_submissions_model.dart';
+import 'package:sams_app/features/assignments/data/model/get_plagiarism_report/plagiarism_report_model.dart';
 import 'package:sams_app/features/assignments/data/model/get_submission_details/submission_details_model.dart';
 import 'package:sams_app/features/assignments/data/model/grade_submission/grade_submission_request.dart';
 
@@ -35,4 +36,8 @@ abstract class AssignmentSubmissionRepo {
   Future<Either<String, String>> unsubmitAssignment({
     required String submissionId,
   });
+
+  Future<Either<String, PlagiarismReportModel>> getSimilarityReport({
+  required String submissionId,
+});
 }

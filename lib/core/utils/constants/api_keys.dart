@@ -148,6 +148,12 @@ abstract class ApiKeys {
   static const String submittedItems = 'submittedItems';
   static const String neededReview = 'neededReview';
   static const String submissionId = 'submissionId';
+
+  //? Assignment Submission Details Keys
+  static const String assignmentPlagiarismThreshold = 'assignmentPlagiarismThreshold';
+  static const String similarities = 'similarities';
+  static const String similarityPercentage = 'similarityPercentage';
+  static const String submissionUrl = 'submissionUrl';
 }
 
 //! --- API VALUES (Fixed values that the server expects inside the fields) ---
