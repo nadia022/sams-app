@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
-import 'package:sams_app/core/utils/colors/app_colors.dart' show StatusColors;
 import 'package:sams_app/core/utils/styles/app_styles.dart';
+import 'package:sams_app/features/Grades/data/model/student_grades/student_grade_model.dart';
+import 'package:sams_app/features/Grades/presentation/view/widget/utils/grade_score_ui_extension.dart';
 
 /// Compact grade badge used in mobile cards.
 /// Shows score with colored background based on performance.
@@ -21,38 +22,17 @@ class GradeBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isGraded ? _getBackgroundColor() : StatusColors.greyTransparent,
+        color: score.getBadgeBackgroundColor(maxScore),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         isGraded
-            ? '${_formatScore(score!)}/${_formatScore(maxScore)}'
+            ? '${StudentGradeModel.formatScoreValue(score)}/${StudentGradeModel.formatScoreValue(maxScore)}'
             : 'Not graded',
         style: AppStyles.mobileBodyXsmallMd.copyWith(
-          color: isGraded ? _getTextColor() : StatusColors.grey,
+          color: score.getBadgeTextColor(maxScore),
         ),
       ),
     );
-  }
-
-  String _formatScore(num value) {
-    if (value == value.toInt()) return value.toInt().toString();
-    return value.toStringAsFixed(1);
-  }
-
-  Color _getBackgroundColor() {
-    if (score == null || maxScore == 0) return StatusColors.greyTransparent;
-    final pct = (score! / maxScore) * 100;
-    if (pct >= 80) return StatusColors.greenTransparent;
-    if (pct >= 50) return StatusColors.blueTransparent;
-    return StatusColors.redTransparent;
-  }
-
-  Color _getTextColor() {
-    if (score == null || maxScore == 0) return StatusColors.grey;
-    final pct = (score! / maxScore) * 100;
-    if (pct >= 80) return StatusColors.greenDark;
-    if (pct >= 50) return StatusColors.blueDark;
-    return StatusColors.redDark;
   }
 }

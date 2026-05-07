@@ -22,12 +22,29 @@ class StudentGradeModel {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      ApiKeys.classwork: classwork,
-      ApiKeys.score: score,
-      ApiKeys.maxScore: maxScore,
-      ApiKeys.isVisible: isVisible,
-    };
+  static String formatScoreValue(num? value) {
+    if (value == null) return '-';
+    if (value == value.toInt()) return value.toInt().toString();
+    return value.toStringAsFixed(1);
   }
+
+  String get formattedScore => formatScoreValue(score);
+  String get formattedMaxScore => formatScoreValue(maxScore);
+}
+
+extension StudentGradesListX on Iterable<StudentGradeModel> {
+  int get gradedCount => where((g) => g.score != null).length;
+
+  num get totalMaxScore => fold<num>(0, (sum, g) => sum + g.maxScore);
+
+  num get totalScore => fold<num>(0, (sum, g) => sum + (g.score ?? 0));
+
+  num get percentage =>
+      totalMaxScore > 0 ? (totalScore / totalMaxScore * 100) : 0;
+
+  String get formattedTotalScore =>
+      StudentGradeModel.formatScoreValue(totalScore);
+
+  String get formattedTotalMaxScore =>
+      StudentGradeModel.formatScoreValue(totalMaxScore);
 }

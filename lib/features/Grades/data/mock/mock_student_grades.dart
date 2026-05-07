@@ -8,7 +8,7 @@ class MockStudentGrades {
   static final List<StudentGradeModel> grades = [
     StudentGradeModel(
       classwork: 'Midterm',
-      score: null,
+      score: 0,
       maxScore: 15,
       isVisible: true,
     ),

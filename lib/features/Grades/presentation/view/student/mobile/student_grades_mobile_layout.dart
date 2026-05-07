@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/Grades/data/mock/mock_student_grades.dart';
 import 'package:sams_app/features/Grades/data/model/student_grades/student_grade_model.dart';
-import 'package:sams_app/features/Grades/presentation/view/widget/grade_cell.dart';
-import 'package:sams_app/features/Grades/presentation/view/widget/grades_empty_state.dart';
+import 'package:sams_app/features/Grades/presentation/view/widget/shared/grades_empty_state.dart';
+import 'package:sams_app/features/Grades/presentation/view/student/utils/student_grade_ui_extensions.dart';
+import 'package:sams_app/features/Grades/presentation/view/widget/mobile/grade_badge.dart';
 
 /// ═══════════════════════════════════════════════════════════════
 /// STUDENT — MOBILE LAYOUT
@@ -30,38 +30,40 @@ class StudentGradesMobileLayout extends StatelessWidget {
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // ─── Header ───
-        Padding(
-          padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 4.h),
-          child: Text(
-            'My Grades',
-            style: AppStyles.mobileTitleSmallSb.copyWith(
-              color: AppColors.primaryDark,
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ─── Header ───
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
+            child: Text(
+              'My Grades',
+              style: AppStyles.mobileTitleSmallSb.copyWith(
+                color: AppColors.primaryDark,
+              ),
             ),
           ),
-        ),
 
-        // ─── Summary Card ───
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-          child: _GradesSummaryCard(grades: visibleGrades),
-        ),
+          // ─── Summary Card ───
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: _GradesSummaryCard(grades: visibleGrades),
+          ),
 
-        // ─── Grades List ───
-        Expanded(
-          child: ListView.separated(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          // ─── Grades List ───
+          ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: visibleGrades.length,
-            separatorBuilder: (_, _) => SizedBox(height: 8.h),
+            separatorBuilder: (_, _) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
               return _StudentGradeItem(grade: visibleGrades[index]);
             },
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -74,15 +76,9 @@ class _GradesSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final graded = grades.where((g) => g.score != null).length;
-    final totalMax = grades.fold<num>(0, (sum, g) => sum + g.maxScore);
-    final totalScore = grades.fold<num>(
-      0,
-      (sum, g) => sum + (g.score ?? 0),
-    );
-
     return Container(
-      padding: EdgeInsets.all(16.w),
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
@@ -92,7 +88,7 @@ class _GradesSummaryCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.3),
@@ -114,9 +110,9 @@ class _GradesSummaryCard extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
-                SizedBox(height: 4.h),
+                const SizedBox(height: 4),
                 Text(
-                  '$graded / ${grades.length}',
+                  '${grades.gradedCount} / ${grades.length}',
                   style: AppStyles.mobileTitleSmallSb.copyWith(
                     color: Colors.white,
                   ),
@@ -128,10 +124,10 @@ class _GradesSummaryCard extends StatelessWidget {
           // Divider
           Container(
             width: 1,
-            height: 40.h,
+            height: 40,
             color: Colors.white.withValues(alpha: 0.3),
           ),
-          SizedBox(width: 16.w),
+          const SizedBox(width: 16),
 
           // Right: Total score
           Expanded(
@@ -144,9 +140,9 @@ class _GradesSummaryCard extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
-                SizedBox(height: 4.h),
+                const SizedBox(height: 4),
                 Text(
-                  '${_formatScore(totalScore)} / ${_formatScore(totalMax)}',
+                  '${grades.formattedTotalScore} / ${grades.formattedTotalMaxScore}',
                   style: AppStyles.mobileTitleSmallSb.copyWith(
                     color: Colors.white,
                   ),
@@ -158,11 +154,6 @@ class _GradesSummaryCard extends StatelessWidget {
       ),
     );
   }
-
-  String _formatScore(num value) {
-    if (value == value.toInt()) return value.toInt().toString();
-    return value.toStringAsFixed(1);
-  }
 }
 
 /// ─── Single Grade Item Card ───
@@ -173,29 +164,29 @@ class _StudentGradeItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: AppColors.whiteLight,
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: AppColors.whiteHover),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.primaryLightActive),
       ),
       child: Row(
         children: [
           // Category icon
           Container(
-            width: 36.w,
-            height: 36.w,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              color: _getCategoryColor().withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8.r),
+              color: grade.categoryColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
-              _getCategoryIcon(),
-              size: 18.sp.clamp(16, 20),
-              color: _getCategoryColor(),
+              grade.categoryIcon,
+              size: 18,
+              color: grade.categoryColor,
             ),
           ),
-          SizedBox(width: 12.w),
+          const SizedBox(width: 12),
 
           // Classwork name
           Expanded(
@@ -208,9 +199,9 @@ class _StudentGradeItem extends StatelessWidget {
                     color: AppColors.primaryDark,
                   ),
                 ),
-                SizedBox(height: 2.h),
+                const SizedBox(height: 2),
                 Text(
-                  'Max: ${_formatScore(grade.maxScore)}',
+                  'Max: ${grade.formattedMaxScore}',
                   style: AppStyles.mobileBodyXsmallRg.copyWith(
                     color: AppColors.whiteDarkHover,
                   ),
@@ -227,32 +218,5 @@ class _StudentGradeItem extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Color _getCategoryColor() {
-    final name = grade.classwork.toLowerCase();
-    if (name.contains('midterm') || name.contains('final')) {
-      return AppColors.red;
-    }
-    if (name.contains('quiz')) return AppColors.primary;
-    if (name.contains('assignment')) return AppColors.secondary;
-    if (name.contains('bonus')) return StatusColors.orange;
-    return AppColors.primaryDark;
-  }
-
-  IconData _getCategoryIcon() {
-    final name = grade.classwork.toLowerCase();
-    if (name.contains('midterm') || name.contains('final')) {
-      return Icons.description_outlined;
-    }
-    if (name.contains('quiz')) return Icons.quiz_outlined;
-    if (name.contains('assignment')) return Icons.assignment_outlined;
-    if (name.contains('bonus')) return Icons.star_outline_rounded;
-    return Icons.grading_rounded;
-  }
-
-  String _formatScore(num value) {
-    if (value == value.toInt()) return value.toInt().toString();
-    return value.toStringAsFixed(1);
   }
 }

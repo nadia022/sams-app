@@ -4,8 +4,9 @@ import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/Grades/data/mock/mock_student_grades.dart';
 import 'package:sams_app/features/Grades/data/model/student_grades/student_grade_model.dart';
-import 'package:sams_app/features/Grades/presentation/view/widget/grade_cell.dart';
-import 'package:sams_app/features/Grades/presentation/view/widget/grades_empty_state.dart';
+import 'package:sams_app/features/Grades/presentation/view/widget/web/grade_cell.dart';
+import 'package:sams_app/features/Grades/presentation/view/widget/shared/grades_empty_state.dart';
+import 'package:sams_app/features/Grades/presentation/view/student/utils/student_grade_ui_extensions.dart';
 
 /// ═══════════════════════════════════════════════════════════════
 /// STUDENT — WEB LAYOUT
@@ -20,6 +21,19 @@ class StudentGradesWebLayout extends StatelessWidget {
     final visibleGrades = MockStudentGrades.grades
         .where((g) => g.isVisible)
         .toList();
+
+    if (visibleGrades.isEmpty) {
+      return const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          GradesEmptyState(
+            title: 'No grades available',
+            subtitle: 'Your grades will appear here once published',
+            icon: Icons.assignment_outlined,
+          ),
+        ],
+      );
+    }
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 24.h),
@@ -45,13 +59,7 @@ class StudentGradesWebLayout extends StatelessWidget {
 
           // ─── Grades Table ───
           Expanded(
-            child: visibleGrades.isEmpty
-                ? const GradesEmptyState(
-                    title: 'No grades available',
-                    subtitle: 'Your grades will appear here once published',
-                    icon: Icons.assignment_outlined,
-                  )
-                : _buildGradesTable(visibleGrades),
+            child: _buildGradesTable(visibleGrades),
           ),
         ],
       ),
@@ -160,15 +168,13 @@ class StudentGradesWebLayout extends StatelessWidget {
                   width: 32.w,
                   height: 32.w,
                   decoration: BoxDecoration(
-                    color: _getCategoryColor(
-                      grade.classwork,
-                    ).withValues(alpha: 0.1),
+                    color: grade.categoryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Icon(
-                    _getCategoryIcon(grade.classwork),
+                    grade.categoryIcon,
                     size: 16.sp.clamp(14, 18),
-                    color: _getCategoryColor(grade.classwork),
+                    color: grade.categoryColor,
                   ),
                 ),
                 SizedBox(width: 12.w),
@@ -201,7 +207,7 @@ class StudentGradesWebLayout extends StatelessWidget {
             flex: 2,
             child: Center(
               child: Text(
-                _formatScore(grade.maxScore),
+                grade.formattedMaxScore,
                 style: AppStyles.mobileBodySmallRg.copyWith(
                   color: AppColors.whiteDarkHover,
                 ),
@@ -239,33 +245,6 @@ class StudentGradesWebLayout extends StatelessWidget {
       ),
     );
   }
-
-  String _formatScore(num value) {
-    if (value == value.toInt()) return value.toInt().toString();
-    return value.toStringAsFixed(1);
-  }
-
-  Color _getCategoryColor(String name) {
-    final lower = name.toLowerCase();
-    if (lower.contains('midterm') || lower.contains('final')) {
-      return AppColors.red;
-    }
-    if (lower.contains('quiz')) return AppColors.primary;
-    if (lower.contains('assignment')) return AppColors.secondary;
-    if (lower.contains('bonus')) return StatusColors.orange;
-    return AppColors.primaryDark;
-  }
-
-  IconData _getCategoryIcon(String name) {
-    final lower = name.toLowerCase();
-    if (lower.contains('midterm') || lower.contains('final')) {
-      return Icons.description_outlined;
-    }
-    if (lower.contains('quiz')) return Icons.quiz_outlined;
-    if (lower.contains('assignment')) return Icons.assignment_outlined;
-    if (lower.contains('bonus')) return Icons.star_outline_rounded;
-    return Icons.grading_rounded;
-  }
 }
 
 /// ─── Summary Row (Web) ───
@@ -275,44 +254,35 @@ class _GradesSummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final graded = grades.where((g) => g.score != null).length;
-    final totalMax = grades.fold<num>(0, (sum, g) => sum + g.maxScore);
-    final totalScore = grades.fold<num>(0, (sum, g) => sum + (g.score ?? 0));
-    final percentage = totalMax > 0 ? (totalScore / totalMax * 100) : 0;
-
     return Row(
       children: [
         _SummaryCard(
           icon: Icons.grading_rounded,
           label: 'Graded',
-          value: '$graded / ${grades.length}',
+          value: '${grades.gradedCount} / ${grades.length}',
           color: AppColors.primary,
         ),
         SizedBox(width: 16.w),
         _SummaryCard(
           icon: Icons.score_rounded,
           label: 'Total Score',
-          value: '${_formatScore(totalScore)} / ${_formatScore(totalMax)}',
+          value:
+              '${grades.formattedTotalScore} / ${grades.formattedTotalMaxScore}',
           color: AppColors.secondary,
         ),
         SizedBox(width: 16.w),
         _SummaryCard(
           icon: Icons.percent_rounded,
           label: 'Average',
-          value: '${percentage.toStringAsFixed(1)}%',
-          color: percentage >= 80
+          value: '${grades.percentage.toStringAsFixed(1)}%',
+          color: grades.percentage >= 80
               ? StatusColors.green
-              : percentage >= 50
+              : grades.percentage >= 50
               ? StatusColors.blue
               : StatusColors.red,
         ),
       ],
     );
-  }
-
-  String _formatScore(num value) {
-    if (value == value.toInt()) return value.toInt().toString();
-    return value.toStringAsFixed(1);
   }
 }
 

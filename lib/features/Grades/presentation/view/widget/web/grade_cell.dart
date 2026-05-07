@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
+import 'package:sams_app/features/Grades/data/model/student_grades/student_grade_model.dart';
+import 'package:sams_app/features/Grades/presentation/view/widget/utils/grade_score_ui_extension.dart';
 
 /// Reusable grade cell widget used in both table and card views.
 /// Handles null scores gracefully with "—" placeholder.
@@ -34,34 +36,15 @@ class GradeCell extends StatelessWidget {
     }
 
     final scoreText = showMax && maxScore != null
-        ? '${_formatScore(score!)}/${_formatScore(maxScore!)}'
-        : _formatScore(score!);
+        ? '${StudentGradeModel.formatScoreValue(score)}/${StudentGradeModel.formatScoreValue(maxScore)}'
+        : StudentGradeModel.formatScoreValue(score);
 
     return Text(
       scoreText,
       style: AppStyles.mobileBodySmallMd.copyWith(
-        color: _getScoreColor(),
+        color: score.getWebScoreTextColor(maxScore),
       ),
       textAlign: TextAlign.center,
     );
-  }
-
-  /// Format score: show integer if whole number, otherwise 1 decimal.
-  String _formatScore(num value) {
-    if (value == value.toInt()) {
-      return value.toInt().toString();
-    }
-    return value.toStringAsFixed(1);
-  }
-
-  /// Color-code scores based on percentage of max.
-  Color _getScoreColor() {
-    if (score == null || maxScore == null || maxScore == 0) {
-      return AppColors.primaryDark;
-    }
-    final percentage = (score! / maxScore!) * 100;
-    if (percentage >= 80) return AppColors.secondary;
-    if (percentage >= 50) return AppColors.primaryDark;
-    return AppColors.red;
   }
 }
