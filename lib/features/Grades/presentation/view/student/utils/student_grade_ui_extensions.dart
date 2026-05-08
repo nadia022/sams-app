@@ -26,3 +26,17 @@ extension StudentGradeUIExtension on StudentGradeModel {
   }
 }
 
+extension StudentGradesListUIExtension on Iterable<StudentGradeModel> {
+  Color get averageScoreColor {
+    if (percentage >= 80) return StatusColors.green;
+    if (percentage >= 50) return StatusColors.blue;
+    return StatusColors.red;
+  }
+
+  String get formattedPercentageText => '${percentage.toStringAsFixed(1)}%';
+
+  String get formattedGradedCountText => '$gradedCount / $length';
+
+  String get formattedTotalScoreFractionText =>
+      '$formattedTotalScore / $formattedTotalMaxScore';
+}

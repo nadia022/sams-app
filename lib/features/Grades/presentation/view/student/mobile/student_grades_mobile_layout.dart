@@ -112,7 +112,7 @@ class _GradesSummaryCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${grades.gradedCount} / ${grades.length}',
+                  grades.formattedGradedCountText,
                   style: AppStyles.mobileTitleSmallSb.copyWith(
                     color: Colors.white,
                   ),
@@ -142,7 +142,7 @@ class _GradesSummaryCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${grades.formattedTotalScore} / ${grades.formattedTotalMaxScore}',
+                  grades.formattedTotalScoreFractionText,
                   style: AppStyles.mobileTitleSmallSb.copyWith(
                     color: Colors.white,
                   ),
