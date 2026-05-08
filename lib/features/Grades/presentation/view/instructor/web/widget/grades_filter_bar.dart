@@ -9,8 +9,6 @@ class GradesFilterBar extends StatelessWidget {
   const GradesFilterBar({
     super.key,
     required this.searchController,
-    required this.isEditMode,
-    required this.onEditModeToggle,
     required this.onSearch,
     required this.visibilityFilter,
     required this.onVisibilityFilterChanged,
@@ -19,8 +17,6 @@ class GradesFilterBar extends StatelessWidget {
   });
 
   final TextEditingController searchController;
-  final bool isEditMode;
-  final VoidCallback onEditModeToggle;
   final ValueChanged<String> onSearch;
   final String visibilityFilter; // 'all', 'visible', 'hidden'
   final ValueChanged<String> onVisibilityFilterChanged;
@@ -37,16 +33,9 @@ class GradesFilterBar extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Row 1: Edit button + Search
+          // Row 1: Search + Visibility filter
           Row(
             children: [
-              // Edit toggle button
-              _EditModeButton(
-                isEditMode: isEditMode,
-                onToggle: onEditModeToggle,
-              ),
-              SizedBox(width: 12.w),
-
               // Visibility filter
               _VisibilityFilterChip(
                 currentFilter: visibilityFilter,
@@ -84,55 +73,6 @@ class GradesFilterBar extends StatelessWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Edit mode toggle button
-class _EditModeButton extends StatelessWidget {
-  const _EditModeButton({
-    required this.isEditMode,
-    required this.onToggle,
-  });
-  final bool isEditMode;
-  final VoidCallback onToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onToggle,
-        borderRadius: BorderRadius.circular(8.r),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-          decoration: BoxDecoration(
-            color: isEditMode ? AppColors.primary : AppColors.whiteLight,
-            border: Border.all(
-              color: isEditMode ? AppColors.primary : AppColors.whiteHover,
-            ),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isEditMode ? Icons.check_rounded : Icons.edit_outlined,
-                size: 16.sp.clamp(14, 18),
-                color: isEditMode ? Colors.white : AppColors.primaryDark,
-              ),
-              SizedBox(width: 6.w),
-              Text(
-                isEditMode ? 'Done' : 'Edit',
-                style: AppStyles.mobileBodyXsmallMd.copyWith(
-                  color: isEditMode ? Colors.white : AppColors.primaryDark,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -177,8 +117,8 @@ class _VisibilityFilterChip extends StatelessWidget {
               currentFilter == 'visible'
                   ? Icons.visibility_rounded
                   : currentFilter == 'hidden'
-                      ? Icons.visibility_off_rounded
-                      : Icons.filter_list_rounded,
+                  ? Icons.visibility_off_rounded
+                  : Icons.filter_list_rounded,
               size: 16.sp.clamp(14, 18),
               color: AppColors.primaryDark,
             ),
@@ -213,7 +153,10 @@ class _VisibilityFilterChip extends StatelessWidget {
   }
 
   PopupMenuItem<String> _buildMenuItem(
-      String value, String label, IconData icon) {
+    String value,
+    String label,
+    IconData icon,
+  ) {
     return PopupMenuItem<String>(
       value: value,
       child: Row(
