@@ -1,18 +1,70 @@
+import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
+import 'package:sams_app/core/errors/exceptions/api_exception.dart';
+import 'package:sams_app/core/network/api_consumer.dart';
+import 'package:sams_app/core/utils/constants/api_endpoints.dart';
+import 'package:sams_app/core/utils/constants/api_keys.dart';
+import 'package:sams_app/core/services/file_saver_service/file_saver.dart';
 import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_response_model.dart';
 import 'package:sams_app/features/Grades/data/model/student_grades/student_grade_model.dart';
 import 'package:sams_app/features/Grades/data/repos/grade_repo.dart';
 
 class GradeRepoImpl implements GradeRepo {
+  final ApiConsumer api;
+  GradeRepoImpl({required this.api});
+
   @override
   Future<Either<String, StudentGradeModel>> getStudentGrades() {
     // TODO: implement getStudentGrades
     throw UnimplementedError();
   }
 
+  /// get all grades for a specific course. required [courseId] & optional [search], [page], [perPage]
   @override
-  Future<Either<String, GradeResponseModel>> getInstructorGrades() {
-    // TODO: implement getInstructorGrades
-    throw UnimplementedError();
+  Future<Either<String, GradeResponseModel>> getAllGrades({
+    required String courseId,
+    int page = 1,
+    int perPage = 10,
+    String search = '',
+  }) async {
+    try {
+      // hit get all grades endpoint
+      var response = await api.get(
+        EndPoints.getInstructorGrades(courseId: courseId),
+        queryParameters: {
+          ApiKeys.search: search,
+          ApiKeys.page: page,
+          ApiKeys.size: perPage,
+        },
+      );
+
+      return Right(GradeResponseModel.fromJson(response)); // success case
+    } on ApiException catch (e) {
+      return Left(e.errorModel.errorMessage); // failure case
+    } catch (e) {
+      return Left(e.toString()); // failure case
+    }
+  }
+
+  /// Exports grades for [courseId] as a CSV file.
+  /// Downloads raw bytes from the API, then saves them to disk via [saveFile].
+  ///   - Web   → triggers the browser’s native Save dialog
+  ///   - Mobile → writes to the device’s Downloads folder
+  @override
+  Future<Either<String, void>> exportGrades({required String courseId}) async {
+    try {
+      final Uint8List bytes = await api.download(
+        EndPoints.exportGrades(courseId: courseId),
+      );
+
+      final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      await saveFile(bytes, 'grades_$timestamp.csv');
+
+      return const Right(null); // success — file saved
+    } on ApiException catch (e) {
+      return Left(e.errorModel.errorMessage); // failure case
+    } catch (e) {
+      return Left(e.toString()); // failure case
+    }
   }
 }
