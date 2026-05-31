@@ -11,10 +11,10 @@ class GradesTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     return AdaptiveLayout(
       mobileLayout: (BuildContext context) {
-        return const GradesMobileLayout();
+        return GradesMobileLayout(courseId: courseId);
       },
       webLayout: (BuildContext context) {
-        return const GradesWebLayout();
+        return GradesWebLayout(courseId: courseId);
       },
     );
   }

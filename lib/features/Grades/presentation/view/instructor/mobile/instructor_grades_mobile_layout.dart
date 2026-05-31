@@ -15,7 +15,9 @@ import 'package:sams_app/features/Grades/presentation/view/instructor/mobile/wid
 /// No table — uses expandable cards per student.
 /// ═══════════════════════════════════════════════════════════════
 class InstructorGradesMobileLayout extends StatefulWidget {
-  const InstructorGradesMobileLayout({super.key});
+  const InstructorGradesMobileLayout({super.key, required this.courseId});
+
+  final String courseId;
 
   @override
   State<InstructorGradesMobileLayout> createState() =>
@@ -95,7 +97,7 @@ class _InstructorGradesMobileLayoutState
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: GradesImportExportBar(
-              onExport: () {},
+              courseId: widget.courseId,
               onImport: () {},
             ),
           ),

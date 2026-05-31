@@ -16,7 +16,12 @@ import 'package:sams_app/features/Grades/presentation/view/instructor/web/widget
 /// Features: sorting, visibility toggles, pagination.
 /// ═══════════════════════════════════════════════════════════════
 class InstructorGradesWebLayout extends StatefulWidget {
-  const InstructorGradesWebLayout({super.key});
+  const InstructorGradesWebLayout({
+    super.key,
+    required this.courseId,
+  });
+
+  final String courseId;
 
   @override
   State<InstructorGradesWebLayout> createState() =>
@@ -141,9 +146,7 @@ class _InstructorGradesWebLayoutState extends State<InstructorGradesWebLayout> {
               visibilityFilter: _visibilityFilter,
               onVisibilityFilterChanged: (filter) =>
                   setState(() => _visibilityFilter = filter),
-              onExport: () {
-                // TODO: implement export logic
-              },
+              courseId: widget.courseId,
               onImport: () {},
             ),
             SizedBox(height: 16.h),
