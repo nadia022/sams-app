@@ -14,9 +14,25 @@ class GradeRepoImpl implements GradeRepo {
   GradeRepoImpl({required this.api});
 
   @override
-  Future<Either<String, StudentGradeModel>> getStudentGrades() {
-    // TODO: implement getStudentGrades
-    throw UnimplementedError();
+  Future<Either<String, List<StudentGradeModel>>> getStudentGrades({
+    required String courseId,
+  }) async {
+    try {
+      final response = await api.get(
+        EndPoints.getMyGrades(courseId: courseId),
+      );
+
+      final List<StudentGradeModel> grades =
+          (response[ApiKeys.data] as List)
+              .map((item) => StudentGradeModel.fromJson(item as Map<String, dynamic>))
+              .toList();
+
+      return Right(grades);
+    } on ApiException catch (e) {
+      return Left(e.errorModel.errorMessage);
+    } catch (e) {
+      return Left(e.toString());
+    }
   }
 
   /// get all grades for a specific course. required [courseId] & optional [search], [page], [perPage]
