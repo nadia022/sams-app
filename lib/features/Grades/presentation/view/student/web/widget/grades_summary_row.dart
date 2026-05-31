@@ -29,7 +29,7 @@ class GradesSummaryRow extends StatelessWidget {
         const SizedBox(width: 16),
         _SummaryCard(
           icon: Icons.percent_rounded,
-          label: 'Average',
+          label: 'Percentage',
           value: grades.formattedPercentageText,
           color: grades.averageScoreColor,
         ),

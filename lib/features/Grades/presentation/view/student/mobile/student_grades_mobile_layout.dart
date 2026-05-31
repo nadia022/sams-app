@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
-import 'package:sams_app/features/Grades/data/mock/mock_student_grades.dart';
+import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
 import 'package:sams_app/features/Grades/data/model/student_grades/student_grade_model.dart';
 import 'package:sams_app/features/Grades/presentation/view/widget/shared/grades_empty_state.dart';
 import 'package:sams_app/features/Grades/presentation/view/student/utils/student_grade_ui_extensions.dart';
 import 'package:sams_app/features/Grades/presentation/view/widget/mobile/grade_badge.dart';
+import 'package:sams_app/features/Grades/presentation/view_model/grade_cubit/grade_cubit.dart';
 
 /// ═══════════════════════════════════════════════════════════════
 /// STUDENT — MOBILE LAYOUT
@@ -17,53 +19,79 @@ class StudentGradesMobileLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Filter only visible grades
-    final visibleGrades = MockStudentGrades.grades
-        .where((g) => g.isVisible)
-        .toList();
+    return BlocBuilder<GradeCubit, GradeState>(
+      buildWhen: (previous, current) =>
+          current is GradeLoading ||
+          current is GradeLoadedSuccessfully ||
+          current is GradeLoadingFailed,
+      builder: (context, state) {
+        // ─── Loading State ───
+        if (state is GradeLoading) {
+          return const Center(child: AppAnimatedLoadingIndicator());
+        }
 
-    if (visibleGrades.isEmpty) {
-      return const GradesEmptyState(
-        title: 'No grades available',
-        subtitle: 'Your grades will appear here once published',
-        icon: Icons.assignment_outlined,
-      );
-    }
-
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ─── Header ───
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
-            child: Text(
-              'My Grades',
-              style: AppStyles.mobileTitleSmallSb.copyWith(
-                color: AppColors.primaryDark,
-              ),
+        // ─── Error State ───
+        if (state is GradeLoadingFailed) {
+          return Center(
+            child: GradesEmptyState(
+              title: 'Failed to load grades',
+              subtitle: state.errorMessage,
+              icon: Icons.error_outline_rounded,
             ),
-          ),
+          );
+        }
 
-          // ─── Summary Card ───
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: _GradesSummaryCard(grades: visibleGrades),
-          ),
+        // ─── Success State ───
+        final visibleGrades = context
+            .read<GradeCubit>()
+            .studentGrades
+            .where((g) => g.isVisible)
+            .toList();
 
-          // ─── Grades List ───
-          ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: visibleGrades.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              return _StudentGradeItem(grade: visibleGrades[index]);
-            },
+        if (visibleGrades.isEmpty) {
+          return const GradesEmptyState(
+            title: 'No grades available',
+            subtitle: 'Your grades will appear here once published',
+            icon: Icons.assignment_outlined,
+          );
+        }
+
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ─── Header ───
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
+                child: Text(
+                  'My Grades',
+                  style: AppStyles.mobileTitleSmallSb.copyWith(
+                    color: AppColors.primaryDark,
+                  ),
+                ),
+              ),
+
+              // ─── Summary Card ───
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: _GradesSummaryCard(grades: visibleGrades),
+              ),
+
+              // ─── Grades List ───
+              ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: visibleGrades.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  return _StudentGradeItem(grade: visibleGrades[index]);
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
