@@ -42,19 +42,17 @@ class StudentGradesMobileLayout extends StatelessWidget {
         }
 
         // ─── Success State ───
-        final visibleGrades = context
-            .read<GradeCubit>()
-            .studentGrades
-            .where((g) => g.isVisible)
-            .toList();
+        final allGrades = context.read<GradeCubit>().studentGrades;
 
-        if (visibleGrades.isEmpty) {
+        if (allGrades.isEmpty) {
           return const GradesEmptyState(
             title: 'No grades available',
             subtitle: 'Your grades will appear here once published',
             icon: Icons.assignment_outlined,
           );
         }
+
+        final visibleGrades = allGrades.where((g) => g.isVisible).toList();
 
         return SingleChildScrollView(
           child: Column(
@@ -82,10 +80,10 @@ class StudentGradesMobileLayout extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: visibleGrades.length,
+                itemCount: allGrades.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
-                  return _StudentGradeItem(grade: visibleGrades[index]);
+                  return _StudentGradeItem(grade: allGrades[index]);
                 },
               ),
             ],
@@ -191,58 +189,99 @@ class _StudentGradeItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isVisible = grade.isVisible;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.whiteLight,
+        color: isVisible
+            ? AppColors.whiteLight
+            : StatusColors.redLight.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.primaryLightActive),
+        border: Border.all(
+          color: isVisible
+              ? AppColors.primaryLightActive
+              : StatusColors.redDark.withValues(alpha: 0.2),
+        ),
       ),
       child: Row(
         children: [
-          // Category icon
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: grade.categoryColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              grade.categoryIcon,
-              size: 18,
-              color: grade.categoryColor,
-            ),
-          ),
-          const SizedBox(width: 12),
-
-          // Classwork name
+          // Content wrapper for fading invisible item contents
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  grade.classwork,
-                  style: AppStyles.mobileBodySmallMd.copyWith(
-                    color: AppColors.primaryDark,
+                // Category icon
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: grade.categoryColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    grade.categoryIcon,
+                    size: 18,
+                    color: grade.categoryColor,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  'Max: ${grade.formattedMaxScore}',
-                  style: AppStyles.mobileBodyXsmallRg.copyWith(
-                    color: AppColors.whiteDarkHover,
+                const SizedBox(width: 12),
+
+                // Classwork name & Max score
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        grade.classwork,
+                        style: AppStyles.mobileBodySmallMd.copyWith(
+                          color: AppColors.primaryDark,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Max: ${grade.formattedMaxScore}',
+                        style: AppStyles.mobileBodyXsmallRg.copyWith(
+                          color: AppColors.whiteDarkHover,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
 
-          // Score badge
-          GradeBadge(
-            score: grade.score,
-            maxScore: grade.maxScore,
-          ),
+          // Score badge or custom Premium Hidden Badge
+          if (isVisible)
+            GradeBadge(
+              score: grade.score,
+              maxScore: grade.maxScore,
+            )
+          else
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: StatusColors.redTransparent,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.visibility_off_rounded,
+                    size: 14,
+                    color: StatusColors.redDark,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Hidden',
+                    style: AppStyles.mobileBodyXsmallMd.copyWith(
+                      color: StatusColors.redDark,
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
