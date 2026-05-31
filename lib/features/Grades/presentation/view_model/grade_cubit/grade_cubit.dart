@@ -9,7 +9,6 @@ part 'grade_state.dart';
 
 class GradeCubit extends Cubit<GradeState> {
   GradeCubit(this._repo) : super(GradeInitial());
-  // ignore: unused_field
   final GradeRepo _repo;
 
   //* This variable will hold the course ID for which grades are being managed.
@@ -49,6 +48,16 @@ class GradeCubit extends Cubit<GradeState> {
 
   //* Fetches grades for students.
   Future<void> getGradesForStudent() async {
-    // Implement logic to load grades for the student
+    emit(GradeLoading());
+
+    final result = await _repo.getStudentGrades(courseId: storedCourseId);
+
+    result.fold(
+      (errorMessage) => emit(GradeLoadingFailed(errorMessage)),
+      (grades) {
+        studentGrades = grades;
+        emit(GradeLoadedSuccessfully());
+      },
+    );
   }
 }
