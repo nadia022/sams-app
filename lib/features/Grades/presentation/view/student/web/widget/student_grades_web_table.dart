@@ -84,12 +84,17 @@ class StudentGradesWebTable extends StatelessWidget {
   }
 
   Widget _buildTableRow(StudentGradeModel grade, int index) {
+    final isVisible = grade.isVisible;
     final isGraded = grade.score != null;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
-        color: index.isEven ? AppColors.whiteLight : AppColors.white,
+        color: !isVisible
+            ? StatusColors.redLight
+            : index.isEven
+            ? AppColors.whiteLight
+            : AppColors.white,
         border: const Border(
           bottom: BorderSide(
             color: AppColors.whiteHover,
@@ -135,10 +140,16 @@ class StudentGradesWebTable extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Center(
-              child: GradeCell(
-                score: grade.score,
-                maxScore: grade.maxScore,
-              ),
+              child: isVisible
+                  ? GradeCell(
+                      score: grade.score,
+                      maxScore: grade.maxScore,
+                    )
+                  : const Icon(
+                      Icons.visibility_off_rounded,
+                      size: 18,
+                      color: StatusColors.redDark,
+                    ),
             ),
           ),
 
@@ -165,15 +176,23 @@ class StudentGradesWebTable extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: isGraded
+                  color: !isVisible
+                      ? StatusColors.redTransparent
+                      : isGraded
                       ? StatusColors.greenTransparent
                       : StatusColors.orangeTransparent,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  isGraded ? 'Graded' : 'Pending',
+                  !isVisible
+                      ? 'Hidden'
+                      : isGraded
+                      ? 'Graded'
+                      : 'Pending',
                   style: AppStyles.mobileBodyXsmallMd.copyWith(
-                    color: isGraded
+                    color: !isVisible
+                        ? StatusColors.redDark
+                        : isGraded
                         ? StatusColors.greenDark
                         : StatusColors.orangeDark,
                   ),

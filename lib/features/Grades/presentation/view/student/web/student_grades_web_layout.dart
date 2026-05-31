@@ -41,13 +41,9 @@ class StudentGradesWebLayout extends StatelessWidget {
         }
 
         // ─── Success State ───
-        final visibleGrades = context
-            .read<GradeCubit>()
-            .studentGrades
-            .where((g) => g.isVisible)
-            .toList();
+        final allGrades = context.read<GradeCubit>().studentGrades;
 
-        if (visibleGrades.isEmpty) {
+        if (allGrades.isEmpty) {
           return const SingleChildScrollView(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -82,11 +78,11 @@ class StudentGradesWebLayout extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // ─── Summary Row ───
-                GradesSummaryRow(grades: visibleGrades),
+                GradesSummaryRow(allGrades: allGrades),
                 const SizedBox(height: 24),
 
                 // ─── Grades Table ───
-                StudentGradesWebTable(grades: visibleGrades),
+                StudentGradesWebTable(grades: allGrades),
               ],
             ),
           ),
