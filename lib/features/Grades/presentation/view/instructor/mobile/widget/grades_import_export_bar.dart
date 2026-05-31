@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
-import 'package:sams_app/core/utils/styles/app_styles.dart';
+import 'package:sams_app/features/Grades/presentation/view/instructor/shared/action_button.dart';
+import 'package:sams_app/features/Grades/presentation/view/instructor/shared/export_excel_button.dart';
 
 class GradesImportExportBar extends StatelessWidget {
   const GradesImportExportBar({
     super.key,
-    this.onExport,
+    required this.courseId,
     this.onImport,
   });
 
-  final VoidCallback? onExport;
+  final String courseId;
   final VoidCallback? onImport;
 
   @override
@@ -19,59 +19,18 @@ class GradesImportExportBar extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Expanded(
-          child: _ActionButton(
-            label: 'Export',
-            icon: Icons.file_download_outlined,
-            color: AppColors.primary,
-            onPressed: onExport,
-          ),
+          child: ExportExcelButton(courseId: courseId),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _ActionButton(
+          child: ActionButton(
             label: 'Import',
-            icon: Icons.file_upload_outlined,
+            icon: Icon(Icons.file_upload_outlined, size: 18..clamp(16, 20)),
             color: AppColors.secondary,
             onPressed: onImport,
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.label,
-    required this.icon,
-    required this.color,
-    this.onPressed,
-  });
-  final String label;
-  final IconData icon;
-  final Color color;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      onPressed: onPressed ?? () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.r),
-        ),
-        elevation: 0,
-      ),
-      icon: Icon(icon, size: 18..clamp(16, 20)),
-      label: Text(
-        label,
-        style: AppStyles.mobileBodyXsmallMd.copyWith(
-          color: Colors.white,
-        ),
-      ),
     );
   }
 }

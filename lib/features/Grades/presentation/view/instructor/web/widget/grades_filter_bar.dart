@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
+import 'package:sams_app/features/Grades/presentation/view/instructor/shared/action_button.dart';
+import 'package:sams_app/features/Grades/presentation/view/instructor/shared/export_excel_button.dart';
 
 /// Reusable filter bar for the instructor grades view.
 /// Contains search, edit mode toggle, visibility filter, and action buttons.
@@ -12,7 +14,7 @@ class GradesFilterBar extends StatelessWidget {
     required this.onSearch,
     required this.visibilityFilter,
     required this.onVisibilityFilterChanged,
-    this.onExport,
+    required this.courseId,
     this.onImport,
   });
 
@@ -20,7 +22,7 @@ class GradesFilterBar extends StatelessWidget {
   final ValueChanged<String> onSearch;
   final String visibilityFilter; // 'all', 'visible', 'hidden'
   final ValueChanged<String> onVisibilityFilterChanged;
-  final VoidCallback? onExport;
+  final String courseId;
   final VoidCallback? onImport;
 
   @override
@@ -33,7 +35,7 @@ class GradesFilterBar extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Row 1: Search + Visibility filter
+          //* Row 1: Search + Visibility filter
           Row(
             children: [
               // Visibility filter
@@ -54,19 +56,14 @@ class GradesFilterBar extends StatelessWidget {
           ),
           SizedBox(height: 12.h),
 
-          // Row 2: Import / Export buttons
+          //* Row 2: Import / Export buttons
           Row(
             children: [
-              _ActionButton(
-                label: 'Export Excel',
-                icon: Icons.file_download_outlined,
-                color: AppColors.primary,
-                onPressed: onExport,
-              ),
+              ExportExcelButton(courseId: courseId),
               SizedBox(width: 8.w),
-              _ActionButton(
+              ActionButton(
                 label: 'Import Excel',
-                icon: Icons.file_upload_outlined,
+                icon: Icon(Icons.file_upload_outlined, size: 18..clamp(16, 20)),
                 color: AppColors.secondary,
                 onPressed: onImport,
               ),
@@ -220,43 +217,6 @@ class _SearchField extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-        ),
-      ),
-    );
-  }
-}
-
-/// Action button (Import / Export)
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.label,
-    required this.icon,
-    required this.color,
-    this.onPressed,
-  });
-  final String label;
-  final IconData icon;
-  final Color color;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      onPressed: onPressed ?? () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        foregroundColor: Colors.white,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.r),
-        ),
-        elevation: 0,
-      ),
-      icon: Icon(icon, size: 18.sp.clamp(16, 20)),
-      label: Text(
-        label,
-        style: AppStyles.mobileBodyXsmallMd.copyWith(
-          color: Colors.white,
         ),
       ),
     );
