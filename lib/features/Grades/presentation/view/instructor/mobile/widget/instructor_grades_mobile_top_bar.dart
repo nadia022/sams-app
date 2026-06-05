@@ -107,6 +107,7 @@ class _InstructorGradesMobileTopBarState
               context: context,
               columnName: col.name,
               currentlyVisible: isVis,
+              classworkId: col.key,
             );
             if (confirmed && mounted) {
               widget.onColumnVisibilityToggled(col.key, !isVis);
