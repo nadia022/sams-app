@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:sams_app/core/helper/app_toast.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_column_model.dart';
@@ -36,6 +37,10 @@ class _InstructorGradesWebLayoutState extends State<InstructorGradesWebLayout> {
 
   // Column visibility map (key → isVisible)
   Map<String, bool> _columnVisibility = {};
+
+  // ─── Optimistic toggle tracking ───
+  String? _lastToggledKey;
+  bool? _lastToggledOldValue;
 
   // Sorting state
   int? _sortColumnIndex;
@@ -91,7 +96,24 @@ class _InstructorGradesWebLayoutState extends State<InstructorGradesWebLayout> {
   Widget build(BuildContext context) {
     final cubit = context.read<GradeCubit>();
 
-    return BlocBuilder<GradeCubit, GradeState>(
+    return BlocListener<GradeCubit, GradeState>(
+      listenWhen: (prev, curr) =>
+          curr is ToggleClassworkVisibilitySuccess ||
+          curr is ToggleClassworkVisibilityFailed,
+      listener: (context, state) {
+        if (state is ToggleClassworkVisibilitySuccess) {
+          AppToast.success(context, 'Visibility updated successfully');
+        } else if (state is ToggleClassworkVisibilityFailed) {
+          // Revert the optimistic UI change
+          if (_lastToggledKey != null && _lastToggledOldValue != null) {
+            setState(() {
+              _columnVisibility[_lastToggledKey!] = _lastToggledOldValue!;
+            });
+          }
+          AppToast.error(context, state.errorMessage);
+        }
+      },
+      child: BlocBuilder<GradeCubit, GradeState>(
       buildWhen: (prev, curr) =>
           curr is GradeLoading ||
           curr is GradeLoadedSuccessfully ||
@@ -193,9 +215,13 @@ class _InstructorGradesWebLayoutState extends State<InstructorGradesWebLayout> {
                               rows: displayRows,
                               columns: filteredCols,
                               columnVisibility: _columnVisibility,
-                              onVisibilityChanged: (key, isVis) => setState(() {
-                                _columnVisibility[key] = isVis;
-                              }),
+                              onVisibilityChanged: (key, isVis) {
+                                _lastToggledKey = key;
+                                _lastToggledOldValue = !isVis;
+                                setState(() {
+                                  _columnVisibility[key] = isVis;
+                                });
+                              },
                               sortColumnIndex: _sortColumnIndex,
                               sortAscending: _sortAscending,
                               onSort: (idx, _) => setState(() {
@@ -228,6 +254,7 @@ class _InstructorGradesWebLayoutState extends State<InstructorGradesWebLayout> {
           ),
         );
       },
+      ),
     );
   }
 }
