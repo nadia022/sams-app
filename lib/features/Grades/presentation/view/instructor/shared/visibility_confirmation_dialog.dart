@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
-import 'package:sams_app/features/Grades/presentation/view_model/grade_cubit/grade_cubit.dart';
+import 'package:sams_app/features/grades/presentation/view_model/grade_cubit/grade_cubit.dart';
 
 class VisibilityConfirmationDialog extends StatefulWidget {
   const VisibilityConfirmationDialog({

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_column_model.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_row_model.dart';
-import 'package:sams_app/features/Grades/presentation/view/widget/web/grade_cell.dart';
-import 'package:sams_app/features/Grades/presentation/view/instructor/shared/visibility_confirmation_dialog.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/grade_column_model.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/grade_row_model.dart';
+import 'package:sams_app/features/grades/presentation/view/widget/web/grade_cell.dart';
+import 'package:sams_app/features/grades/presentation/view/instructor/shared/visibility_confirmation_dialog.dart';
 
 class InstructorGradesWebTable extends StatelessWidget {
   const InstructorGradesWebTable({

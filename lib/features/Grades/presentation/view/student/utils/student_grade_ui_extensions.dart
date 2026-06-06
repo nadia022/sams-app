@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
-import 'package:sams_app/features/Grades/data/model/student_grades/student_grade_model.dart';
+import 'package:sams_app/features/grades/data/model/student_grades/student_grade_model.dart';
 
 extension StudentGradeUIExtension on StudentGradeModel {
   Color get categoryColor {

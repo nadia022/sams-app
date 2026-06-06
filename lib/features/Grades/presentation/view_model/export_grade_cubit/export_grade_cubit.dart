@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sams_app/features/Grades/data/repos/grade_repo.dart';
+import 'package:sams_app/features/grades/data/repos/grade_repo.dart';
 
 part 'export_grade_state.dart';
 

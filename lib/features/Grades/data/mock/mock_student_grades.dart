@@ -1,4 +1,4 @@
-import 'package:sams_app/features/Grades/data/model/student_grades/student_grade_model.dart';
+import 'package:sams_app/features/grades/data/model/student_grades/student_grade_model.dart';
 
 /// Mock data provider for student grades view.
 /// Simulates the student's own grades response.

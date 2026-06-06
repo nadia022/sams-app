@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
-import 'package:sams_app/features/Grades/presentation/view/instructor/shared/export_excel_button.dart';
+import 'package:sams_app/features/grades/presentation/view/instructor/shared/export_excel_button.dart';
 
 /// Reusable filter bar for the instructor grades view.
 /// Contains search, edit mode toggle, visibility filter, and action buttons.

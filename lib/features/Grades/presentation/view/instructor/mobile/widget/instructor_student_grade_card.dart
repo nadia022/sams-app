@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_column_model.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_row_model.dart';
-import 'package:sams_app/features/Grades/presentation/view/widget/mobile/grade_badge.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/grade_column_model.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/grade_row_model.dart';
+import 'package:sams_app/features/grades/presentation/view/widget/mobile/grade_badge.dart';
 
 /// ─── Student Grade Card ───
 /// Expandable card showing student info and grade details.

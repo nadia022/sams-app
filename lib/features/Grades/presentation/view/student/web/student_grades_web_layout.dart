@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
-import 'package:sams_app/features/Grades/presentation/view/widget/shared/grades_empty_state.dart';
-import 'package:sams_app/features/Grades/presentation/view/student/web/widget/grades_summary_row.dart';
-import 'package:sams_app/features/Grades/presentation/view/student/web/widget/student_grades_web_table.dart';
-import 'package:sams_app/features/Grades/presentation/view_model/grade_cubit/grade_cubit.dart';
+import 'package:sams_app/features/grades/presentation/view/widget/shared/grades_empty_state.dart';
+import 'package:sams_app/features/grades/presentation/view/student/web/widget/grades_summary_row.dart';
+import 'package:sams_app/features/grades/presentation/view/student/web/widget/student_grades_web_table.dart';
+import 'package:sams_app/features/grades/presentation/view_model/grade_cubit/grade_cubit.dart';
 
 /// ═══════════════════════════════════════════════════════════════
 /// STUDENT — WEB LAYOUT

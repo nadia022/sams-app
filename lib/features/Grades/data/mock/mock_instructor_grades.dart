@@ -1,7 +1,7 @@
-import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_column_model.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_response_model.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_row_model.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/user_pagination_model.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/grade_column_model.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/grade_response_model.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/grade_row_model.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/user_pagination_model.dart';
 
 /// Mock data provider for instructor grades view.
 /// Simulates a full API response with columns, rows, and pagination.

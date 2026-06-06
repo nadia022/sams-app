@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sams_app/core/helper/app_toast.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_column_model.dart';
-import 'package:sams_app/features/Grades/presentation/view/widget/shared/grade_error_widget.dart';
-import 'package:sams_app/features/Grades/presentation/view/instructor/mobile/widget/grades_export_bar.dart';
-import 'package:sams_app/features/Grades/presentation/view/instructor/mobile/widget/instructor_grades_mobile_top_bar.dart';
-import 'package:sams_app/features/Grades/presentation/view_model/grade_cubit/grade_cubit.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/grade_column_model.dart';
+import 'package:sams_app/features/grades/presentation/view/widget/shared/grade_error_widget.dart';
+import 'package:sams_app/features/grades/presentation/view/instructor/mobile/widget/grades_export_bar.dart';
+import 'package:sams_app/features/grades/presentation/view/instructor/mobile/widget/instructor_grades_mobile_top_bar.dart';
+import 'package:sams_app/features/grades/presentation/view_model/grade_cubit/grade_cubit.dart';
 
-import 'package:sams_app/features/Grades/presentation/view/instructor/mobile/widget/instructor_grades_mobile_cards_content.dart';
+import 'package:sams_app/features/grades/presentation/view/instructor/mobile/widget/instructor_grades_mobile_cards_content.dart';
 
 /// ═══════════════════════════════════════════════════════════════
 /// INSTRUCTOR — MOBILE LAYOUT

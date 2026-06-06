@@ -5,9 +5,9 @@ import 'package:sams_app/core/network/api_consumer.dart';
 import 'package:sams_app/core/utils/constants/api_endpoints.dart';
 import 'package:sams_app/core/utils/constants/api_keys.dart';
 import 'package:sams_app/core/services/file_saver_service/file_saver.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_response_model.dart';
-import 'package:sams_app/features/Grades/data/model/student_grades/student_grade_model.dart';
-import 'package:sams_app/features/Grades/data/repos/grade_repo.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/grade_response_model.dart';
+import 'package:sams_app/features/grades/data/model/student_grades/student_grade_model.dart';
+import 'package:sams_app/features/grades/data/repos/grade_repo.dart';
 
 class GradeRepoImpl implements GradeRepo {
   final ApiConsumer api;

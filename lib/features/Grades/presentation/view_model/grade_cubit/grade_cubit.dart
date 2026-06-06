@@ -2,9 +2,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sams_app/core/enums/enum_user_role.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_response_model.dart';
-import 'package:sams_app/features/Grades/data/model/student_grades/student_grade_model.dart';
-import 'package:sams_app/features/Grades/data/repos/grade_repo.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/grade_response_model.dart';
+import 'package:sams_app/features/grades/data/model/student_grades/student_grade_model.dart';
+import 'package:sams_app/features/grades/data/repos/grade_repo.dart';
 
 part 'grade_state.dart';
 

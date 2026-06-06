@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
-import 'package:sams_app/features/Grades/data/model/student_grades/student_grade_model.dart';
-import 'package:sams_app/features/Grades/presentation/view/widget/utils/grade_score_ui_extension.dart';
+import 'package:sams_app/features/grades/data/model/student_grades/student_grade_model.dart';
+import 'package:sams_app/features/grades/presentation/view/widget/utils/grade_score_ui_extension.dart';
 
 /// Compact grade badge used in mobile cards.
 /// Shows score with colored background based on performance.

@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
 import 'package:sams_app/core/widgets/base/app_animated_loading_indicator.dart';
-import 'package:sams_app/features/Grades/data/model/student_grades/student_grade_model.dart';
-import 'package:sams_app/features/Grades/presentation/view/widget/shared/grades_empty_state.dart';
-import 'package:sams_app/features/Grades/presentation/view/student/utils/student_grade_ui_extensions.dart';
-import 'package:sams_app/features/Grades/presentation/view/widget/mobile/grade_badge.dart';
-import 'package:sams_app/features/Grades/presentation/view_model/grade_cubit/grade_cubit.dart';
+import 'package:sams_app/features/grades/data/model/student_grades/student_grade_model.dart';
+import 'package:sams_app/features/grades/presentation/view/widget/shared/grades_empty_state.dart';
+import 'package:sams_app/features/grades/presentation/view/student/utils/student_grade_ui_extensions.dart';
+import 'package:sams_app/features/grades/presentation/view/widget/mobile/grade_badge.dart';
+import 'package:sams_app/features/grades/presentation/view_model/grade_cubit/grade_cubit.dart';
 
 /// ═══════════════════════════════════════════════════════════════
 /// STUDENT — MOBILE LAYOUT

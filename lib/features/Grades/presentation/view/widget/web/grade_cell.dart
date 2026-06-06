@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
-import 'package:sams_app/features/Grades/data/model/student_grades/student_grade_model.dart';
-import 'package:sams_app/features/Grades/presentation/view/widget/utils/grade_score_ui_extension.dart';
+import 'package:sams_app/features/grades/data/model/student_grades/student_grade_model.dart';
+import 'package:sams_app/features/grades/presentation/view/widget/utils/grade_score_ui_extension.dart';
 
 /// Reusable grade cell widget used in both table and card views.
 /// Handles null scores gracefully with "—" placeholder.

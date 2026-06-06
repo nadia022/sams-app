@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_column_model.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_row_model.dart';
-import 'package:sams_app/features/Grades/presentation/view/widget/shared/grades_empty_state.dart';
-import 'package:sams_app/features/Grades/presentation/view/instructor/web/widget/instructor_grades_web_table.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/grade_column_model.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/grade_row_model.dart';
+import 'package:sams_app/features/grades/presentation/view/widget/shared/grades_empty_state.dart';
+import 'package:sams_app/features/grades/presentation/view/instructor/web/widget/instructor_grades_web_table.dart';
 
 class InstructorGradesWebTableContent extends StatelessWidget {
   const InstructorGradesWebTableContent({

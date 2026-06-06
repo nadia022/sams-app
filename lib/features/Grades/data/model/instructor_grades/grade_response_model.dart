@@ -1,5 +1,5 @@
 import 'package:sams_app/core/utils/constants/api_keys.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/grade_column_model.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/grade_column_model.dart';
 import 'grade_row_model.dart';
 import 'user_pagination_model.dart';
 

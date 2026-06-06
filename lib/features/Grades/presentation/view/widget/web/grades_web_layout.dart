@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sams_app/core/enums/enum_user_role.dart';
-import 'package:sams_app/features/Grades/presentation/view/instructor/web/instructor_grades_web_layout.dart';
-import 'package:sams_app/features/Grades/presentation/view/student/web/student_grades_web_layout.dart';
+import 'package:sams_app/features/grades/presentation/view/instructor/web/instructor_grades_web_layout.dart';
+import 'package:sams_app/features/grades/presentation/view/student/web/student_grades_web_layout.dart';
 
 /// Web layout entry point for grades.
 /// Determines which view to show based on the user role.

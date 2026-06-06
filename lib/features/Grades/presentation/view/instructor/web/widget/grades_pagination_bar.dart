@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/styles/app_styles.dart';
-import 'package:sams_app/features/Grades/data/model/instructor_grades/user_pagination_model.dart';
+import 'package:sams_app/features/grades/data/model/instructor_grades/user_pagination_model.dart';
 
 /// Reusable pagination bar for grades tables.
 /// Supports page navigation and items-per-page selection.
