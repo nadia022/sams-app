@@ -166,4 +166,23 @@ static String approveSubmissions(String assignmentId) =>
 /// 7. Retrieves the similarity report for a specific assignment submission.
 static String getSimilarityReport(String submissionId) => 
     'instructor/assignment-submissions/$submissionId/similarity-report';
+
+  //* --- Grades --- ;
+
+  /// Endpoint to get all grades for a specific course.
+  /// Needs [courseId] to be passed in the URL.
+  /// Optional parameters: [search], [page], [perPage].
+  static String getInstructorGrades({required String courseId}) => 'instructor/courses/$courseId/grades';
+
+  /// Endpoint to get my grades for a specific course.
+  /// Needs [courseId] to be passed in the URL.
+  static String getMyGrades({required String courseId}) => 'courses/$courseId/my-grades';
+
+  /// endpoint to export grades
+  /// Needs [courseId] to be passed in the URL.
+  static String exportGrades({required String courseId}) => 'instructor/courses/$courseId/grades/export-grades';
+
+  /// endpoint to toggle classwork visibility
+  /// Needs [courseId] and [classworkId] to be passed in the URL.
+  static String toggleClassworkVisibility({required String courseId, required String classworkId}) => 'instructor/courses/$courseId/classworks/$classworkId/toggle-visibility';
 }
