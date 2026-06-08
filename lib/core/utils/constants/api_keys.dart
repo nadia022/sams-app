@@ -13,6 +13,7 @@ abstract class ApiKeys {
   static const String name = 'name';
   static const String title = 'title';
   static const String description = 'description';
+  static const String context = 'context';
 
   //? User Model Keys
   static const String academicEmail = 'academicEmail';
@@ -111,17 +112,58 @@ abstract class ApiKeys {
   static const String classworkId = 'classworkId';
 
   //? create question request body model Keys
-  static const String questions = 'questions';  //? --- Material Keys ---
+  static const String questions = 'questions';
+
+
   static const String materialItems = 'materialItems';
   static const String displayUrl = 'displayUrl';
   static const String contentReference = 'contentReference';
   static const String filesMetadata = 'filesMetadata';
   static const String itemKey = 'itemKey';
-  static const String context = 'context';  //? --- Announcement Keys
+
+  //? --- Announcement Keys
   static const String content = 'content';
   static const String comments = 'comments';
   static const String commentedAt = 'commentedAt';
   static const String author = 'author';
+
+  //? Assignment Keys
+  static const String dueDate = 'dueDate';
+  static const String enablePlagiarismCheck = 'enablePlagiarismCheck';
+  static const String plagiarismThreshold = 'plagiarismThreshold';
+  static const String assignmentItems = 'assignmentItems';
+  static const String createdAt = 'createdAt';
+  static const String submissionStatus = 'submissionStatus';
+
+
+  //? Assignment Submissions Keys
+  static const String stats = 'stats';
+  static const String submissions = 'submissions';
+  static const String approves='approved';
+  static const String rejected='rejected';
+
+  //? Stats Keys
+  static const String submitted = 'submitted';
+  static const String marked = 'marked';
+  static const String unmarked = 'unmarked';
+
+  //? Submission Keys
+  static const String studentInfo = 'studentInfo';
+  static const String submittedItems = 'submittedItems';
+  static const String neededReview = 'neededReview';
+  static const String submissionId = 'submissionId';
+
+  //? Assignment Submission Details Keys
+  static const String assignmentPlagiarismThreshold = 'assignmentPlagiarismThreshold';
+  static const String similarities = 'similarities';
+  static const String similarityPercentage = 'similarityPercentage';
+  static const String submissionUrl = 'submissionUrl';
+
+  //? Grade Keys
+  static const String columns = 'columns';
+  static const String rows = 'rows';
+  static const String grades = 'grades';
+  static const String maxScore = 'maxScore';
 }
 
 //! --- API VALUES (Fixed values that the server expects inside the fields) ---

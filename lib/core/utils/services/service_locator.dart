@@ -4,14 +4,25 @@ import 'package:sams_app/core/enums/enum_user_role.dart';
 import 'package:sams_app/core/network/api_consumer.dart';
 import 'package:sams_app/core/network/dio_consumer.dart';
 import 'package:sams_app/core/utils/services/s3_upload_service.dart';
+import 'package:sams_app/features/grades/presentation/view_model/grade_cubit/grade_cubit.dart';
 import 'package:sams_app/features/announcements/data/data_sources/announcements_local_data_source.dart';
 import 'package:sams_app/features/announcements/data/repos/announcement_repo.dart';
 import 'package:sams_app/features/announcements/data/repos/announcemet_repo_impl.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcement_actions/announcement_actions_cubit.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_cubit.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/comment_actions/comment_actions_cubit.dart';
+import 'package:sams_app/features/assignments/data/repos/assignment_repo.dart';
+import 'package:sams_app/features/assignments/data/repos/assignment_repo_impl.dart';
+import 'package:sams_app/features/assignments/data/repos/assignment_submission_reop.dart';
+import 'package:sams_app/features/assignments/data/repos/assignment_submission_repo_impl.dart';
+import 'package:sams_app/features/assignments/presentation/view_model/cubits/assignmemt_submission/assignment_submission_cubit.dart';
+import 'package:sams_app/features/assignments/presentation/view_model/cubits/assignment_details/assignment_details_cubit.dart';
+import 'package:sams_app/features/assignments/presentation/view_model/cubits/assignment_fetch/assignment_fetch_cubit.dart';
+import 'package:sams_app/features/assignments/presentation/view_model/cubits/create_assignment/create_assignment_cubit.dart';
 import 'package:sams_app/features/auth/data/repos/auth_repo.dart';
 import 'package:sams_app/features/auth/data/repos/auth_repo_impl.dart';
+import 'package:sams_app/features/grades/data/repos/grade_repo.dart';
+import 'package:sams_app/features/grades/data/repos/grade_repo_impl.dart';
 import 'package:sams_app/features/home/data/data_sources/home_local_data_sourse.dart';
 import 'package:sams_app/features/home/data/repos/home_repo.dart';
 import 'package:sams_app/features/home/data/repos/home_repo_impl.dart';
@@ -106,17 +117,16 @@ void setupServiceLocator() {
   );
 
   //* register MaterialFetchCubit (Factory to get a new instance for each course)
-  //* This cubit is used to fetch materials 
+  //* This cubit is used to fetch materials
   getIt.registerFactory<MaterialFetchCubit>(
     () => MaterialFetchCubit(getIt<MaterialRepo>()),
   );
 
-  //* register MaterialCrudCubit (Factory to get a new instance for each course) 
+  //* register MaterialCrudCubit (Factory to get a new instance for each course)
   //* This cubit is used to upload, update and delete materials
   getIt.registerFactory<MaterialCrudCubit>(
     () => MaterialCrudCubit(getIt<MaterialRepo>()),
   );
-
 
   //! Announcements Feature
   //* 1. Register Local Data Source
@@ -136,13 +146,69 @@ void setupServiceLocator() {
   getIt.registerFactory<AnnouncementsFetchCubit>(
     () => AnnouncementsFetchCubit(getIt<AnnouncementsRepo>()),
   );
-  
+
   //* 4. Register Actions Cubit (Add, Update, Delete)
   getIt.registerFactory<AnnouncementsActionsCubit>(
     () => AnnouncementsActionsCubit(getIt<AnnouncementsRepo>()),
   );
-    //* 4. Register Actions Cubit (Add, Update, Delete)
+  //* 4. Register Actions Cubit (Add, Update, Delete)
   getIt.registerFactory<CommentActionsCubit>(
     () => CommentActionsCubit(getIt<AnnouncementsRepo>()),
+  );
+
+  //! Assignment Feature
+
+  //* register AssignmentRepo
+  getIt.registerLazySingleton<AssignmentRepo>(
+    () => AssignmentRepoImpl(
+      api: getIt<ApiConsumer>(),
+      s3Service: getIt<S3UploadService>(),
+    ),
+  );
+
+
+  getIt.registerLazySingleton<AssignmentSubmissionRepo>(
+    () => AssignmentSubmissionRepoImpl(
+      api: getIt<ApiConsumer>(),
+      s3Service: getIt<S3UploadService>(),
+    ),
+  );
+
+
+  //* register AssignmentFetchCubit
+  getIt.registerFactory<AssignmentFetchCubit>(
+    () => AssignmentFetchCubit(getIt<AssignmentRepo>()),
+  );
+
+  //* register AssignmentDetailsCubit
+  getIt.registerFactory<AssignmentDetailsCubit>(
+    () => AssignmentDetailsCubit(
+      getIt<AssignmentRepo>(), getIt<AssignmentSubmissionRepo>(),
+    ),
+  );
+
+  //* register CreateAssignmentCubit
+  getIt.registerLazySingleton<CreateAssignmentCubit>(
+    () => CreateAssignmentCubit(
+      assignmentRepo: getIt<AssignmentRepo>(),
+      quizRepo: getIt<QuizRepository>(),
+    ),
+  );
+
+  //* register AssignmentSubmissionFetchCubit
+  getIt.registerFactory<AssignmentSubmissionCubit>(
+    () => AssignmentSubmissionCubit(getIt<AssignmentSubmissionRepo>()),
+  );
+
+  //! Grades Feature
+
+  //* register GradeRepo
+  getIt.registerLazySingleton<GradeRepo>(
+    () => GradeRepoImpl(api: getIt<ApiConsumer>()),
+  );
+
+  //* register GradeCubit (Factory: to get a fresh instance every time)
+  getIt.registerFactory<GradeCubit>(
+    () => GradeCubit(getIt<GradeRepo>()),
   );
 }

@@ -34,65 +34,162 @@ class EndPoints {
   //? --- Quizzes --- ;
 
   //* Discovery Flow (Student/General)
-  static String getCourseQuizzes(String courseId) => 'courses/$courseId/quizzes';
+  static String getCourseQuizzes(String courseId) =>
+      'courses/$courseId/quizzes';
   static String getQuizDetails(String quizId) => 'quizzes/$quizId';
   static String getQuizQuestions(String quizId) => 'quizzes/$quizId/questions';
-  
+
   //* Student Flow
   static String submitQuiz(String quizId) => 'quizzes/$quizId/submit';
-  
+
   //* Instructor Flow - Quiz CRUD
-  static String createQuiz(String courseId) => 'instructor/courses/$courseId/quizzes';
+  static String createQuiz(String courseId) =>
+      'instructor/courses/$courseId/quizzes';
   static String updateQuiz(String quizId) => 'instructor/quizzes/$quizId';
   static String deleteQuiz(String quizId) => 'instructor/quizzes/$quizId';
-  static String toggleQuizPublished(String quizId) => 'instructor/quizzes/$quizId/toggle-published';
-  
+  static String toggleQuizPublished(String quizId) =>
+      'instructor/quizzes/$quizId/toggle-published';
+
   //* Instructor Flow - Questions CRUD
-  static String createQuestion(String quizId) => 'instructor/quizzes/$quizId/questions';
-  static String updateQuestion(String questionId) => 'instructor/questions/$questionId';
-  static String deleteQuestion(String questionId) => 'instructor/questions/$questionId';
+  static String createQuestion(String quizId) =>
+      'instructor/quizzes/$quizId/questions';
+  static String updateQuestion(String questionId) =>
+      'instructor/questions/$questionId';
+  static String deleteQuestion(String questionId) =>
+      'instructor/questions/$questionId';
 
   //* Instructor Flow - Submissions & Grading
-  static String getQuizSubmissions(String quizId) => 'instructor/quizzes/$quizId/submissions';
-  static String getSubmissionDetails(String submissionId) => 'instructor/submissions/$submissionId';
-  static String gradeQuestion(String submissionId, String questionId) => 'instructor/submissions/$submissionId/questions/$questionId';
+  static String getQuizSubmissions(String quizId) =>
+      'instructor/quizzes/$quizId/submissions';
+  static String getSubmissionDetails(String submissionId) =>
+      'instructor/submissions/$submissionId';
+  static String gradeQuestion(String submissionId, String questionId) =>
+      'instructor/submissions/$submissionId/questions/$questionId';
 
   //* --- Classworks CRUD --- ;
-  static String getAvailableClassworks(String courseId) => 'instructor/courses/$courseId/classworks';
-  static String addNewClasswork(String courseId) => 'instructor/courses/$courseId/classworks';
+  static String getAvailableClassworks(String courseId) =>
+      'instructor/courses/$courseId/classworks';
+  static String addNewClasswork(String courseId) =>
+      'instructor/courses/$courseId/classworks';
 
   //? --- Materials --- ;
   static String getMaterials(String courseId) => 'courses/$courseId/materials';
   static String materialDetails(String materialId) => 'materials/$materialId';
-  static String createMaterialUploadUrls(String courseId) => 'courses/$courseId/context/presigned-urls';
-  static String addMaterial(String courseId) => 'instructor/courses/$courseId/materials';
-  static String deleteMaterial(String materialId) => 'instructor/materials/$materialId';
-  static String deleteMaterialItem(String materialId) => 'instructor/materials/$materialId/items';
-  static String addMaterialItems(String materialId) => 'instructor/materials/$materialId/items';
-  static String updateMaterialData(String materialId) => 'instructor/materials/$materialId';
-
-
+  static String createMaterialUploadUrls(String courseId) =>
+      'courses/$courseId/context/presigned-urls';
+  static String addMaterial(String courseId) =>
+      'instructor/courses/$courseId/materials';
+  static String deleteMaterial(String materialId) =>
+      'instructor/materials/$materialId';
+  static String deleteMaterialItem(String materialId) =>
+      'instructor/materials/$materialId/items';
+  static String addMaterialItems(String materialId) =>
+      'instructor/materials/$materialId/items';
+  static String updateMaterialData(String materialId) =>
+      'instructor/materials/$materialId';
 
   //? --- Announcements --- ;
-  static String getCourseAnnouncements(String courseId) => 'courses/$courseId/announcements';
-  static String getAnnouncementDetails(String announcementId) => 'announcements/$announcementId';
+  static String getCourseAnnouncements(String courseId) =>
+      'courses/$courseId/announcements';
+  static String getAnnouncementDetails(String announcementId) =>
+      'announcements/$announcementId';
 
   //* Instructor Announcement Operations
-  
+
   /// Endpoint to create a new announcement for a specific course.
   /// Needs [courseId] to be passed in the URL.
-  static String createAnnouncement(String courseId) => 'instructor/courses/$courseId/announcements';
+  static String createAnnouncement(String courseId) =>
+      'instructor/courses/$courseId/announcements';
+
   /// Endpoint to update an existing announcement.
   /// Needs [announcementId] to be passed in the URL.
-  static String updateAnnouncement(String announcementId) => 'instructor/announcements/$announcementId';
+  static String updateAnnouncement(String announcementId) =>
+      'instructor/announcements/$announcementId';
+
   /// Endpoint to delete an existing announcement.
   /// Needs [announcementId] to be passed in the URL.
-  static String deleteAnnouncement(String announcementId) => 'instructor/announcements/$announcementId';
+  static String deleteAnnouncement(String announcementId) =>
+      'instructor/announcements/$announcementId';
 
   //* --- Comments Operations --- ;
 
   /// Endpoint to add a comment to a specific announcement.
-  static String addComment(String announcementId) => 'announcements/$announcementId/comments';
+  static String addComment(String announcementId) =>
+      'announcements/$announcementId/comments';
+
   /// Endpoint to update or delete a specific comment.
   static String commentById(String commentId) => 'comments/$commentId';
+
+  //? --- Assignments --- ;
+
+  //* S3 Helpers
+  static String createAssignmentUploadUrls(String courseId) =>
+      'courses/$courseId/context/presigned-urls';
+
+  //* Management (Instructor)
+  static String addAssignment(String courseId) =>
+      'instructor/courses/$courseId/assignments';
+  static String deleteAssignment(String assignmentId) =>
+      'instructor/assignments/$assignmentId';
+  static String deleteAssignmentItem(String assignmentId) =>
+      'instructor/assignments/$assignmentId/items';
+  static String getCourseAssignments(String courseId) =>
+      'courses/$courseId/assignments';
+  static String getAssignmentDetails(String assignmentId) =>
+      'assignments/$assignmentId';
+  static String addAssignmentItems(String assignmentId) =>
+      'instructor/assignments/$assignmentId/items';
+
+// //? --- Instructor Submissions Endpoints --- ;
+
+/// 1. Fetches all student submissions for a specific assignment.
+static String getSubmissions(String assignmentId) => 
+    'instructor/assignments/$assignmentId/submissions';
+
+/// 2. Retrieves detailed information for a single assignment submission.
+static String getAssignmentSubmissionDetails(String submissionId) => 
+    'instructor/assignment-submissions/$submissionId';
+
+/// 3. Updates or assigns a grade to a specific student submission.
+static String gradeSubmission(String submissionId) => 
+    'instructor/assignment-submissions/$submissionId/grade';
+
+/// 4. Approves all submissions for a given assignment in a single action.
+static String approveSubmissions(String assignmentId) => 
+    'instructor/assignments/$assignmentId/submissions/approve-all';
+/// 5. Allows students to submit their assignment work for a specific assignment.
+  static String submitAssignment(String assignmentId) =>
+      'assignments/$assignmentId/submissions';
+/// 6. Enables students to unsubmit their previously submitted assignment work.
+  static String unsubmitAssignment(String submissionId) =>
+      'assignment-submissions/$submissionId';
+/// 7. Retrieves the similarity report for a specific assignment submission.
+static String getSimilarityReport(String submissionId) => 
+    'instructor/assignment-submissions/$submissionId/similarity-report';
+
+  //* --- Grades --- ;
+
+  /// Endpoint to get all grades for a specific course.
+  /// Needs [courseId] to be passed in the URL.
+  /// Optional parameters: [search], [page], [perPage].
+  static String getInstructorGrades({required String courseId}) =>
+      'instructor/courses/$courseId/grades';
+
+  /// Endpoint to get my grades for a specific course.
+  /// Needs [courseId] to be passed in the URL.
+  static String getMyGrades({required String courseId}) =>
+      'courses/$courseId/my-grades';
+
+  /// endpoint to export grades
+  /// Needs [courseId] to be passed in the URL.
+  static String exportGrades({required String courseId}) =>
+      'instructor/courses/$courseId/grades/export-grades';
+
+  /// endpoint to toggle classwork visibility
+  /// Needs [courseId] and [classworkId] to be passed in the URL.
+  static String toggleClassworkVisibility({
+    required String courseId,
+    required String classworkId,
+  }) =>
+      'instructor/courses/$courseId/classworks/$classworkId/toggle-visibility';
 }
