@@ -8,7 +8,8 @@ import 'package:sams_app/features/grades/presentation/view/grades_tab_view.dart'
 import 'package:sams_app/features/grades/presentation/view_model/grade_cubit/grade_cubit.dart';
 import 'package:sams_app/features/announcements/presentation/view/announcement_tab_view/announcements_tab_view.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_cubit.dart';
-import 'package:sams_app/features/assignments/presentation/view/assignments_tab_view.dart';
+import 'package:sams_app/features/assignments/presentation/view/assignment_tap_view/assignments_tab_view.dart';
+import 'package:sams_app/features/assignments/presentation/view_model/cubits/assignment_fetch/assignment_fetch_cubit.dart';
 import 'package:sams_app/features/course_details/presentation/view/widget/mobile/tab_bar_mobile_layout.dart';
 import 'package:sams_app/features/course_details/presentation/view/widget/web/tab_bar_web_layout.dart';
 import 'package:sams_app/features/course_details/presentation/view_models/course_navigation/course_navigation_cubit.dart';
@@ -67,7 +68,11 @@ class CourseDetailsView extends StatelessWidget {
         child: MaterialsTabView(courseId: courseId),
       ),
 
-      'Assignments': AssignmentsTabView(courseId: courseId),
+      //* Assignments
+      'Assignments': BlocProvider(
+        create: (context) => getIt<AssignmentFetchCubit>()..fetchAssignments(courseId: courseId),
+        child: AssignmentsTabView(courseId: courseId),
+      ),
 
       //* Announcements
       'Announcements': BlocProvider(

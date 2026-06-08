@@ -55,6 +55,15 @@ class _AddCommentBarState extends State<AddCommentBar> {
             Expanded(
               child: TextField(
                 controller: _commentController,
+                onSubmitted: (_) {
+                  final content = _commentController.text.trim();
+                  if (content.isNotEmpty) {
+                    context.read<CommentActionsCubit>().addComment(
+                      announcementId: widget.announcementId,
+                      content: content,
+                    );
+                  }
+                },
                 decoration: InputDecoration(
                   hintText: 'Add a comment...',
                   hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),

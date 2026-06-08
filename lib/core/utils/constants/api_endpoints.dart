@@ -120,6 +120,53 @@ class EndPoints {
   /// Endpoint to update or delete a specific comment.
   static String commentById(String commentId) => 'comments/$commentId';
 
+  //? --- Assignments --- ;
+
+  //* S3 Helpers
+  static String createAssignmentUploadUrls(String courseId) =>
+      'courses/$courseId/context/presigned-urls';
+
+  //* Management (Instructor)
+  static String addAssignment(String courseId) =>
+      'instructor/courses/$courseId/assignments';
+  static String deleteAssignment(String assignmentId) =>
+      'instructor/assignments/$assignmentId';
+  static String deleteAssignmentItem(String assignmentId) =>
+      'instructor/assignments/$assignmentId/items';
+  static String getCourseAssignments(String courseId) =>
+      'courses/$courseId/assignments';
+  static String getAssignmentDetails(String assignmentId) =>
+      'assignments/$assignmentId';
+  static String addAssignmentItems(String assignmentId) =>
+      'instructor/assignments/$assignmentId/items';
+
+// //? --- Instructor Submissions Endpoints --- ;
+
+/// 1. Fetches all student submissions for a specific assignment.
+static String getSubmissions(String assignmentId) => 
+    'instructor/assignments/$assignmentId/submissions';
+
+/// 2. Retrieves detailed information for a single assignment submission.
+static String getAssignmentSubmissionDetails(String submissionId) => 
+    'instructor/assignment-submissions/$submissionId';
+
+/// 3. Updates or assigns a grade to a specific student submission.
+static String gradeSubmission(String submissionId) => 
+    'instructor/assignment-submissions/$submissionId/grade';
+
+/// 4. Approves all submissions for a given assignment in a single action.
+static String approveSubmissions(String assignmentId) => 
+    'instructor/assignments/$assignmentId/submissions/approve-all';
+/// 5. Allows students to submit their assignment work for a specific assignment.
+  static String submitAssignment(String assignmentId) =>
+      'assignments/$assignmentId/submissions';
+/// 6. Enables students to unsubmit their previously submitted assignment work.
+  static String unsubmitAssignment(String submissionId) =>
+      'assignment-submissions/$submissionId';
+/// 7. Retrieves the similarity report for a specific assignment submission.
+static String getSimilarityReport(String submissionId) => 
+    'instructor/assignment-submissions/$submissionId/similarity-report';
+
   //* --- Grades --- ;
 
   /// Endpoint to get all grades for a specific course.
