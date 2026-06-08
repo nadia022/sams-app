@@ -201,7 +201,7 @@ void setupServiceLocator() {
   );
 
   //! Grades Feature
-  
+
   //* register GradeRepo
   getIt.registerLazySingleton<GradeRepo>(
     () => GradeRepoImpl(api: getIt<ApiConsumer>()),
@@ -211,6 +211,4 @@ void setupServiceLocator() {
   getIt.registerFactory<GradeCubit>(
     () => GradeCubit(getIt<GradeRepo>()),
   );
-
-} 
-
+}

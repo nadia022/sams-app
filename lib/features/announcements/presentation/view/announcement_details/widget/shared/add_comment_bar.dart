@@ -24,7 +24,6 @@ class _AddCommentBarState extends State<AddCommentBar> {
   Widget build(BuildContext context) {
     return BlocListener<CommentActionsCubit, CommentActionsState>(
       listener: (context, state) {
-        // TODO: implement listener
         if (state is AddCommentSuccess) {
           _commentController.clear();
           context.read<AnnouncementsFetchCubit>().fetchAnnouncementDetails(
@@ -46,7 +45,7 @@ class _AddCommentBarState extends State<AddCommentBar> {
           color: Colors.white,
           border: Border(
             top: BorderSide(
-              color: AppColors.primaryDarkHover.withOpacity(0.10),
+              color: AppColors.primaryDarkHover.withValues(alpha: 0.10),
               width: 1,
             ),
           ),
@@ -81,7 +80,7 @@ class _AddCommentBarState extends State<AddCommentBar> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: AppColors.primaryDarkHover.withOpacity(0.4),
+                      color: AppColors.primaryDarkHover.withValues(alpha: 0.4),
                       width: 1.5,
                     ),
                   ),
