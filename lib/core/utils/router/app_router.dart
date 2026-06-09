@@ -7,10 +7,22 @@ import 'package:sams_app/core/utils/router/router_payload_cache.dart';
 import 'package:sams_app/core/utils/router/routes_name.dart';
 import 'package:sams_app/core/utils/services/service_locator.dart';
 import 'package:sams_app/core/widgets/shared/general_error_page.dart';
+//import 'package:sams_app/features/assignments/presentation/view/create_assignment_view/create_assignment_view.dart';
+
+// Announcements
 import 'package:sams_app/features/announcements/presentation/view/announcement_actions/widget/mobile/add_announcement_mobile_view.dart';
 import 'package:sams_app/features/announcements/presentation/view/announcement_details/announcement_details_view.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcement_actions/announcement_actions_cubit.dart';
 import 'package:sams_app/features/announcements/presentation/view_model/cubit/announcements_fetch/announcements_fetch_cubit.dart';
+import 'package:sams_app/features/assignments/data/repos/assignment_repo.dart';
+// Assignments
+import 'package:sams_app/features/assignments/presentation/view/assignment_details_view/assignment_details_view.dart';
+import 'package:sams_app/features/assignments/presentation/view/assignment_submission/assignment_submission_view.dart';
+import 'package:sams_app/features/assignments/presentation/view/assignment_submission_details/assignment_submission_details_view.dart';
+import 'package:sams_app/features/assignments/presentation/view/create_assignment_view/create_assignment_view.dart';
+import 'package:sams_app/features/assignments/presentation/view_model/cubits/assignmemt_submission/assignment_submission_cubit.dart';
+import 'package:sams_app/features/assignments/presentation/view_model/cubits/assignment_details/assignment_details_cubit.dart';
+import 'package:sams_app/features/assignments/presentation/view_model/cubits/create_assignment/create_assignment_cubit.dart';
 // Auth
 import 'package:sams_app/features/auth/data/repos/auth_repo.dart';
 import 'package:sams_app/features/auth/presentation/view_models/login_cubit/login_cubit.dart';
@@ -28,6 +40,7 @@ import 'package:sams_app/features/home/data/repos/home_repo.dart';
 import 'package:sams_app/features/home/presentation/view_models/cubit/home_cubit.dart';
 import 'package:sams_app/features/home/presentation/views/create_course/create_course_view.dart';
 import 'package:sams_app/features/home/presentation/views/home/home_view.dart';
+// material
 import 'package:sams_app/features/materials/data/model/material_model.dart';
 import 'package:sams_app/features/materials/data/repos/material_repo.dart';
 import 'package:sams_app/features/materials/presentation/view/manage_material/manage_material_view.dart';
@@ -53,8 +66,6 @@ import 'package:sams_app/features/quizzes/presentation/view_model/manage_quiz_cu
 import 'package:sams_app/features/quizzes/presentation/view_model/quiz_details_cubit/quiz_details_cubit.dart';
 import 'package:sams_app/features/quizzes/presentation/view_model/submissions_cubit/submissions_cubit.dart';
 import 'package:sams_app/features/quizzes/presentation/view_model/take_quiz_cubit/take_quiz_cubit.dart';
-
-//material
 
 /// A robust cache system for GoRouter `extra` payloads.
 ///
@@ -144,15 +155,29 @@ class AppRouter {
       // ─────────────────────────────────────────────────────────────────────
       // HOME & PROFILE
       // ─────────────────────────────────────────────────────────────────────
-      GoRoute(
-        name: RoutesName.courses,
-        path: RoutesName.courses,
-        builder: (context, state) => BlocProvider(
-          create: (_) =>
-              HomeCubit(getIt<HomeRepo>(), role: CurrentRole.role)
-                ..fetchMyCourses(role: CurrentRole.role),
-          child: const HomeView(),
+      ShellRoute(
+        builder: (context, state, child) => BlocProvider(
+          create: (_) => ProfileCubit(getIt<ProfileRepo>())..getUserProfile(),
+          child: child,
         ),
+        routes: [
+          GoRoute(
+            name: RoutesName.courses,
+            path: RoutesName.courses,
+            builder: (context, state) => BlocProvider(
+              create: (_) =>
+                  HomeCubit(getIt<HomeRepo>(), role: CurrentRole.role)
+                    ..fetchMyCourses(role: CurrentRole.role),
+              child: const HomeView(),
+            ),
+          ),
+
+          GoRoute(
+            name: RoutesName.profile,
+            path: RoutesName.profile,
+            builder: (context, state) => const ProfileView(),
+          ),
+        ],
       ),
 
       GoRoute(
@@ -169,15 +194,6 @@ class AppRouter {
             child: const CreateCourseView(),
           );
         },
-      ),
-
-      GoRoute(
-        name: RoutesName.profile,
-        path: RoutesName.profile,
-        builder: (context, state) => BlocProvider(
-          create: (_) => ProfileCubit(getIt<ProfileRepo>())..getUserProfile(),
-          child: const ProfileView(),
-        ),
       ),
 
       // ─────────────────────────────────────────────────────────────────────
@@ -375,13 +391,101 @@ class AppRouter {
       ),
 
       // ─────────────────────────────────────────────────────────────────────
+      // ASSIGNMENTS
+      // ─────────────────────────────────────────────────────────────────────
+      GoRoute(
+        name: RoutesName.createAssignment,
+        path: RoutesName.createAssignment,
+        builder: (context, state) {
+          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+            RoutesName.createAssignment,
+            state.extra,
+          );
+          if (extra == null) return _fallbackHome();
+
+          final courseId = extra['courseId'] as String? ?? '';
+
+          return BlocProvider(
+            create: (context) => CreateAssignmentCubit( assignmentRepo: getIt<AssignmentRepo>(), quizRepo:  getIt<QuizRepository>())..init(courseId),
+            child: const CreateAssignmentView(),
+          );
+        },
+      ),
+
+      GoRoute(
+        name: RoutesName.assignmentDetails,
+        path: RoutesName.assignmentDetails,
+        builder: (context, state) {
+          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+            RoutesName.assignmentDetails,
+            state.extra,
+          );
+          if (extra == null) return _fallbackHome();
+
+          final assignmentId = extra['assignmentId'] as String? ?? '';
+          final courseId = extra['courseId'] as String? ?? '';
+
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (context) =>
+                getIt<AssignmentDetailsCubit>()..fetchAssignmentDetails(
+                  assignmentId: assignmentId,
+                ),
+              ),
+              BlocProvider(
+                create: (context) => getIt<AssignmentSubmissionCubit>(),
+              ),
+            ]
+            , child: AssignmentDetailsView(
+              assignmentId: assignmentId,
+              courseId: courseId,
+            ),
+          );
+        },
+      ),
+
+
+       GoRoute(
+        name: RoutesName.assignmentSubmission,
+        path: RoutesName.assignmentSubmission,
+        builder: (context, state) {
+          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+            RoutesName.assignmentSubmission,
+            state.extra,
+          );
+          if (extra == null) return _fallbackHome();
+         final assignmentId = extra['assignmentId'] as String;
+          final enablePlagiarismCheck = extra['enablePlagiarismCheck'] as bool;
+
+          return AssignmentSubmissionView(assignmentId: assignmentId,enablePlagiarismCheck: enablePlagiarismCheck,);
+
+        },
+      ),
+
+      GoRoute(
+        name: RoutesName.submissionDetails,
+        path: RoutesName.submissionDetails,
+        builder: (context, state) {
+          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+            RoutesName.submissionDetails,
+            state.extra,
+          );
+          if (extra == null) return _fallbackHome();
+           final submissionId = extra['submissionId'] as String;
+
+          return  AssignmentSubmissionDetailsView(submissionId:submissionId );
+        },
+      ),
+
+      // ─────────────────────────────────────────────────────────────────────
       // ANNOUNCEMENT STANDALONE ROUTES
       // ─────────────────────────────────────────────────────────────────────
       GoRoute(
         name: RoutesName.announcementDetails,
         path: RoutesName.announcementDetails,
         builder: (context, state) {
-           final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
             RoutesName.announcementDetails,
             state.extra,
           );
@@ -389,7 +493,6 @@ class AppRouter {
           if (extra == null) return _fallbackHome();
 
           final announcementId = extra['announcementId'] as String? ?? '';
-         
 
           return MultiBlocProvider(
             providers: [
@@ -412,7 +515,7 @@ class AppRouter {
         name: RoutesName.addAnnouncement,
         path: RoutesName.addAnnouncement,
         builder: (context, state) {
-           final extra = RouterPayloadCache.get<Map<String, dynamic>>(
+          final extra = RouterPayloadCache.get<Map<String, dynamic>>(
             RoutesName.addAnnouncement,
             state.extra,
           );
@@ -420,7 +523,6 @@ class AppRouter {
           if (extra == null) return _fallbackHome();
 
           final courseId = extra['courseId'] as String? ?? '';
-          
 
           return BlocProvider(
             create: (context) => getIt<AnnouncementsActionsCubit>(),

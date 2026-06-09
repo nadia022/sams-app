@@ -92,6 +92,7 @@ class _WebMeetingCardState extends State<WebMeetingCard> {
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
                         transform: Matrix4.identity()
+                          // ignore: deprecated_member_use
                           ..translate(
                             0.0,
                             isEnded
