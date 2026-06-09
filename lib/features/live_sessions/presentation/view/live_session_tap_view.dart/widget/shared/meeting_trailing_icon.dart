@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
+import 'package:sams_app/core/utils/assets/app_lottie.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/features/live_sessions/data/model/helper/meeting_state_enum.dart';
 
@@ -25,6 +27,7 @@ class MeetingTrailingIcon extends StatelessWidget {
   Widget _getTrailingIconWidget() {
     return switch (state) {
       MeetingStateEnum.ongoing => _buildIcon(
+        isLive: true,
         key: 'live',
         icon: Icons.play_arrow_rounded,
         color: AppColors.secondary,
@@ -50,6 +53,7 @@ class MeetingTrailingIcon extends StatelessWidget {
   Widget _buildIcon({
     required String key,
     required IconData icon,
+    bool isLive = false,
     required Color color,
     Color? bgColor,
     bool hasBorder = false,
@@ -63,7 +67,14 @@ class MeetingTrailingIcon extends StatelessWidget {
             ? Border.all(color: color.withValues(alpha: 0.3))
             : null,
       ),
-      child: Center(child: Icon(icon, color: color, size: 16)),
+      child: (isLive == true)
+          ? Lottie.asset(
+              AppLottie.greenLive,
+              width: 48,
+              height: 48,
+              repeat: true,
+            )
+          : Center(child: Icon(icon, color: color, size: 16)),
     );
   }
 }
