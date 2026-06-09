@@ -14,10 +14,6 @@ class SplashController {
   /// - Authenticated users → [RoutesName.courses] (HomeView)
   /// - Unauthenticated users → [RoutesName.login] (LoginView)
   static Future<String> initializeAndGetRoute() async {
-    //! 🛑 FOR TESTING: Infinite delay to keep splash visible and prevent navigation
-    await Future.delayed(const Duration(days: 365));
-    //!-------------------------------------------------------------------
-    
     final token = await SecureStorageService.instance.getAccessToken();
 
     if (token != null && token.isNotEmpty) {

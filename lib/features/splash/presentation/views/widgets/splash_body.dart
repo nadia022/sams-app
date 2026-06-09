@@ -120,15 +120,6 @@ class _SplashBodyState extends State<SplashBody> with TickerProviderStateMixin {
     if (status == AnimationStatus.completed) {
       _animationComplete = true;
 
-      //! 🛑 FOR TESTING: Loop the animation automatically
-      Future.delayed(const Duration(milliseconds: 1000), () {
-        if (mounted) {
-          _sequenceController.reset();
-          _sequenceController.forward();
-        }
-      });
-      //!--------------------------------------
-
       _tryNavigate();
     }
   }
