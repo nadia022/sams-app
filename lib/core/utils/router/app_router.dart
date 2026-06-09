@@ -7,6 +7,7 @@ import 'package:sams_app/core/utils/router/router_payload_cache.dart';
 import 'package:sams_app/core/utils/router/routes_name.dart';
 import 'package:sams_app/core/utils/services/service_locator.dart';
 import 'package:sams_app/core/widgets/shared/general_error_page.dart';
+import 'package:sams_app/features/splash/presentation/views/splash_view.dart';
 //import 'package:sams_app/features/assignments/presentation/view/create_assignment_view/create_assignment_view.dart';
 
 // Announcements
@@ -92,9 +93,18 @@ class AppRouter {
 
   static final appRouter = GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: RoutesName.login,
+    initialLocation: RoutesName.splash,
     errorBuilder: (context, state) => const GeneralErrorPage(),
     routes: [
+      // ─────────────────────────────────────────────────────────────────────
+      // SPLASH
+      // ─────────────────────────────────────────────────────────────────────
+      GoRoute(
+        name: RoutesName.splash,
+        path: RoutesName.splash,
+        builder: (context, state) => const SplashView(),
+      ),
+
       // ─────────────────────────────────────────────────────────────────────
       // AUTHENTICATION
       // ─────────────────────────────────────────────────────────────────────

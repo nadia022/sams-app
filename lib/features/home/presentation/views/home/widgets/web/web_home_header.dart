@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sams_app/core/extentions/split_first_two_strings.dart';
+import 'package:sams_app/core/utils/assets/app_branding.dart';
 import 'package:sams_app/core/utils/assets/app_icons.dart';
 import 'package:sams_app/core/utils/colors/app_colors.dart';
 import 'package:sams_app/core/utils/router/routes_name.dart';
@@ -24,17 +25,11 @@ class WebHomeHeader extends StatelessWidget {
           /// Logo + Name
           GestureDetector(
             onTap: () => context.goNamed(RoutesName.courses),
-            child: Row(
-              children: [
-                SvgPicture.asset(AppIcons.iconsLogo, height: 28),
-                const SizedBox(width: 8),
-                Text(
-                  'Univerra',
-                  style: AppStyles.mobileTitleLargeMd.copyWith(
-                    color: AppColors.secondaryLight,
-                  ),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Image.asset(
+                AppBranding.fullHorizontalLogoWithSloganWhiteVersion,
+              ),
             ),
           ),
 

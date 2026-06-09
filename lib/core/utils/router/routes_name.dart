@@ -1,6 +1,9 @@
 class RoutesName {
   RoutesName._();
 
+  //? splash route
+  static const String splash = '/';
+
   //? home routes
   static const String courses = '/courses';
   static const String createCourse = '/createCourse';
