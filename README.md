@@ -1,16 +1,10 @@
-<div align="center">
+# academiaX
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=200&color=0:0EA5E9,50:14B8A6,100:22C55E&height=180&section=header&text=academiaX&fontSize=58&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=Graduation%20Project&descAlignY=55&descSize=18"/>
+### Graduation Project — Flutter (Web & Mobile)
 
-<br/>
+`Flutter` `Web & Mobile` `Graduation Project`
 
-<img src="https://img.shields.io/badge/Flutter-0EA5E9?style=flat-square&logo=flutter&logoColor=white"/>
-<img src="https://img.shields.io/badge/Web%20%26%20Mobile-14B8A6?style=flat-square"/>
-<img src="https://img.shields.io/badge/Graduation%20Project-22C55E?style=flat-square"/>
-
-</div>
-
-<br/>
+---
 
 ## Overview
 
@@ -24,7 +18,7 @@ academiaX is a cross-platform academic management platform that centralizes lear
 <img src="assets/images/course.png" width="45%" alt="Course Screen"/>
 </div>
 
-<br/>
+---
 
 ## Roles & Access
 
@@ -33,7 +27,7 @@ academiaX is a cross-platform academic management platform that centralizes lear
 | **Instructor** | Create courses, create quizzes, upload Excel grade sheets, configure the grading structure, enable/review AI plagiarism detection, manage profile |
 | **Student** | Take quizzes, submit assignments, view announcements & comment on them, view grades, manage profile |
 
-<br/>
+---
 
 ## Core Features
 
@@ -46,7 +40,7 @@ academiaX is a cross-platform academic management platform that centralizes lear
 - **Dynamic Grading Table** — auto-generated based on the instructor's grading configuration (quizzes, assignments, midterm, etc.)
 - **Excel Grade Import** — instructors upload an Excel sheet of grades, parsed and mapped directly into the dynamic grading table
 
-<br/>
+---
 
 ## AI-Powered Plagiarism Detection
 
@@ -60,7 +54,7 @@ One of academiaX's key differentiators is its built-in academic integrity layer:
 
 This ensures instructors stay fully in control of how academic integrity is enforced, course by course.
 
-<br/>
+---
 
 ## How Grading Works
 
@@ -70,33 +64,19 @@ This ensures instructors stay fully in control of how academic integrity is enfo
 4. Instructor uploads the **Excel sheet** with grades (or grades are calculated from quizzes/assignments directly)
 5. All scores are automatically organized into a **dynamic table** per student, structured according to the course's configuration
 
-<br/>
+---
 
 ## Tech Stack
 
-<div align="center">
+- Flutter
+- Dart
+- Web
+- Mobile
+- AI Plagiarism Detection
+- Excel Import
 
-<img src="https://img.shields.io/badge/Flutter-0EA5E9?style=flat-square&logo=flutter&logoColor=white"/>
-<img src="https://img.shields.io/badge/Dart-14B8A6?style=flat-square&logo=dart&logoColor=white"/>
-<img src="https://img.shields.io/badge/Web-22C55E?style=flat-square&logo=googlechrome&logoColor=white"/>
-<img src="https://img.shields.io/badge/Mobile-0EA5E9?style=flat-square&logo=android&logoColor=white"/>
-<img src="https://img.shields.io/badge/AI%20Plagiarism%20Detection-14B8A6?style=flat-square"/>
-<img src="https://img.shields.io/badge/Excel%20Import-22C55E?style=flat-square&logo=microsoftexcel&logoColor=white"/>
-
-</div>
-
-<br/>
+---
 
 ## Repository
 
-<div align="center">
-
-<a href="https://github.com/nadia022/sams-app">
-<img src="https://img.shields.io/badge/GitHub-sams--app-0EA5E9?style=flat-square&logo=github&logoColor=white"/>
-</a>
-
-</div>
-
-<br/>
-
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=130&color=0:22C55E,50:14B8A6,100:0EA5E9&section=footer"/>
+GitHub: [nadia022/sams-app](https://github.com/nadia022/sams-app)
