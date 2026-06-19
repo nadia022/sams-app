@@ -1,8 +1,6 @@
 <div align="center">
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=200&color=0:0EA5E9,50:14B8A6,100:22C55E&height=180&section=header&text=SAMS&fontSize=58&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=Smart%20Academic%20Management%20System&descAlignY=55&descSize=18"/>
-
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=500&size=20&duration=3000&pause=800&color=14B8A6&center=true&vCenter=true&width=850&lines=Cross-Platform+Academic+Management+Platform;Flutter+%E2%80%A2+Web+%26+Mobile;Role-Based+Access+%E2%80%A2+AI+Integrity+Checks;Graduation+Project" alt="Typing SVG" />
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=200&color=0:0EA5E9,50:14B8A6,100:22C55E&height=180&section=header&text=academiaX&fontSize=58&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=Graduation%20Project&descAlignY=55&descSize=18"/>
 
 <br/>
 
@@ -16,7 +14,7 @@
 
 ## Overview
 
-Smart Academic Management System (**SAMS**) is a cross-platform academic management platform that centralizes learning, assessment, live instruction, grading, and academic integrity into a single, unified system. Built using Flutter, the platform supports both **Web and Mobile** environments with role-based access for students and instructors.
+academiaX is a cross-platform academic management platform that centralizes learning, assessment, live instruction, grading, and academic integrity into a single, unified system. Built using Flutter, the platform supports both **Web and Mobile** environments with role-based access for students and instructors.
 
 <br/>
 
@@ -52,7 +50,7 @@ Smart Academic Management System (**SAMS**) is a cross-platform academic managem
 
 ## AI-Powered Plagiarism Detection
 
-One of SAMS's key differentiators is its built-in academic integrity layer:
+One of academiaX's key differentiators is its built-in academic integrity layer:
 
 - When creating a course, the instructor decides whether **AI plagiarism detection** is enabled for that course
 - If enabled, every assignment submission is automatically cross-checked against other students' submissions
